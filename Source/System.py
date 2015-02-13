@@ -1,88 +1,59 @@
 import numpy as np
-import utils
-import fields
-import walls as walls_module
-import walled_fields
-import motiles
+import particles
+from ciabatta import fields
+
+
+class Secretion(fields.WalledDiffusing):
+    def __init__(self, L, dim, dx, walls, D, dt, sink_rate, source_rate,
+                 a_0=0.0):
+        fields.WalledDiffusing.__init__(self, L, dim, dx, walls, D, dt,
+                                        a_0=a_0)
+        self.source_rate = source_rate
+        self.sink_rate = sink_rate
+
+    def iterate(self, density, food):
+        fields.WalledDiffusing.iterate(self)
+        self.a += self.dt * (self.source_rate * density * food -
+                             self.sink_rate * self.a)
+        self.a = np.maximum(self.a, 0.0)
+
 
 class System(object):
-    def __init__(self, args):
-        self.init_general(args['general'])
-        self.init_fields(args['fields'])
-        self.init_motiles(args['motiles'])
-
-    def init_general(self, args):
-        self.seed = args['seed']
-        self.dt = args['dt']
-        self.dim = args['dimension']
-        self.L = args['L']
-
-        if self.L <= 0.0:
-            raise Exception('Require system size > 0')
-        if self.dt <= 0.0:
-            raise Exception('Require time-step > 0')
-        if self.dim < 0:
-            raise Exception('Require dimension >= 0')
-
-        np.random.seed(self.seed)
-        self.L_half = self.L / 2.0
+    def __init__(self,
+                 seed, dt,
+                 obstructions,
+                 rho_0, v_0,
+                 f_0, c_D, c_sink, c_source,
+                 p_0, memory_flag, chi, t_mem, onesided_flag,
+                 force_chi,
+                 D_rot,
+                 vicsek_R):
+        self.seed = seed
+        self.dt = dt
         self.t = 0.0
         self.i = 0.0
 
-    def init_fields(self, args):
-        if args['obstructions_alg'] == 'none':
-            self.o = walls_module.Walls(self, args['dx'])
-        elif args['obstructions_alg'] == 'traps':
-            trap_args = args['obstructions']['traps']
-            self.o = walls_module.Traps(self, args['dx'], trap_args['n'], trap_args['thickness'], trap_args['width'], trap_args['slit_width'])
-        elif args['obstructions_alg'] == 'maze':
-            maze_args = args['obstructions']['maze']
-            self.o = walls_module.Maze(self, args['dx'], maze_args['thickness'], maze_args['seed'])
-        elif args['obstructions_alg'] == 'parametric':
-            para_args = args['obstructions']['parametric']
-            self.o = walls_module.Parametric(self, para_args['R'], para_args['packing_fraction'], para_args['alignment_angle'])
-        else:
-            raise Exception('Invalid obstruction algorithm')
+        np.random.seed(self.seed)
 
-        if args['f_pde_flag']:
-            f_pde_args = args['f_pde']
-            self.f = walled_fields.Food(self, args['dx'], self.o, f_pde_args['D'], f_pde_args['sink_rate'], a_0=args['f_0'])
-        else:
-            self.f = walled_fields.Scalar(self, args['dx'], self.o, a_0=args['f_0'])
+        self.f = fields.WalledScalar(obstructions.L, obstructions.dim,
+                                     obstructions.dx, obstructions.a, f_0)
+        self.c = Secretion(obstructions.L, obstructions.dim, obstructions.dx,
+                           obstructions.a, c_D, self.dt, c_sink, c_source,
+                           a_0=0.0)
 
-        if args['c_pde_flag']:
-            c_pde_args = args['c_pde']
-            self.c = walled_fields.Secretion(self, args['dx'], self.o, c_pde_args['D'], c_pde_args['sink_rate'], c_pde_args['source_rate'], a_0=0.0)
-        else:
-            self.c = walled_fields.Scalar(self, args['dx'], self.o, a_0=0.0)
+        n = int(round(obstructions.get_A_free() * rho_0))
 
-    def init_motiles(self, args):
-        if self.dim == 1:
-            num_motiles = int(self.o.get_A_free() * args['density_1d'])
-        elif self.dim == 2:
-            num_motiles = int(self.o.get_A_free() * args['density_2d'])
-        elif self.dim == 3:
-            num_motiles = int(self.o.get_A_free() * args['density_3d'])
-        tumble_args = args['tumble'] if args['tumble_flag'] else None
-        force_args = args['force'] if args['force_flag'] else None
-        rot_diff_args = args['rot_diff'] if args['rot_diff_flag'] else None
-        vicsek_args = args['vicsek'] if args['vicsek_flag'] else None
-
-        self.m = motiles.Motiles(self, num_motiles, args['v_0'], self.o, args['tumble_flag'], tumble_args,
-            args['force_flag'], force_args, args['rot_diff_flag'], rot_diff_args, args['vicsek_flag'], vicsek_args)
+        self.particles = particles.Particles(obstructions.L, obstructions.dim,
+                                             self.dt, n, v_0,
+                                             obstructions,
+                                             p_0, memory_flag, chi, t_mem,
+                                             force_chi,
+                                             D_rot,
+                                             vicsek_R)
 
     def iterate(self):
-        self.m.iterate(self.c, self.o)
-        density = self.m.get_density_field(self.f.dx)
-        self.f.iterate(density)
+        self.particles.iterate(self.c)
+        density = self.particles.get_density_field(self.f.dx)
         self.c.iterate(density, self.f)
         self.t += self.dt
         self.i += 1
-
-    def get_A(self):
-        return self.L ** self.dim
-
-    def get_dstd(self, dx):
-        density = self.m.get_density_field(dx)
-        valids = np.asarray(np.logical_not(self.o.to_field(dx), dtype=np.bool))
-        return np.std(density[valids])
