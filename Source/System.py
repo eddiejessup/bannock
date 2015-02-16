@@ -19,9 +19,8 @@ class Secretion(fields.WalledDiffusing):
 
 
 class System(object):
-    def __init__(self,
-                 seed, dt,
-                 obstructions,
+    def __init__(self, seed, dt,
+                 walls,
                  rho_0, v_0,
                  f_0, c_D, c_sink, c_source,
                  p_0, memory_flag, chi, t_mem, onesided_flag,
@@ -31,29 +30,30 @@ class System(object):
         self.seed = seed
         self.dt = dt
         self.t = 0.0
-        self.i = 0.0
+        self.i = 0
 
         np.random.seed(self.seed)
 
-        self.f = fields.WalledScalar(obstructions.L, obstructions.dim,
-                                     obstructions.dx, obstructions.a, f_0)
-        self.c = Secretion(obstructions.L, obstructions.dim, obstructions.dx,
-                           obstructions.a, c_D, self.dt, c_sink, c_source,
+        self.f = fields.WalledScalar(walls.L, walls.dim,
+                                     walls.dx(), walls.a, f_0)
+        self.c = Secretion(walls.L, walls.dim, walls.dx(),
+                           walls.a, c_D, self.dt, c_sink, c_source,
                            a_0=0.0)
 
-        n = int(round(obstructions.get_A_free() * rho_0))
+        n = int(round(walls.get_A_free() * rho_0))
 
-        self.particles = particles.Particles(obstructions.L, obstructions.dim,
+        self.particles = particles.Particles(walls.L, walls.dim,
                                              self.dt, n, v_0,
-                                             obstructions,
-                                             p_0, memory_flag, chi, t_mem,
+                                             walls,
+                                             p_0, memory_flag, chi,
+                                             t_mem, onesided_flag,
                                              force_chi,
                                              D_rot,
                                              vicsek_R)
 
     def iterate(self):
         self.particles.iterate(self.c)
-        density = self.particles.get_density_field(self.f.dx)
-        self.c.iterate(density, self.f)
+        density = self.particles.get_density_field(self.f.dx())
+        self.c.iterate(density, self.f.a)
         self.t += self.dt
         self.i += 1

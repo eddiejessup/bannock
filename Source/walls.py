@@ -14,7 +14,7 @@ class Walls(fields.Field):
         return np.logical_not(self.a).sum()
 
     def get_A_free(self):
-        return self.A() * float(self.get_A_free_i()) / self.get_A_i()
+        return self.A() * float(self.get_A_free_i()) / self.A_i()
 
     def is_obstructed(self, r):
         return self.a[tuple(self.r_to_i(r).T)]
