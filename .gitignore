@@ -1,8 +1,6 @@
 Data*/
-old_Data/
 *.o
 *.so
 *.pyc
 *.*~
-Source/*.yaml
-!Source/params_example.yaml
+particle_numerics.c
