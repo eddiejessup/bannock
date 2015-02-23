@@ -2,6 +2,7 @@ import pickle
 from os.path import join, basename, splitext, isdir
 import os
 import glob
+import model
 
 
 def f_to_i(f):
@@ -16,6 +17,15 @@ def get_filenames(dirname):
 def filename_to_model(filename):
     with open(filename, 'rb') as file:
         return pickle.load(file)
+
+
+def make_output_dirname(args):
+    fields = []
+    for key, val in sorted(args.items()):
+        if key == 'walls':
+            continue
+        fields.append('-'.join([key, model.format_parameter(val)]))
+    return ','.join(fields)
 
 
 class Runner(object):

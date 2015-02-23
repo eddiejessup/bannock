@@ -1,0 +1,15 @@
+defaults = {
+    'seed': 1,
+    'dt': 0.005,
+    'rho_0': 0.01,
+    'v_0': 20.0,
+    'D_rot': 0.2,
+    'p_0': 1.0,
+    'chi': 0.0,
+    'onesided_flag': True,
+    'force_mu': 0.0,
+    'vicsek_R': 0.0,
+    'c_D': 1000.0,
+    'c_source': 100.0,
+    'c_sink': 0.01,
+}
