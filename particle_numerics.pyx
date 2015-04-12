@@ -1,7 +1,11 @@
 import numpy as np
 from ciabatta import vector
 cimport numpy as np
+cimport cython
 
+
+@cython.cdivision(True)
+@cython.boundscheck(False)
 def vicsek_inters(np.ndarray[np.float_t, ndim=2] v,
                   np.ndarray[int, ndim=2] inters,
                   np.ndarray[int, ndim=1] intersi):
