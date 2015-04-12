@@ -22,6 +22,13 @@ class Walls(fields.Field):
 
 class Traps(Walls):
     def __init__(self, L, dim, dx, n, d, w, s):
+        '''Make a set of walls making a number of traps.
+
+        d: Wall width.
+        w: Trap width.
+        s: Trap entrance width.
+        '''
+
         Walls.__init__(self, L, dim, dx)
         self.n = n
         self.d_i = int(d / self.dx()) + 1
