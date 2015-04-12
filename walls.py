@@ -1,5 +1,5 @@
 import numpy as np
-from ciabatta import utils, fields, maze
+from ciabatta import lattice, fields, maze
 
 BUFFER_SIZE = 0.999
 
@@ -103,4 +103,4 @@ class Maze(Walls):
         self.M_m = int(self.L / self.d)
         self.d_i = int(self.M / self.M_m)
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
-        self.a[...] = utils.extend_array(a_base, self.d_i)
+        self.a[...] = lattice.extend_array(a_base, self.d_i)

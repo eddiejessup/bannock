@@ -1,5 +1,5 @@
 import numpy as np
-from ciabatta import utils, fields
+from ciabatta import vector, diffusion, fields
 from ciabatta.cell_list import intro
 import particle_numerics
 
@@ -63,7 +63,7 @@ class Model(object):
 
         self.n = int(round(walls.get_A_free() * rho_0))
 
-        self.v = self.v_0 * utils.sphere_pick(self.dim, self.n)
+        self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
         self.initialise_r()
 
     def initialise_r(self):
@@ -98,7 +98,7 @@ class Model(object):
         # Make sure no particles are left obstructed.
         assert not self.walls.is_obstructed(self.r).any()
         # Rescale new directions, randomising stationary particles.
-        self.v = utils.vector_unit_nullrand(self.v) * self.v_0
+        self.v = vector.vector_unit_nullrand(self.v) * self.v_0
 
     def tumble(self):
         grad_c_i = self.c.grad_i(self.r)
@@ -111,7 +111,7 @@ class Model(object):
         self.p = np.maximum(self.p, 0.1)
 
         tumbles = np.random.uniform(size=self.n) < self.p * self.dt
-        self.v[tumbles] = self.v_0 * utils.sphere_pick(self.dim, tumbles.sum())
+        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim, tumbles.sum())
 
     def force(self):
         grad_c_i = self.c.grad_i(self.r)
@@ -121,10 +121,10 @@ class Model(object):
         else:
             responds = np.ones([self.n], dtype=np.bool)
         self.v[responds] += self.force_mu * grad_c_i[responds] * self.dt
-        self.v = self.v_0 * utils.vector_unit_nullnull(self.v)
+        self.v = self.v_0 * vector.vector_unit_nullnull(self.v)
 
     def rot_diff(self):
-        self.v = utils.rot_diff(self.v, self.D_rot, self.dt)
+        self.v = diffusion.rot_diff(self.v, self.D_rot, self.dt)
 
     def vicsek(self):
         inters, intersi = intro.get_inters(self.r, self.L, self.vicsek_R)
