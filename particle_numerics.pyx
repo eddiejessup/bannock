@@ -9,8 +9,9 @@ cimport cython
 def vicsek_inters(np.ndarray[np.float_t, ndim=2] v,
                   np.ndarray[int, ndim=2] inters,
                   np.ndarray[int, ndim=1] intersi):
-    cdef unsigned int i_1, i_i_2, i_dim
-    cdef np.ndarray[np.float_t, ndim=2] v_vic = v.copy()
+    cdef:
+        unsigned int i_1, i_i_2, i_dim
+        np.ndarray[np.float_t, ndim=2] v_vic = v.copy()
 
     for i_1 in range(v.shape[0]):
         for i_i_2 in range(intersi[i_1]):
