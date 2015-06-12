@@ -20,6 +20,43 @@ class Walls(fields.Field):
         return self.a[tuple(self.r_to_i(r).T)]
 
 
+class HalfClosed(Walls):
+    def __init__(self, L, dim, dx):
+        Walls.__init__(self, L, dim, dx)
+        self.a[:, 0] = True
+        self.a[:, -1] = True
+
+
+class Closed(Walls):
+    def __init__(self, L, dim, dx):
+        Walls.__init__(self, L, dim, dx)
+        self.a[:, 0] = True
+        self.a[:, -1] = True
+        self.a[0, :] = True
+        self.a[-1, :] = True
+
+
+class Tittled(Walls):
+    def __init__(self, L, dim, dx, wx, wy, sx, sy):
+        Walls.__init__(self, L, dim, dx)
+        self.wx_i = int(round(wx / self.dx()))
+        self.wy_i = int(round(wy / self.dx()))
+        self.sx_i = int(round(sx / self.dx()))
+        self.sy_i = int(round(sy / self.dx()))
+        self.wx = self.wx_i * self.dx()
+        self.wy = self.wy_i * self.dx()
+        self.sx = self.sx_i * self.dx()
+        self.sy = self.sy_i * self.dx()
+
+        for i_x in range(self.sx_i, self.a.shape[0] - self.sx_i, self.sx_i):
+            print(i_x)
+            for i_y in range(self.sy_i, self.a.shape[1] - self.sy_i, self.sy_i):
+                print(i_y)
+                self.a[i_x - self.wx_i:i_x + self.wx_i,
+                       i_y - self.wy_i:i_y + self.wy_i] = True
+        print(self.a.max())
+
+
 class Traps(Walls):
     def __init__(self, L, dim, dx, n, d, w, s):
         '''Make a set of walls making a number of traps.
