@@ -34,6 +34,9 @@ t_slider = Slider(ax_slide, 'Time', 0, len(fnames), valinit=0)
 ax_cb = plt.axes([0.875, 0.2, 0.05, 0.7])
 fig.colorbar(plot_c, cax=ax_cb)
 
+t_time = fig.text(0.1, 0.5, '')
+t_dstd = fig.text(0.1, 0.4, '')
+
 
 def update(val):
     fname_i = int(round(val))
@@ -45,12 +48,9 @@ def update(val):
                              mask=np.logical_or(m.c.a.T == 0.0, m.walls.a.T))
         plot_c.set_data(c_mask)
         plot_c.autoscale()
+        t_time.set_text('Time: {:g}'.format(m.t))
+        t_dstd.set_text('Dstd: {:g}'.format(utils.density_std(m)))
         fig.canvas.draw_idle()
-        print('Time: {}'.format(m.t))
-        print('alpha: mean = {}, min = {}, max = {}'.format(m.p.mean(), m.p.min(), m.p.max()))
-        print('c: mean = {}, min = {}, max = {}'.format(m.c.a.mean(), m.c.a.min(), m.c.a.max()))
-        print('density stdev: {}'.format(utils.density_std(m)))
-        print()
 
 t_slider.on_changed(update)
 
