@@ -148,8 +148,9 @@ class Model(object):
             self.rot_diff()
         self.update_positions()
 
-        density = self.get_density_field(self.c.dx())
-        self.c.iterate(density)
+        if self.c_source:
+            density = self.get_density_field(self.c.dx())
+            self.c.iterate(density)
 
         self.t += self.dt
         self.i += 1
