@@ -6,11 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.widgets import Slider
 import model
-
-
-def rms(x):
-    return np.sqrt(np.sum(np.square(x)))
-
+import utils
 
 fnames = sys.argv[1:]
 
@@ -59,7 +55,7 @@ def update(val):
         print('Time: {}'.format(m.t))
         print('alpha: mean = {}, min = {}, max = {}'.format(m.p.mean(), m.p.min(), m.p.max()))
         print('c: mean = {}, min = {}, max = {}'.format(m.c.a.mean(), m.c.a.min(), m.c.a.max()))
-        print('direction: x: {} y: {}'.format(rms(m.v[:, 0]), rms(m.v[:, 1])))
+        print('density stdev: {}'.format(utils.density_std(m)))
         print()
 
 t_slider.on_changed(update)
