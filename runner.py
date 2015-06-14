@@ -24,7 +24,7 @@ def make_output_dirname(args):
     for key, val in sorted(args.items()):
         if key == 'walls':
             continue
-        fields.append('-'.join([key, model.format_parameter(val)]))
+        fields.append('='.join([key, model.format_parameter(val)]))
     return ','.join(fields)
 
 
