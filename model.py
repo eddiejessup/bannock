@@ -131,7 +131,7 @@ class Model(object):
         self.v = self.v_0 * vector.vector_unit_nullnull(self.v)
 
     def rot_diff(self):
-        self.v = diffusion.rot_diff(self.v, self.D_rot, self.dt)
+        self.v = particle_numerics.rot_diff_2d(self.v, self.D_rot, self.dt)
 
     def vicsek(self):
         inters, intersi = intro.get_inters(self.r, self.L, self.vicsek_R)
