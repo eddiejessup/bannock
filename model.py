@@ -255,3 +255,56 @@ class Model1D(object):
         ns = np.zeros(self.c.a.shape, dtype=np.int)
         fields.density_1d(inds, ns)
         return ns / self.dx
+
+
+class RampModel1D(Model1D):
+    def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady, ramp_dt,
+                 *args, **kwargs):
+        Model1D.__init__(self, *args, **kwargs)
+
+        self.ramp_chi_0 = ramp_chi_0
+        self.ramp_chi_max = ramp_chi_max
+        self.ramp_dchi_dt = ramp_dchi_dt
+        self.ramp_t_steady = ramp_t_steady
+        self.ramp_dt = ramp_dt
+        self.ramp_chi_func = make_ramp_chi_func(ramp_chi_0, ramp_chi_max,
+                                                ramp_dchi_dt, ramp_t_steady,
+                                                ramp_dt)
+        self.chi = self.ramp_chi_func(self.t)[0]
+
+    def iterate(self):
+        Model1D.iterate(self)
+        self.chi = self.ramp_chi_func(self.t)[0]
+
+    def __getstate__(self):
+        state_dict = self.__dict__.copy()
+        del state_dict['ramp_chi_func']
+        return state_dict
+
+    def __setstate__(self, state_dict):
+        self.__dict__ = state_dict
+        self.ramp_chi_func = make_ramp_chi_func(self.ramp_chi_0,
+                                                self.ramp_chi_max,
+                                                self.ramp_dchi_dt,
+                                                self.ramp_t_steady,
+                                                self.ramp_dt)
+
+def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):
+    ramp_t_switch = (chi_max - chi_0) / dchi_dt
+
+    def ramp_chi(t):
+        ramp_t_raw = t - t_steady
+
+        if ramp_t_raw < ramp_t_switch:
+            ramp_t_raw_wrap = ramp_t_raw
+        else:
+            ramp_t_raw_wrap = 2.0 * ramp_t_switch - ramp_t_raw
+
+        ramp_t_wrap = round(ramp_t_raw_wrap / dt) * dt
+
+        if t < t_steady:
+            chi = chi_0
+        else:
+            chi = chi_0 + ramp_t_wrap * dchi_dt
+        return chi, ramp_t_raw_wrap
+    return ramp_chi
