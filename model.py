@@ -32,8 +32,8 @@ def format_parameter(p):
 
 class Model(object):
     def __init__(self, seed, dt,
-                 rho_0, v_0, D_rot,
-                 p_0, chi, onesided_flag,
+                 rho_0, v_0, D_rot, p_0,
+                 chi, onesided_flag,
                  force_mu,
                  vicsek_R,
                  walls, c_D, c_sink, c_source):
@@ -51,6 +51,9 @@ class Model(object):
         self.onesided_flag = onesided_flag
         self.force_mu = force_mu
         self.vicsek_R = vicsek_R
+        self.c_D = c_D
+        self.c_sink = c_sink
+        self.c_source = c_source
 
         self.t = 0.0
         self.i = 0
@@ -61,7 +64,8 @@ class Model(object):
                            walls.a, c_D, self.dt, c_sink, c_source,
                            a_0=0.0)
 
-        self.n = int(round(walls.get_A_free() * rho_0))
+        self.n = int(round(self.walls.get_A_free() * rho_0))
+        self.rho_0 = self.n / self.walls.get_A_free()
 
         self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
         self.initialise_r()
