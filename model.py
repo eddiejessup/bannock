@@ -87,23 +87,22 @@ class Model(object):
         self.r[self.r > self.L_half] -= self.L
         self.r[self.r < -self.L_half] += self.L
 
-        obstructeds = self.walls.is_obstructed(self.r)
-        # Find particles and dimensions which have changed cell.
-        changeds = np.not_equal(self.walls.r_to_i(self.r),
-                                self.walls.r_to_i(r_old))
-        # Find where particles have collided with a wall,
-        # and the dimensions on which it happened.
-        collideds = np.logical_and(obstructeds[:, np.newaxis], changeds)
+        if self.walls.a.any():
+            obstructeds = self.walls.is_obstructed(self.r)
+            # Find particles and dimensions which have changed cell.
+            changeds = np.not_equal(self.walls.r_to_i(self.r),
+                                    self.walls.r_to_i(r_old))
+            # Find where particles have collided with a wall,
+            # and the dimensions on which it happened.
+            collideds = np.logical_and(obstructeds[:, np.newaxis], changeds)
 
-        # Reset particle position components along which a collision occurred
-        self.r[collideds] = r_old[collideds]
-        # Set velocity along that axis to zero.
-        self.v[collideds] = 0.0
+            # Reset particle position components along which a collision occurred
+            self.r[collideds] = r_old[collideds]
+            # Set velocity along that axis to zero.
+            self.v[collideds] = 0.0
 
-        # Make sure no particles are left obstructed.
-        assert not self.walls.is_obstructed(self.r).any()
-        # Rescale new directions, randomising stationary particles.
-        self.v = vector.vector_unit_nullrand(self.v) * self.v_0
+            # Rescale new directions, randomising stationary particles.
+            self.v[obstructeds] = vector.vector_unit_nullrand(self.v[obstructeds]) * self.v_0
 
     def tumble(self):
         self.p[:] = self.p_0
