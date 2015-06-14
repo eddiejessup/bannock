@@ -101,11 +101,7 @@ def run():
         'walls': walls.Walls(**default_wall_args),
     }
     model_kwargs.update(extra_model_kwargs)
-
-    dirname = runner.make_output_dirname(model_kwargs)
-    print(runner.make_output_dirname(model_kwargs))
-    run_model(model_kwargs, output_dir=dirname, output_every=200,
-              t_upto=2e4)
+    run_model(model_kwargs, output_dir=None, output_every=200, t_upto=2e4)
 
 
 def run_1d():
@@ -116,11 +112,7 @@ def run_1d():
         'chi': 0.0,
     }
     model_kwargs.update(extra_model_kwargs)
-
-    dirname = runner.make_output_dirname(model_kwargs)
-    print(runner.make_output_dirname(model_kwargs))
-    run_model_1d(model_kwargs, output_dir=dirname, output_every=200,
-                 t_upto=2e4)
+    run_model_1d(model_kwargs, output_dir=None, output_every=200, t_upto=2e4)
 
 
 def run_chi_scan_1d():

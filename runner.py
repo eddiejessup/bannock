@@ -19,21 +19,15 @@ def filename_to_model(filename):
         return pickle.load(file)
 
 
-def make_output_dirname(args):
-    fields = []
-    for key, val in sorted(args.items()):
-        if key == 'walls':
-            continue
-        fields.append('='.join([key, model.format_parameter(val)]))
-    return ','.join(fields)
-
-
 class Runner(object):
 
     def __init__(self, output_dir, output_every, model=None):
         self.output_dir = output_dir
         self.output_every = output_every
         self.model = model
+
+        if self.output_dir is None:
+            self.output_dir = self.model.make_output_dirname()
 
         if not isdir(self.output_dir):
             os.makedirs(self.output_dir)

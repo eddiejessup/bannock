@@ -59,6 +59,7 @@ class Model(object):
         self.L = walls.L
         self.L_half = self.L / 2.0
         self.dim = walls.dim
+        self.dx = walls.dx()
         self.dt = dt
         self.v_0 = v_0
         self.D_rot = D_rot
@@ -176,6 +177,18 @@ class Model(object):
     def get_density_field(self):
         return fields.density(self.r, self.L, self.c.dx())
 
+    def make_output_dirname(self):
+        fields = ['dim', 'seed', 'dt', 'L', 'dx',
+                  'c_D', 'c_sink', 'c_source',
+                  'v_0', 'p_0', 'D_rot',
+                  'rho_0',
+                  'chi', 'onesided_flag',
+                  'force_mu', 'vicsek_R',
+                  ]
+        field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
+                         for f in fields]
+        return 'autochemo_model_{}'.format(','.join(field_strings))
+
 
 class Model1D(object):
     def __init__(self, seed, dt,
@@ -271,6 +284,18 @@ class Model1D(object):
     def get_density_field(self):
         return fields.density(self.r, self.L, self.c.dx())
 
+    def make_output_dirname(self):
+        fields = ['dim', 'seed', 'dt', 'L', 'dx',
+                  'c_D', 'c_sink', 'c_source',
+                  'v_0', 'p_0',
+                  'rho_0',
+                  'chi', 'onesided_flag',
+                  'vicsek_R',
+                  ]
+        field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
+                         for f in fields]
+        return 'autochemo_model_{}'.format(','.join(field_strings))
+
 
 class RampModel1D(Model1D):
     def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady,
@@ -304,6 +329,14 @@ class RampModel1D(Model1D):
                                                 self.ramp_dchi_dt,
                                                 self.ramp_t_steady,
                                                 self.ramp_dt)
+
+    def make_output_dirname(self):
+        fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
+                  'ramp_t_steady', 'ramp_dt']
+        field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
+                         for f in fields]
+        return '{},{}'.format(Model1D.make_output_dirname(),
+                              ','.join(field_strings))
 
 
 def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):
