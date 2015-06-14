@@ -1,18 +1,14 @@
 from __future__ import print_function, division
 import sys
-import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from matplotlib.widgets import Slider
-import model
+import runner
 import utils
 
-fnames = sys.argv[1:]
+fnames = runner.get_filenames(sys.argv[1])
 
-
-with open(fnames[0], 'r') as f:
-    m_0 = pickle.load(f)
+m_0 = runner.filename_to_model(fnames[0])
 
 L = m_0.walls.L
 
@@ -42,9 +38,7 @@ fig.colorbar(plot_c, cax=ax_cb)
 def update(val):
     fname_i = int(round(val))
     if 0 <= fname_i < len(fnames):
-        fname = fnames[fname_i]
-        with open(fname, 'r') as f:
-            m = pickle.load(f)
+        m = filename_to_model(fnames[fname_i])
         plot_p.set_offsets(m.r)
         plot_p.set_UVC(m.v[:, 0], m.v[:, 1])
         c_mask = np.ma.array(np.log(m.c.a.T),
