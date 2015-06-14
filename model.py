@@ -69,6 +69,7 @@ class Model(object):
 
         self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
         self.initialise_r()
+        self.p = np.ones([self.n]) * self.p_0
 
     def initialise_r(self):
         self.r = np.zeros_like(self.v)
@@ -105,14 +106,17 @@ class Model(object):
         self.v = vector.vector_unit_nullrand(self.v) * self.v_0
 
     def tumble(self):
-        grad_c_i = self.c.grad_i(self.r)
-        v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
-        fitness = self.chi * v_dot_grad_c / self.v_0
+        self.p[:] = self.p_0
 
-        self.p = self.p_0 * (1.0 - fitness)
-        if self.onesided_flag:
-            self.p = np.minimum(self.p_0, self.p)
-        self.p = np.maximum(self.p, 0.1)
+        if self.chi:
+            grad_c_i = self.c.grad_i(self.r)
+            v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
+            fitness = self.chi * v_dot_grad_c / self.v_0
+
+            self.p *= 1.0 - fitness
+            if self.onesided_flag:
+                self.p = np.minimum(self.p_0, self.p)
+            # self.p = np.maximum(self.p, 0.1)
 
         tumbles = np.random.uniform(size=self.n) < self.p * self.dt
         self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim, tumbles.sum())
