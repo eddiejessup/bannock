@@ -172,3 +172,86 @@ class Model(object):
 
     def get_density_field(self):
         return fields.density(self.r, self.L, self.c.dx())
+
+
+class Model1D(object):
+    def __init__(self, seed, dt,
+                 rho_0, v_0, p_0,
+                 chi, onesided_flag,
+                 L, dx,
+                 c_D, c_sink, c_source):
+        self.seed = seed
+        self.dt = dt
+        self.dim = 1
+        self.v_0 = v_0
+        self.p_0 = p_0
+
+        self.chi = chi
+        self.onesided_flag = onesided_flag
+
+        self.L = L
+        self.L_half = self.L / 2.0
+        self.dx = dx
+
+        self.c_D = c_D
+        self.c_sink = c_sink
+        self.c_source = c_source
+
+        self.t = 0.0
+        self.i = 0
+
+        np.random.seed(self.seed)
+
+        if self.c_source:
+            self.c = Secretion(self.L, self.dim, self.dx,
+                               self.c_D, self.dt,
+                               self.c_sink, self.c_source, a_0=0.0)
+
+        self.n = int(round(self.L * rho_0))
+        self.rho_0 = self.n / self.L
+
+        self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
+        self.initialise_r()
+        self.p = np.ones([self.n]) * self.p_0
+
+    def initialise_r(self):
+        self.r = np.random.uniform(-self.L_half, self.L_half, [self.n, self.dim])
+
+    def update_positions(self):
+        self.r += self.v * self.dt
+        self.r[self.r > self.L_half] -= self.L
+        self.r[self.r < -self.L_half] += self.L
+
+    def tumble(self):
+        self.p[:] = self.p_0
+
+        if self.chi:
+            grad_c_i = self.c.grad_i(self.r)
+            v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
+            fitness = self.chi * v_dot_grad_c / self.v_0
+
+            self.p *= 1.0 - fitness
+            if self.onesided_flag:
+                self.p = np.minimum(self.p_0, self.p)
+            # self.p = np.maximum(self.p, 0.1)
+
+        tumbles = np.random.uniform(size=self.n) < self.p * self.dt
+        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim, tumbles.sum())
+
+    def iterate(self):
+        if self.p_0:
+            self.tumble()
+        self.update_positions()
+
+        if self.c_source:
+            density = self.get_density_field()
+            self.c.iterate(density)
+
+        self.t += self.dt
+        self.i += 1
+
+    def get_density_field(self):
+        inds = self.c.r_to_i(self.r)
+        ns = np.zeros(self.c.a.shape, dtype=np.int)
+        fields.density_1d(inds, ns)
+        return ns / self.dx
