@@ -70,8 +70,8 @@ class Runner(object):
 
     def make_snapshot(self):
         filename = join(self.output_dir, '{:010d}.pkl'.format(self.model.i))
-        with open(filename, 'wb') as file:
-            pickle.dump(self.model, file)
+        with open(filename, 'wb') as f:
+            pickle.dump(self.model, f)
 
     def __repr__(self):
         info = '{}(out={}, model={})'
