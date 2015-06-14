@@ -1,6 +1,9 @@
 from __future__ import print_function, division
 import numpy as np
 from runner import filename_to_model, get_filenames
+from ciabatta import cluster
+
+r_cluster = 40.0
 
 
 def dstd_func(d):
@@ -52,6 +55,17 @@ def get_pmeans(dirname):
         p_mins.append(m.p.min())
         p_maxs.append(m.p.max())
     return ts, p_means, p_mins, p_maxs
+
+
+def get_big_cluster_fractions(dirname):
+    ts, bcfs = [], []
+    for fname in get_filenames(dirname)[::10]:
+        m = filename_to_model(fname)
+        ts.append(m.t)
+        labels = cluster.cluster(m.r, r_cluster)
+        bcf = cluster.biggest_cluster_fraction(labels)
+        bcfs.append(bcf)
+    return ts, bcfs
 
 
 def chi_dstd(dirnames):
