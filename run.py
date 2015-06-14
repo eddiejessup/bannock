@@ -36,6 +36,13 @@ default_model_kwargs.update({
 })
 
 
+def run_model(model_kwargs, output_dir, output_every, **iterate_args):
+    m = model.Model(**model_kwargs)
+    r = runner.Runner(output_dir, output_every, model=m)
+    r.iterate(**iterate_args)
+    return r
+
+
 def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
     m = model.Model1D(**model_kwargs)
     r = runner.Runner(output_dir, output_every, model=m)
@@ -43,11 +50,9 @@ def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
     return r
 
 
-def run_model(model_kwargs, walls, output_dir, output_every, **iterate_args):
-    m = model.Model(walls=walls, **model_kwargs)
-    r = runner.Runner(output_dir, output_every, model=m)
+def resume(dirname, output_every, **iterate_args):
+    r = runner.Runner(dirname, output_every)
     r.iterate(**iterate_args)
-    return r
 
 
 def iterate(m, n):
@@ -86,13 +91,29 @@ def run_profile_1d():
                     globals={}, sort='tottime')
 
 
-def run_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
+def run():
+    model_kwargs = default_model_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': False,
         'chi': 0.0,
         'vicsek_R': 10.0,
+        'walls': walls.Walls(**default_wall_args),
+    }
+    model_kwargs.update(extra_model_kwargs)
+
+    dirname = runner.make_output_dirname(model_kwargs)
+    print(runner.make_output_dirname(model_kwargs))
+    run_model(model_kwargs, output_dir=dirname, output_every=200,
+              t_upto=2e4)
+
+
+def run_1d():
+    model_kwargs = default_model_1d_kwargs.copy()
+    extra_model_kwargs = {
+        'rho_0': 2e-5,
+        'onesided_flag': False,
+        'chi': 0.0,
     }
     model_kwargs.update(extra_model_kwargs)
 
@@ -100,22 +121,6 @@ def run_1d():
     print(runner.make_output_dirname(model_kwargs))
     run_model_1d(model_kwargs, output_dir=dirname, output_every=200,
                  t_upto=2e4)
-
-
-def run():
-    model_kwargs = default_model_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 2e-5,
-        'onesided_flag': False,
-        'chi': 0.0,
-    }
-    model_kwargs.update(extra_model_kwargs)
-    w = walls.Walls(**default_wall_args)
-
-    dirname = runner.make_output_dirname(model_kwargs)
-    print(runner.make_output_dirname(model_kwargs))
-    run_model(model_kwargs, w, output_dir=dirname, output_every=200,
-              t_upto=2e4)
 
 
 def run_chi_scan_1d():
