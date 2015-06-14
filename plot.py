@@ -3,12 +3,12 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
-import runner
+from runner import get_filenames, filename_to_model
 import utils
 
-fnames = runner.get_filenames(sys.argv[1])
+fnames = get_filenames(sys.argv[1])
 
-m_0 = runner.filename_to_model(fnames[0])
+m_0 = filename_to_model(fnames[0])
 
 L = m_0.walls.L
 

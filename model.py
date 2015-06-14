@@ -1,5 +1,5 @@
 import numpy as np
-from ciabatta import vector, diffusion, fields
+from ciabatta import vector, fields
 from ciabatta.cell_list import intro
 import particle_numerics
 
@@ -51,7 +51,8 @@ class Model(object):
                  chi, onesided_flag,
                  force_mu,
                  vicsek_R,
-                 walls, c_D, c_sink, c_source):
+                 walls,
+                 c_D, c_sink, c_source):
         self.seed = seed
         self.dt = dt
         self.walls = walls
@@ -103,21 +104,22 @@ class Model(object):
         self.r[self.r < -self.L_half] += self.L
 
         if self.walls.a.any():
-            obstructeds = self.walls.is_obstructed(self.r)
+            obs = self.walls.is_obstructed(self.r)
             # Find particles and dimensions which have changed cell.
             changeds = np.not_equal(self.walls.r_to_i(self.r),
                                     self.walls.r_to_i(r_old))
             # Find where particles have collided with a wall,
             # and the dimensions on which it happened.
-            collideds = np.logical_and(obstructeds[:, np.newaxis], changeds)
+            colls = np.logical_and(obs[:, np.newaxis], changeds)
 
-            # Reset particle position components along which a collision occurred
-            self.r[collideds] = r_old[collideds]
+            # Reset particle position components along which a collision
+            # occurred
+            self.r[colls] = r_old[colls]
             # Set velocity along that axis to zero.
-            self.v[collideds] = 0.0
+            self.v[colls] = 0.0
 
             # Rescale new directions, randomising stationary particles.
-            self.v[obstructeds] = vector.vector_unit_nullrand(self.v[obstructeds]) * self.v_0
+            self.v[obs] = vector.vector_unit_nullrand(self.v[obs]) * self.v_0
 
     def tumble(self):
         self.p[:] = self.p_0
@@ -133,7 +135,8 @@ class Model(object):
             # self.p = np.maximum(self.p, 0.1)
 
         tumbles = np.random.uniform(size=self.n) < self.p * self.dt
-        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim, tumbles.sum())
+        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
+                                                        tumbles.sum())
 
     def force(self):
         grad_c_i = self.c.grad_i(self.r)
@@ -215,7 +218,8 @@ class Model1D(object):
         self.p = np.ones([self.n]) * self.p_0
 
     def initialise_r(self):
-        self.r = np.random.uniform(-self.L_half, self.L_half, [self.n, self.dim])
+        self.r = np.random.uniform(-self.L_half, self.L_half,
+                                   [self.n, self.dim])
 
     def update_positions(self):
         self.r += self.v * self.dt
@@ -236,7 +240,8 @@ class Model1D(object):
             # self.p = np.maximum(self.p, 0.1)
 
         tumbles = np.random.uniform(size=self.n) < self.p * self.dt
-        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim, tumbles.sum())
+        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
+                                                        tumbles.sum())
 
     def iterate(self):
         if self.p_0:
@@ -255,7 +260,8 @@ class Model1D(object):
 
 
 class RampModel1D(Model1D):
-    def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady, ramp_dt,
+    def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady,
+                 ramp_dt,
                  *args, **kwargs):
         Model1D.__init__(self, *args, **kwargs)
 
@@ -285,6 +291,7 @@ class RampModel1D(Model1D):
                                                 self.ramp_dchi_dt,
                                                 self.ramp_t_steady,
                                                 self.ramp_dt)
+
 
 def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):
     ramp_t_switch = (chi_max - chi_0) / dchi_dt
