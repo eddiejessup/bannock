@@ -76,6 +76,17 @@ def run_profile():
                     globals={}, sort='tottime')
 
 
+def run_profile_1d():
+    m = model.Model1D(seed=1, dt=0.01,
+                      rho_0=1e0, v_0=20.0,
+                      p_0=1.0, chi=1e1, onesided_flag=True,
+                      L=1000.0, dx=20.0,
+                      c_D=1000.0, c_sink=0.01, c_source=1.0)
+    cProfile.runctx('iterate(m, n)',
+                    locals={'m': m, 'n': int(1e5), 'iterate': iterate},
+                    globals={}, sort='tottime')
+
+
 def chi_dstd(dirnames):
     for dirname in dirnames:
         fnames = get_filenames(dirname)
