@@ -118,8 +118,60 @@ def chi_scan_1d():
         dstd = recent_dstd(dirname, t_steady=10000.0)
         dstds.append(dstd)
         print(chi, dstd)
+
+
+def chi_hysteresis_1d():
+    kwargs = {
+        'seed': 1,
+        'dt': 0.2,
+        'rho_0': 0.1,
+        'v_0': 20.0,
+        'p_0': 1.0,
+        'chi': 0.0,
+        'onesided_flag': False,
+        'L': 5000.0,
+        'dx': 40.0,
+        'c_D': 1000.0,
+        'c_sink': 0.01,
+        'c_source': 1.0,
+    }
+
+    ramp_kwargs = {
+        'ramp_chi_0': 2.0,
+        'ramp_chi_max': 3.0,
+        'ramp_dchi_dt': 5e-6,
+        'ramp_t_steady': 1e4,
+        'ramp_dt': 32e3,
+    }
+
+    kwargs.update(ramp_kwargs)
+
+    dirname = runner.make_output_dirname(kwargs)
+    print(dirname)
+    m = model.RampModel1D(**kwargs)
+    r = runner.Runner(output_dir=dirname, output_every=2000, model=m)
+
+    while True:
+        r.iterate(n=1)
+        if r.is_snapshot_time():
+            print(r.model.chi, density_std(r.model))
+
+
 def chi_dstd(dirnames):
     for dirname in dirnames:
         fnames = get_filenames(dirname)
         m_0 = filename_to_model(fnames[0])
         print(m_0.chi, recent_dstd(dirname, 5000.0))
+
+
+def hyst_data(dirname):
+    fnames = get_filenames(dirname)
+    ts, t_wraps, chis, dstds = [], [], [], []
+    for fname in fnames:
+        m = filename_to_model(fname)
+        ts.append(m.t)
+        chi, t_wrap = m.ramp_chi_func(m.t)
+        chis.append(chi)
+        t_wraps.append(t_wrap)
+        dstds.append(density_std(m))
+    return ts, t_wraps, chis, dstds
