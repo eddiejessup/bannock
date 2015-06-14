@@ -38,6 +38,26 @@ def recent_dstd(dirname, t_steady):
     return dstd_func(d_mean)
 
 
+def get_dstds(dirname):
+    ts, dstds = [], []
+    for fname in get_filenames(dirname):
+        m = filename_to_model(fname)
+        ts.append(m.t)
+        dstds.append(utils.density_std(m))
+    return ts, dstds
+
+
+def get_pmeans(dirname):
+    ts, p_means, p_mins, p_maxs = [], [], [], []
+    for fname in get_filenames(dirname):
+        m = filename_to_model(fname)
+        ts.append(m.t)
+        p_means.append(m.p.mean())
+        p_mins.append(m.p.min())
+        p_maxs.append(m.p.max())
+    return ts, p_means, p_mins, p_maxs
+
+
 def iterate(m, n):
     [m.iterate() for _ in range(n)]
 
