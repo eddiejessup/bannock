@@ -164,11 +164,11 @@ class Model(object):
         self.update_positions()
 
         if self.c_source:
-            density = self.get_density_field(self.c.dx())
+            density = self.get_density_field()
             self.c.iterate(density)
 
         self.t += self.dt
         self.i += 1
 
-    def get_density_field(self, dx):
-        return fields.density(self.r, self.L, dx)
+    def get_density_field(self):
+        return fields.density(self.r, self.L, self.c.dx())
