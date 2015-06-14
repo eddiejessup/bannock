@@ -4,7 +4,22 @@ from ciabatta.cell_list import intro
 import particle_numerics
 
 
-class Secretion(fields.WalledDiffusing):
+class Secretion(fields.Diffusing):
+    def __init__(self, L, dim, dx, D, dt, sink_rate, source_rate,
+                 a_0=0.0):
+        fields.Diffusing.__init__(self, L, dim, dx, D, dt,
+                                  a_0=a_0)
+        self.source_rate = source_rate
+        self.sink_rate = sink_rate
+
+    def iterate(self, density):
+        fields.Diffusing.iterate(self)
+        self.a += self.dt * (self.source_rate * density -
+                             self.sink_rate * self.a)
+        self.a = np.maximum(self.a, 0.0)
+
+
+class WalledSecretion(fields.WalledDiffusing):
     def __init__(self, L, dim, dx, walls, D, dt, sink_rate, source_rate,
                  a_0=0.0):
         fields.WalledDiffusing.__init__(self, L, dim, dx, walls, D, dt,
@@ -60,9 +75,9 @@ class Model(object):
 
         np.random.seed(self.seed)
 
-        self.c = Secretion(walls.L, walls.dim, walls.dx(),
-                           walls.a, c_D, self.dt, c_sink, c_source,
-                           a_0=0.0)
+        self.c = WalledSecretion(self.walls.L, self.walls.dim, self.walls.dx(),
+                                 self.walls.a, self.c_D, self.dt,
+                                 self.c_sink, self.c_source, a_0=0.0)
 
         self.n = int(round(self.walls.get_A_free() * rho_0))
         self.rho_0 = self.n / self.walls.get_A_free()
