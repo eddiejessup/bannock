@@ -51,7 +51,7 @@ def get_pmeans(dirname):
     for fname in get_filenames(dirname):
         m = filename_to_model(fname)
         ts.append(m.t)
-        p_means.append(m.p.mean())
+        p_means.append(np.maximum(m.p, 0.0).mean())
         p_mins.append(m.p.min())
         p_maxs.append(m.p.max())
     return ts, p_means, p_mins, p_maxs
