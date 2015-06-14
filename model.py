@@ -251,10 +251,7 @@ class Model1D(object):
         self.i += 1
 
     def get_density_field(self):
-        inds = self.c.r_to_i(self.r)
-        ns = np.zeros(self.c.a.shape, dtype=np.int)
-        fields.density_1d(inds, ns)
-        return ns / self.dx
+        return fields.density(self.r, self.L, self.c.dx())
 
 
 class RampModel1D(Model1D):
