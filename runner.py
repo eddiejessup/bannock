@@ -52,6 +52,9 @@ class Runner(object):
             assert snapshot.endswith('.pkl')
             os.remove(snapshot)
 
+    def is_snapshot_time(self):
+        return not self.model.i % self.output_every
+
     def iterate(self, n=None, n_upto=None, t=None, t_upto=None):
         if t is not None:
             t_upto = self.model.t + t
@@ -61,7 +64,7 @@ class Runner(object):
             n_upto = self.model.i + n
 
         while self.model.i < n_upto:
-            if not self.model.i % self.output_every:
+            if self.is_snapshot_time():
                 self.make_snapshot()
             self.model.iterate()
 
