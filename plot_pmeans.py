@@ -1,6 +1,5 @@
 from __future__ import print_function, division
 import sys
-import numpy as np
 import matplotlib.pyplot as plt
 import utils
 
