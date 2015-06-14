@@ -23,6 +23,31 @@ def vicsek_inters(np.ndarray[np.float_t, ndim=2] v,
 
 @cython.cdivision(True)
 @cython.boundscheck(False)
+def vicsek_1d(np.ndarray[np.float_t, ndim=1] r,
+              np.ndarray[np.int_t, ndim=1] u,
+              double r_v, double L):
+    cdef:
+        unsigned int i_1, i_2
+        np.ndarray[np.int_t, ndim=1] u_vic = np.zeros([u.shape[0]], dtype=np.int)
+        double dr
+
+    for i_1 in range(u.shape[0]):
+        for i_2 in range(u.shape[0]):
+            dr = abs(r[i_1] - r[i_2])
+            dr = min(dr, L - dr)
+            if dr < r_v:
+                u_vic[i_1] += u[i_2]
+        if u_vic[i_1] > 0:
+            u_vic[i_1] = 1
+        elif u_vic[i_1] < 0:
+            u_vic[i_1] = -1
+        else:
+            u_vic[i_1] = 0
+    return u_vic
+
+
+@cython.cdivision(True)
+@cython.boundscheck(False)
 def rot_diff_2d(np.ndarray[np.float_t, ndim=2] v, double D, double dt):
     cdef:
         unsigned int i

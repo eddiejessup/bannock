@@ -181,6 +181,7 @@ class Model1D(object):
     def __init__(self, seed, dt,
                  rho_0, v_0, p_0,
                  chi, onesided_flag,
+                 vicsek_R,
                  L, dx,
                  c_D, c_sink, c_source):
         self.seed = seed
@@ -191,6 +192,8 @@ class Model1D(object):
 
         self.chi = chi
         self.onesided_flag = onesided_flag
+
+        self.vicsek_R = vicsek_R
 
         self.L = L
         self.L_half = self.L / 2.0
@@ -243,7 +246,17 @@ class Model1D(object):
         self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
                                                         tumbles.sum())
 
+    def vicsek(self):
+        u = np.array(np.round(self.v[:, 0] / self.v_0), dtype=np.int)
+        u_new = particle_numerics.vicsek_1d(self.r[:, 0], u,
+                                            self.vicsek_R, self.L)
+        stats = u_new == 0
+        u_new[stats] = 2 * np.random.randint(2, size=stats.sum()) - 1
+        self.v[:, 0] = self.v_0 * u_new
+
     def iterate(self):
+        if self.vicsek_R:
+            self.vicsek()
         if self.p_0:
             self.tumble()
         self.update_positions()

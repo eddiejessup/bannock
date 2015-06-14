@@ -18,6 +18,7 @@ default_model_1d_kwargs = {
     'dt': 0.2,
     'v_0': 20.0,
     'p_0': 1.0,
+    'vicsek_R': 0.0,
     'L': default_wall_args['L'],
     'dx': default_wall_args['dx'],
     'c_D': 1000.0,
@@ -91,6 +92,7 @@ def run_1d():
         'rho_0': 0.1,
         'onesided_flag': False,
         'chi': 0.0,
+        'vicsek_R': 10.0,
     }
     model_kwargs.update(extra_model_kwargs)
 
@@ -150,6 +152,7 @@ def run_chi_hysteresis_1d():
         'rho_0': 0.1,
         'onesided_flag': False,
         'chi': ramp_kwargs['ramp_chi_0'],
+        'vicsek_R': 10.0,
     }
     model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
@@ -164,3 +167,20 @@ def run_chi_hysteresis_1d():
         r.iterate(n=1)
         if r.is_snapshot_time():
             print(r.model.chi, utils.density_std(r.model))
+
+
+def run_vicsek_1d():
+    model_kwargs = default_model_1d_kwargs.copy()
+    extra_model_kwargs = {
+        'rho_0': 0.01,
+        'onesided_flag': None,
+        'chi': 0.0,
+        'p_0': 1.0,
+    }
+    model_kwargs.update(extra_model_kwargs)
+    model_kwargs['vicsek_R'] = 10.0
+
+    # dirname = runner.make_output_dirname(model_kwargs)
+    dirname = 'vicsek_test'
+    run_model_1d(model_kwargs, output_dir=dirname, output_every=100,
+                 t_upto=1e4)
