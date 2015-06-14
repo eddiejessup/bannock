@@ -43,7 +43,7 @@ def get_dstds(dirname):
     for fname in get_filenames(dirname):
         m = filename_to_model(fname)
         ts.append(m.t)
-        dstds.append(utils.density_std(m))
+        dstds.append(density_std(m))
     return ts, dstds
 
 
