@@ -87,6 +87,37 @@ def run_profile_1d():
                     globals={}, sort='tottime')
 
 
+def chi_scan_1d():
+    kwargs = {
+        'seed': 1,
+        'dt': 0.2,
+        'rho_0': 0.1,
+        'v_0': 20.0,
+        'p_0': 1.0,
+        'chi': None,
+        'onesided_flag': False,
+        'L': 5000.0,
+        'dx': 40.0,
+        'c_D': 1000.0,
+        'c_sink': 0.01,
+        'c_source': 1.0,
+    }
+
+    kwargs['chi'] = 'all'
+    print(runner.make_output_dirname(kwargs))
+
+    chis = np.linspace(0.0, 40.0, 40)
+    dstds = []
+    for chi in chis:
+        kwargs['chi'] = chi
+        m = model.Model1D(**kwargs)
+        dirname = runner.make_output_dirname(kwargs)
+        r = runner.Runner(output_dir=dirname, output_every=200, model=m)
+        r.iterate(t_upto=2e4)
+
+        dstd = recent_dstd(dirname, t_steady=10000.0)
+        dstds.append(dstd)
+        print(chi, dstd)
 def chi_dstd(dirnames):
     for dirname in dirnames:
         fnames = get_filenames(dirname)
