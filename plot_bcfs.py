@@ -9,6 +9,6 @@ dirname = sys.argv[1]
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ts, bcfs = utils.get_big_cluster_fractions(dirname)
+ts, bcfs = utils.t_bcfs(dirname)
 plt.plot(ts, bcfs)
 plt.show()

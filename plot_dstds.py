@@ -8,6 +8,6 @@ dirname = sys.argv[1]
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ts, dstds = utils.get_dstds(dirname)
+ts, dstds = utils.t_dstds(dirname)
 plt.plot(ts, dstds)
 plt.show()
