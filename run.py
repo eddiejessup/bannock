@@ -54,14 +54,15 @@ def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
     return r
 
 
-def resume(dirname, output_every, **iterate_args):
-    r = runner.Runner(dirname, output_every)
-    r.iterate(**iterate_args)
-
-
-def iterate(m, n):
-    for _ in range(n):
-        m.iterate()
+def run_ramp_model_1d(model_kwargs, output_dir, output_every):
+    m = model.RampModel1D(**model_kwargs)
+    r = runner.Runner(output_dir, output_every, model=m)
+    print(r.output_dir)
+    while r.model.chi >= 0.0:
+        r.iterate(n=1)
+        if r.is_snapshot_time():
+            print(r.model.chi, utils.get_bcf(r.model))
+    return r
 
 
 def run():
@@ -96,18 +97,31 @@ def run_chi_scan_1d():
         'chi': 'all',
     }
     model_kwargs.update(extra_model_kwargs)
-    print(runner.make_output_dirname(model_kwargs))
 
-    chis = np.linspace(0.0, 40.0, 40)
-    dstds = []
+    chis = np.linspace(0.0, 20.0, 10)
     for chi in chis:
         model_kwargs['chi'] = chi
-        dirname = runner.make_output_dirname(model_kwargs)
-        run_model_1d(model_kwargs, output_dir=dirname, output_every=200,
-                     t_upto=2e4)
-        dstd = utils.recent_dstd(dirname, t_steady=10000.0)
-        dstds.append(dstd)
-        print(chi, dstd)
+        r = run_model_1d(model_kwargs, output_dir=None, output_every=200,
+                         t_upto=4e3)
+        print(chi, utils.get_bcf(r.model))
+
+
+def run_chi_scan():
+    model_kwargs = default_model_kwargs.copy()
+    extra_model_kwargs = {
+        'rho_0': 2e-4,
+        'onesided_flag': True,
+        'chi': 'all',
+        'walls': walls.Walls(**default_wall_args),
+    }
+    model_kwargs.update(extra_model_kwargs)
+
+    chis = np.linspace(0.0, 40.0, 40)
+    for chi in chis:
+        model_kwargs['chi'] = chi
+        r = run_model(model_kwargs, output_dir=None, output_every=200,
+                      t_upto=1e3)
+        print(chi, utils.get_bcf(r.model))
 
 
 def run_chi_hysteresis_1d():
@@ -127,15 +141,4 @@ def run_chi_hysteresis_1d():
     model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
-
-    dirname = runner.make_output_dirname(model_kwargs)
-    print(dirname)
-    m = model.RampModel1D(**model_kwargs)
-    r = runner.Runner(output_dir=dirname, output_every=2000, model=m)
-
-    while r.model.chi >= 0.0:
-        r.iterate(n=1)
-        if r.is_snapshot_time():
-            print(r.model.chi, utils.density_std(r.model))
-
-
+    run_ramp_model_1d(model_kwargs, output_dir=None, output_every=2000)
