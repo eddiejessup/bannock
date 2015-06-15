@@ -49,7 +49,7 @@ def update(val):
         plot_c.set_data(c_mask)
         plot_c.autoscale()
         t_time.set_text('Time: {:g}'.format(m.t))
-        t_dstd.set_text('Dstd: {:g}'.format(utils.density_std(m)))
+        t_dstd.set_text('Dstd: {:g}'.format(utils.get_dstd(m)))
         fig.canvas.draw_idle()
 
 t_slider.on_changed(update)

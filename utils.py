@@ -3,7 +3,15 @@ import numpy as np
 from runner import filename_to_model, get_filenames
 from ciabatta import cluster
 
-r_cluster = 40.0
+r_cluster_1d = 5.0
+r_cluster_2d = 20.0
+
+
+def get_r_cluster(m):
+    if m.dim == 1:
+        return r_cluster_1d
+    elif m.dim == 2:
+        return r_cluster_2d
 
 
 def dstd_func(d):
@@ -19,63 +27,87 @@ def density_norm(m):
     return d
 
 
-def density_std(m):
-    return dstd_func(density_norm(m))
-
-
-def recent_dstd(dirname, t_steady):
+def get_dstd_mean(dirname, t_steady):
     fnames = get_filenames(dirname)
     m_0 = filename_to_model(fnames[0])
-    d_mean = np.zeros_like(m_0.c.a)
+    density_norm_mean = np.zeros_like(m_0.c.a)
     i_samples = 0
     for fname in fnames:
         m = filename_to_model(fname)
         if m.t > t_steady:
-            d_mean += density_norm(m)
+            density_norm_mean += density_norm(m)
             i_samples += 1
-    d_mean /= float(i_samples)
-    return dstd_func(d_mean)
+    density_norm_mean /= float(i_samples)
+    return dstd_func(density_norm_mean)
 
 
-def get_dstds(dirname):
+def get_dstd(m):
+    return dstd_func(density_norm(m))
+
+
+def get_bcf(m):
+    labels = cluster.cluster(m.r, get_r_cluster(m))
+    return cluster.biggest_cluster_fraction(labels)
+
+
+def get_pstats(m):
+    p_mean = np.maximum(m.p, 0.0).mean()
+    p_min = m.p.min()
+    p_max = m.p.max()
+    return np.array(p_mean), np.array(p_min), np.array(p_max)
+
+
+def t_dstds(dirname):
     ts, dstds = [], []
     for fname in get_filenames(dirname):
         m = filename_to_model(fname)
         ts.append(m.t)
-        dstds.append(density_std(m))
-    return ts, dstds
+        dstds.append(get_dstd(m))
+    return np.array(ts), np.array(dstds)
 
 
-def get_pmeans(dirname):
+def t_bcfs(dirname):
+    ts, bcfs = [], []
+    for fname in get_filenames(dirname):
+        m = filename_to_model(fname)
+        ts.append(m.t)
+        bcfs.append(get_bcf(m))
+    return np.array(ts), np.array(bcfs)
+
+
+def t_pmeans(dirname):
     ts, p_means, p_mins, p_maxs = [], [], [], []
     for fname in get_filenames(dirname):
         m = filename_to_model(fname)
         ts.append(m.t)
-        p_means.append(np.maximum(m.p, 0.0).mean())
-        p_mins.append(m.p.min())
-        p_maxs.append(m.p.max())
-    return ts, p_means, p_mins, p_maxs
-
-
-def get_big_cluster_fractions(dirname):
-    ts, bcfs = [], []
-    for fname in get_filenames(dirname)[::10]:
-        m = filename_to_model(fname)
-        ts.append(m.t)
-        labels = cluster.cluster(m.r, r_cluster)
-        bcf = cluster.biggest_cluster_fraction(labels)
-        bcfs.append(bcf)
-    return ts, bcfs
+        p_mean, p_min, p_max = get_pstats(m)
+        p_means.append(p_mean)
+        p_mins.append(p_min)
+        p_maxs.append(p_max)
+    return np.array(ts), np.array(p_means), np.array(p_mins), np.array(p_maxs)
 
 
 def chi_dstd(dirnames):
+    chis, dstds = [], []
     for dirname in dirnames:
-        fnames = get_filenames(dirname)
-        m_0 = filename_to_model(fnames[0])
-        print(m_0.chi, recent_dstd(dirname, 5000.0))
+        fname_recent = get_filenames(dirname)[-1]
+        m_recent = filename_to_model(fname_recent)
+        chis.append(m_recent.chi)
+        dstds.append(get_dstd(m_recent))
+    return np.array(chis), np.array(dstds)
 
 
-def hyst_data(dirname):
+def chi_bcfs(dirnames):
+    chis, bcfs = [], []
+    for dirname in dirnames:
+        fname_recent = get_filenames(dirname)[-1]
+        m_recent = filename_to_model(fname_recent)
+        chis.append(m_recent.chi)
+        bcfs.append(get_bcf(m_recent))
+    return np.array(chis), np.array(bcfs)
+
+
+def get_hyst(dirname):
     fnames = get_filenames(dirname)
     ts, t_wraps, chis, dstds = [], [], [], []
     for fname in fnames:
@@ -84,5 +116,5 @@ def hyst_data(dirname):
         chi, t_wrap = m.ramp_chi_func(m.t)
         chis.append(chi)
         t_wraps.append(t_wrap)
-        dstds.append(density_std(m))
-    return ts, t_wraps, chis, dstds
+        dstds.append(get_dstd(m))
+    return np.array(ts), np.array(t_wraps), np.array(chis), np.array(dstds)
