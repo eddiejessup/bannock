@@ -39,6 +39,7 @@ default_model_kwargs.update({
 def run_model(model_kwargs, output_dir, output_every, **iterate_args):
     m = model.Model(**model_kwargs)
     r = runner.Runner(output_dir, output_every, model=m)
+    print(r.output_dir)
     r.iterate(**iterate_args)
     return r
 
@@ -46,6 +47,7 @@ def run_model(model_kwargs, output_dir, output_every, **iterate_args):
 def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
     m = model.Model1D(**model_kwargs)
     r = runner.Runner(output_dir, output_every, model=m)
+    print(r.output_dir)
     r.iterate(**iterate_args)
     return r
 
@@ -166,18 +168,3 @@ def run_chi_hysteresis_1d():
             print(r.model.chi, utils.density_std(r.model))
 
 
-def run_vicsek_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 0.01,
-        'onesided_flag': None,
-        'chi': 0.0,
-        'p_0': 1.0,
-    }
-    model_kwargs.update(extra_model_kwargs)
-    model_kwargs['vicsek_R'] = 10.0
-
-    # dirname = runner.make_output_dirname(model_kwargs)
-    dirname = 'vicsek_test'
-    run_model_1d(model_kwargs, output_dir=dirname, output_every=100,
-                 t_upto=1e4)
