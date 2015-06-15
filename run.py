@@ -1,10 +1,11 @@
 from __future__ import print_function, division
+import cProfile
+import numpy as np
 import utils
 import model
 import runner
 import walls
-import cProfile
-import numpy as np
+
 
 default_wall_args = {
     'L': 5000.0,
@@ -94,7 +95,6 @@ def run_chi_scan_1d():
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': False,
-        'chi': 'all',
     }
     model_kwargs.update(extra_model_kwargs)
 
@@ -111,7 +111,6 @@ def run_chi_scan():
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
-        'chi': 'all',
         'walls': walls.Walls(**default_wall_args),
     }
     model_kwargs.update(extra_model_kwargs)

@@ -53,9 +53,13 @@ class Tittled(Walls):
         self.sx = self.sx_i * self.dx()
         self.sy = self.sy_i * self.dx()
 
-        for i_x in range(self.sx_i, self.a.shape[0] - self.sx_i, self.sx_i):
+        for i_x in range(self.sx_i,
+                         self.a.shape[0] - self.sx_i,
+                         self.sx_i):
             print(i_x)
-            for i_y in range(self.sy_i, self.a.shape[1] - self.sy_i, self.sy_i):
+            for i_y in range(self.sy_i,
+                             self.a.shape[1] - self.sy_i,
+                             self.sy_i):
                 print(i_y)
                 self.a[i_x - self.wx_i:i_x + self.wx_i,
                        i_y - self.wy_i:i_y + self.wy_i] = True
