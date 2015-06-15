@@ -28,6 +28,9 @@ default_model_1d_kwargs = {
 }
 
 
+walls_blank = walls.Walls(**default_wall_args)
+
+
 default_model_kwargs = default_model_1d_kwargs.copy()
 del default_model_kwargs['L']
 del default_model_kwargs['dx']
@@ -39,7 +42,7 @@ default_model_kwargs.update({
 
 def run_model(model_kwargs, output_dir, output_every, **iterate_args):
     m = model.Model(**model_kwargs)
-    r = runner.Runner(output_dir, output_every, model=m)
+    r = runner.Runner(output_dir, output_every, model=m, force_resume=True)
     print(r.output_dir)
     r.iterate(**iterate_args)
     # cProfile.run('m.iterate(10000)' sort='tottime')
@@ -73,7 +76,7 @@ def run():
         'onesided_flag': False,
         'chi': 0.0,
         'vicsek_R': 10.0,
-        'walls': walls.Walls(**default_wall_args),
+        'walls': walls_blank,
     }
     model_kwargs.update(extra_model_kwargs)
     run_model(model_kwargs, output_dir=None, output_every=200, t_upto=2e4)
@@ -111,7 +114,7 @@ def run_chi_scan():
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
-        'walls': walls.Walls(**default_wall_args),
+        'walls': walls_blank,
     }
     model_kwargs.update(extra_model_kwargs)
 
