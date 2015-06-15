@@ -177,7 +177,7 @@ class Model(object):
     def get_density_field(self):
         return fields.density(self.r, self.L, self.c.dx())
 
-    def make_output_dirname(self):
+    def __repr__(self):
         fields = ['dim', 'seed', 'dt', 'L', 'dx',
                   'c_D', 'c_sink', 'c_source',
                   'v_0', 'p_0', 'D_rot',
@@ -284,7 +284,7 @@ class Model1D(object):
     def get_density_field(self):
         return fields.density(self.r, self.L, self.c.dx())
 
-    def make_output_dirname(self):
+    def __repr__(self):
         fields = ['dim', 'seed', 'dt', 'L', 'dx',
                   'c_D', 'c_sink', 'c_source',
                   'v_0', 'p_0',
@@ -330,12 +330,12 @@ class RampModel1D(Model1D):
                                                 self.ramp_t_steady,
                                                 self.ramp_dt)
 
-    def make_output_dirname(self):
+    def __repr__(self):
         fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
                   'ramp_t_steady', 'ramp_dt']
         field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
                          for f in fields]
-        return '{},{}'.format(Model1D.make_output_dirname(),
+        return '{},{}'.format(Model1D.__repr__(),
                               ','.join(field_strings))
 
 

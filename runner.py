@@ -2,7 +2,6 @@ import pickle
 from os.path import join, basename, splitext, isdir
 import os
 import glob
-import model
 
 
 def f_to_i(f):
@@ -21,25 +20,53 @@ def filename_to_model(filename):
 
 class Runner(object):
 
-    def __init__(self, output_dir, output_every, model=None):
+    def __init__(self, output_dir, output_every, model=None,
+                 force_resume=None):
         self.output_dir = output_dir
         self.output_every = output_every
         self.model = model
 
-        if self.output_dir is None:
-            self.output_dir = self.model.make_output_dirname()
+        if model is None and output_dir is None:
+            raise ValueError('Must supply either model or directory')
+        # If provided with output dir then use that
+        elif output_dir is not None:
+            self.output_dir = output_dir
+        # If using default output dir then use that
+        else:
+            self.output_dir = model.__repr__()
 
+        # If the output dir does not exist then make it
         if not isdir(self.output_dir):
             os.makedirs(self.output_dir)
 
-        # If no model is provided, assume we are resuming from the output
-        # directory and unpickle the most recent model from that.
-        if self.model is None:
-            output_filenames = get_filenames(self.output_dir)
-            if output_filenames:
-                self.model = filename_to_model(output_filenames[-1])
+        output_filenames = get_filenames(self.output_dir)
+
+        if output_filenames:
+            model_recent = filename_to_model(output_filenames[-1])
+
+        # If a model is provided
+        if model is not None:
+            # Then if there is a file that contains same model as input model.
+            can_resume = (output_filenames and
+                          model.__repr__() == model_recent.__repr__())
+            if can_resume:
+                if force_resume is not None:
+                    will_resume = force_resume
+                else:
+                    will_resume = raw_input('Resume (y/n)? ') == 'y'
+                if will_resume:
+                    self.model = model_recent
+                else:
+                    self.model = model
             else:
-                raise IOError('Can not find any output pickles to resume from')
+                self.model = model
+        # If no model provided but have file from which to resume, then resume
+        elif output_filenames:
+            self.model = model_recent
+        # If no model provided and no file from which to resume then no way
+        # to get a model
+        else:
+            raise IOError('Cannot find any files from which to resume')
 
     def clear_dir(self):
         for snapshot in get_filenames(self.output_dir):
