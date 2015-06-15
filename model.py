@@ -189,6 +189,7 @@ class Model(object):
         field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
                                   for f in fields])
         field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
+        field_strs.append('{}'.format(self.walls))
         field_str = ','.join(field_strs)
         return 'autochemo_model_{}'.format(field_str)
 

@@ -1,5 +1,6 @@
 import numpy as np
 from ciabatta import lattice, fields, maze
+from model import format_parameter
 
 BUFFER_SIZE = 0.999
 
@@ -18,6 +19,9 @@ class Walls(fields.Field):
 
     def is_obstructed(self, r):
         return self.a[tuple(self.r_to_i(r).T)]
+
+    def __repr__(self):
+        return 'walls_blank'
 
 
 class HalfClosed(Walls):
@@ -130,6 +134,13 @@ class Traps(Walls):
                     n_traps[i_trap] += 1
         return [float(n_trap) / float(r.shape[0]) for n_trap in n_traps]
 
+    def __repr__(self):
+        fields = ['n', 'd', 'w', 's']
+        field_vals = {f: format_parameter(self.__dict__[f]) for f in fields}
+        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
+        field_str = ','.join(field_strs)
+        return 'walls_traps_{}'.format(field_str)
+
 
 class Maze(Walls):
     def __init__(self, L, dim, dx, d, seed=None):
@@ -148,3 +159,10 @@ class Maze(Walls):
         self.d_i = int(self.M / self.M_m)
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
+
+    def __repr__(self):
+        fields = ['d', 'seed']
+        field_vals = {f: format_parameter(self.__dict__[f]) for f in fields}
+        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
+        field_str = ','.join(field_strs)
+        return 'walls_maze_{}'.format(field_str)
