@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import numpy as np
 from ciabatta import vector, fields
 from ciabatta.cell_list import intro
@@ -185,9 +186,11 @@ class Model(object):
                   'chi', 'onesided_flag',
                   'force_mu', 'vicsek_R',
                   ]
-        field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
-                         for f in fields]
-        return 'autochemo_model_{}'.format(','.join(field_strings))
+        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
+                                  for f in fields])
+        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
+        field_str = ','.join(field_strs)
+        return 'autochemo_model_{}'.format(field_str)
 
 
 class Model1D(object):
@@ -292,9 +295,11 @@ class Model1D(object):
                   'chi', 'onesided_flag',
                   'vicsek_R',
                   ]
-        field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
-                         for f in fields]
-        return 'autochemo_model_{}'.format(','.join(field_strings))
+        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
+                                  for f in fields])
+        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
+        field_str = ','.join(field_strs)
+        return 'autochemo_model_{}'.format(field_str)
 
 
 class RampModel1D(Model1D):
@@ -333,10 +338,12 @@ class RampModel1D(Model1D):
     def __repr__(self):
         fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
                   'ramp_t_steady', 'ramp_dt']
-        field_strings = ['='.join([f, format_parameter(self.__dict__[f])])
-                         for f in fields]
-        return '{},{}'.format(Model1D.__repr__(),
-                              ','.join(field_strings))
+        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
+                                  for f in fields])
+        field_strs = [Model1D.__repr__(self)]
+        field_strs += ['='.join([f, v]) for f, v in field_vals.items()]
+        field_str = ','.join(field_strs)
+        return '{}'.format(field_str)
 
 
 def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):
