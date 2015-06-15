@@ -14,6 +14,14 @@ default_wall_args = {
 }
 
 
+default_trap_args = {
+    'n': 1,
+    'd': 40.0,
+    'w': 280.0,
+    's': 80.0,
+}
+
+
 default_model_1d_kwargs = {
     'seed': 1,
     'dt': 0.2,
@@ -29,6 +37,8 @@ default_model_1d_kwargs = {
 
 
 walls_blank = walls.Walls(**default_wall_args)
+walls_traps_1 = walls.Traps(**dict(default_wall_args.items() +
+                                   default_trap_args.items()))
 
 
 default_model_kwargs = default_model_1d_kwargs.copy()
