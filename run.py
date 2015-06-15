@@ -41,6 +41,7 @@ def run_model(model_kwargs, output_dir, output_every, **iterate_args):
     r = runner.Runner(output_dir, output_every, model=m)
     print(r.output_dir)
     r.iterate(**iterate_args)
+    # cProfile.run('m.iterate(10000)' sort='tottime')
     return r
 
 
@@ -49,6 +50,7 @@ def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
     r = runner.Runner(output_dir, output_every, model=m)
     print(r.output_dir)
     r.iterate(**iterate_args)
+    # cProfile.run('m.iterate(10000)' sort='tottime')
     return r
 
 
@@ -60,37 +62,6 @@ def resume(dirname, output_every, **iterate_args):
 def iterate(m, n):
     for _ in range(n):
         m.iterate()
-
-
-def run_profile():
-    model_kwargs = default_model_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 2e-4,
-        'onesided_flag': True,
-        'chi': 10.0,
-    }
-    model_kwargs.update(extra_model_kwargs)
-
-    w = walls.Walls(**default_wall_args)
-    m = model.Model(walls=w, **model_kwargs)
-    cProfile.runctx('iterate(m, n)',
-                    locals={'m': m, 'n': 10000, 'iterate': iterate},
-                    globals={}, sort='tottime')
-
-
-def run_profile_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 0.1,
-        'onesided_flag': True,
-        'chi': 10.0,
-    }
-    model_kwargs.update(extra_model_kwargs)
-
-    m = model.Model1D(**model_kwargs)
-    cProfile.runctx('iterate(m, n)',
-                    locals={'m': m, 'n': int(1e5), 'iterate': iterate},
-                    globals={}, sort='tottime')
 
 
 def run():
