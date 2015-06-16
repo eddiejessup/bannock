@@ -1,4 +1,5 @@
 from __future__ import print_function, division
+import multiprocessing
 import cProfile
 import numpy as np
 import utils
@@ -103,19 +104,21 @@ def run_1d():
     run_model_1d(model_kwargs, output_dir=None, output_every=200, t_upto=2e4)
 
 
-def run_chi_scan_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 0.1,
-        'onesided_flag': False,
-    }
-    model_kwargs.update(extra_model_kwargs)
+class TaskRunner(object):
+    """Replacement for a closure, which I would use if
+    the multiprocessing module supported them.
+    """
 
-    chis = np.linspace(0.0, 20.0, 10)
-    for chi in chis:
-        model_kwargs['chi'] = chi
-        r = run_model_1d(model_kwargs, output_dir=None, output_every=200,
-                         t_upto=4e3)
+    def __init__(self, model_kwargs, run_func, output_every, t_upto):
+        self.model_kwargs = model_kwargs.copy()
+        self.run_func = run_func
+        self.output_every = output_every
+        self.t_upto = t_upto
+
+    def __call__(self, chi):
+        self.model_kwargs['chi'] = chi
+        r = self.run_func(self.model_kwargs, output_dir=None,
+                          output_every=self.output_every, t_upto=self.t_upto)
         print(chi, utils.get_bcf(r.model))
 
 
@@ -124,16 +127,32 @@ def run_chi_scan():
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
-        'walls': walls_blank,
+        'walls': walls_traps_1,
     }
     model_kwargs.update(extra_model_kwargs)
 
-    chis = np.linspace(0.0, 40.0, 40)
+    task_runner = TaskRunner(model_kwargs, run_model, 400, 1e4)
+
+    chis = np.linspace(0.0, 250.0, 10)
+    multiprocessing.Pool(3).map(task_runner, chis)
+    # for chi in chis:
+    #     task_runner(chi)
+
+
+def run_chi_scan_1d():
+    model_kwargs = default_model_1d_kwargs.copy()
+    extra_model_kwargs = {
+        'rho_0': 0.1,
+        'onesided_flag': True,
+    }
+    model_kwargs.update(extra_model_kwargs)
+
+    task_runner = TaskRunner(model_kwargs, run_model_1d, 200, 50.0)
+
+    chis = np.linspace(2.0, 8.0, 10)
+    # multiprocessing.Pool(3).map(task_runner, chis)
     for chi in chis:
-        model_kwargs['chi'] = chi
-        r = run_model(model_kwargs, output_dir=None, output_every=200,
-                      t_upto=1e3)
-        print(chi, utils.get_bcf(r.model))
+        task_runner(chi)
 
 
 def run_chi_hysteresis_1d():
