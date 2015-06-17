@@ -3,11 +3,12 @@ import sys
 import matplotlib.pyplot as plt
 import utils
 
-dirnames = sys.argv[1:]
+if __name__ == '__main__':
+    dirnames = sys.argv[1:]
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
 
-chis, bcfs = utils.chi_bcfs(dirnames)
-plt.scatter(chis, bcfs)
-plt.show()
+    chis, bcfs = utils.chi_bcfs(dirnames)
+    plt.scatter(chis, bcfs)
+    plt.show()

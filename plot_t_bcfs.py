@@ -4,11 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import utils
 
-dirname = sys.argv[1]
+if __name__ == '__main__':
+    dirname = sys.argv[1]
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
 
-ts, bcfs = utils.t_bcfs(dirname)
-plt.plot(ts, bcfs)
-plt.show()
+    ts, bcfs = utils.t_bcfs(dirname)
+    plt.plot(ts, bcfs)
+    plt.show()

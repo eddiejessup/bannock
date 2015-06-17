@@ -3,11 +3,12 @@ import sys
 import matplotlib.pyplot as plt
 import utils
 
-dirname = sys.argv[1]
+if __name__ == '__main__':
+    dirname = sys.argv[1]
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
 
-ts, dstds = utils.t_dstds(dirname)
-plt.plot(ts, dstds)
-plt.show()
+    ts, dstds = utils.t_dstds(dirname)
+    plt.plot(ts, dstds)
+    plt.show()
