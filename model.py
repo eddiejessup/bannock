@@ -86,10 +86,10 @@ class Model(object):
         self.rho_0 = self.n / self.walls.get_A_free()
 
         self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
-        self.initialise_r()
+        self._initialise_r()
         self.p = np.ones([self.n]) * self.p_0
 
-    def initialise_r(self):
+    def _initialise_r(self):
         self.r = np.zeros_like(self.v)
         for i in range(self.n):
             while True:
@@ -98,7 +98,7 @@ class Model(object):
                 if not self.walls.is_obstructed(self.r[i]):
                     break
 
-    def update_positions(self):
+    def _update_positions(self):
         r_old = self.r.copy()
 
         self.r += self.v * self.dt
@@ -123,7 +123,7 @@ class Model(object):
             # Rescale new directions, randomising stationary particles.
             self.v[obs] = vector.vector_unit_nullrand(self.v[obs]) * self.v_0
 
-    def tumble(self):
+    def _tumble(self):
         self.p[:] = self.p_0
 
         if self.chi:
@@ -140,7 +140,7 @@ class Model(object):
         self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
                                                         tumbles.sum())
 
-    def force(self):
+    def _force(self):
         grad_c_i = self.c.grad_i(self.r)
         v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
         if self.onesided_flag:
@@ -150,23 +150,23 @@ class Model(object):
         self.v[responds] += self.force_mu * grad_c_i[responds] * self.dt
         self.v = self.v_0 * vector.vector_unit_nullnull(self.v)
 
-    def rot_diff(self):
+    def _rot_diff(self):
         self.v = particle_numerics.rot_diff_2d(self.v, self.D_rot, self.dt)
 
-    def vicsek(self):
+    def _vicsek(self):
         inters, intersi = intro.get_inters(self.r, self.L, self.vicsek_R)
         self.v = particle_numerics.vicsek_inters(self.v, inters, intersi)
 
     def iterate(self):
         if self.vicsek_R:
-            self.vicsek()
+            self._vicsek()
         if self.p_0:
-            self.tumble()
+            self._tumble()
         if self.force_mu:
-            self.force()
+            self._force()
         if self.D_rot:
-            self.rot_diff()
-        self.update_positions()
+            self._rot_diff()
+        self._update_positions()
 
         if self.c_source:
             density = self.get_density_field()
@@ -234,19 +234,19 @@ class Model1D(object):
         self.rho_0 = self.n / self.L
 
         self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
-        self.initialise_r()
+        self._initialise_r()
         self.p = np.ones([self.n]) * self.p_0
 
-    def initialise_r(self):
+    def _initialise_r(self):
         self.r = np.random.uniform(-self.L_half, self.L_half,
                                    [self.n, self.dim])
 
-    def update_positions(self):
+    def _update_positions(self):
         self.r += self.v * self.dt
         self.r[self.r > self.L_half] -= self.L
         self.r[self.r < -self.L_half] += self.L
 
-    def tumble(self):
+    def _tumble(self):
         self.p[:] = self.p_0
 
         if self.chi:
@@ -263,7 +263,7 @@ class Model1D(object):
         self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
                                                         tumbles.sum())
 
-    def vicsek(self):
+    def _vicsek(self):
         u = np.array(np.round(self.v[:, 0] / self.v_0), dtype=np.int)
         u_new = particle_numerics.vicsek_1d(self.r[:, 0], u,
                                             self.vicsek_R, self.L)
@@ -273,10 +273,10 @@ class Model1D(object):
 
     def iterate(self):
         if self.vicsek_R:
-            self.vicsek()
+            self._vicsek()
         if self.p_0:
-            self.tumble()
-        self.update_positions()
+            self._tumble()
+        self._update_positions()
 
         if self.c_source:
             density = self.get_density_field()
