@@ -12,11 +12,11 @@ class Walls(fields.Field):
         self.a = np.zeros(self.dim * (self.M,), dtype=np.uint8)
         self.d = self.L_half
 
-    def get_A_free_i(self):
+    def get_free_area_i(self):
         return np.logical_not(self.a).sum()
 
-    def get_A_free(self):
-        return self.A() * float(self.get_A_free_i()) / self.A_i()
+    def get_free_area(self):
+        return self.A() * float(self.get_free_area_i()) / self.A_i()
 
     def is_obstructed(self, r):
         return self.a[tuple(self.r_to_i(r).T)]
@@ -113,17 +113,18 @@ class Traps(Walls):
             self.a[x - s_i_half:x + s_i_half + 1,
                    y + w_i_half:y + w_i_half + self.d_i + 1] = False
 
-    def get_A_traps_i(self):
-        A_traps_i = 0
+    def get_trap_area_i(self):
+        trap_area_i = 0
         w_i_half = self.w_i // 2
         for x, y in self.traps_i:
             trap = self.a[x - w_i_half:x + w_i_half + 1,
                           y - w_i_half:y + w_i_half + 1]
-            A_traps_i += np.sum(np.logical_not(trap))
-        return A_traps_i
+            trap_area_i += np.sum(np.logical_not(trap))
+        return trap_area_i
 
-    def get_A_traps(self):
-        return self.A() * float(self.get_A_traps_i()) / self.get_A_free_i()
+    def get_trap_area(self):
+        return self.A() * (float(self.get_trap_area_i()) /
+                           self.get_free_area_i())
 
     def get_fracs(self, r):
         inds = self.r_to_i(r)
