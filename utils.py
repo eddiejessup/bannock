@@ -51,10 +51,7 @@ def get_bcf(m):
 
 
 def get_pstats(m):
-    p_mean = np.maximum(m.p, 0.0).mean()
-    p_min = m.p.min()
-    p_max = m.p.max()
-    return np.array(p_mean), np.array(p_min), np.array(p_max)
+    return np.maximum(m.p, 0.0).mean(), m.p.min(), m.p.max()
 
 
 def t_dstds(dirname):
