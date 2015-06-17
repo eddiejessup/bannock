@@ -104,7 +104,7 @@ def chi_bcfs(dirnames):
     return np.array(chis), np.array(bcfs)
 
 
-def get_hyst(dirname):
+def chi_dstd_ramp(dirname):
     fnames = get_filenames(dirname)
     ts, t_wraps, chis, dstds = [], [], [], []
     for fname in fnames:
