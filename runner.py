@@ -70,8 +70,8 @@ class Runner(object):
 
     def clear_dir(self):
         for snapshot in get_filenames(self.output_dir):
-            assert snapshot.endswith('.pkl')
-            os.remove(snapshot)
+            if snapshot.endswith('.pkl'):
+                os.remove(snapshot)
 
     def is_snapshot_time(self):
         return not self.model.i % self.output_every
