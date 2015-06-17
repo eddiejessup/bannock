@@ -6,6 +6,21 @@ import particle_numerics
 
 
 class Secretion(fields.Diffusing):
+    """A concentration field of a secreted, diffusing, decaying chemical.
+
+    Args:
+        L (float): The length of the field.
+        dim (int): The number of dimensions.
+        dx (float): The length of a cell.
+        D (float): The diffusion constant of the secreted chemical.
+        dt (float): The time-step represented by one iteration.
+        sink_rate (float): The fraction of the chemical which decays per
+                           unit time. Units are inverse time.
+        source_rate (float): The increase in secretion concentration per
+                             unit time, per unit secreter density.
+        a_0 (float, numpy.ndarray): Initial field state.
+    """
+
     def __init__(self, L, dim, dx, D, dt, sink_rate, source_rate,
                  a_0=0.0):
         fields.Diffusing.__init__(self, L, dim, dx, D, dt,
@@ -14,6 +29,13 @@ class Secretion(fields.Diffusing):
         self.sink_rate = sink_rate
 
     def iterate(self, density):
+        """
+        Evolve the field's state according to its differential equation, by a
+        single time-step.
+
+        Args:
+            density (numpy.array): The density of secreter.
+        """
         fields.Diffusing.iterate(self)
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
@@ -21,6 +43,14 @@ class Secretion(fields.Diffusing):
 
 
 class WalledSecretion(fields.WalledDiffusing):
+    """A concentration field of a secreted chemical in a walled environment.
+
+    Args:
+        walls (numpy.array): A boolean array of the same shape as the field,
+            where `True` indicates the presence of an obstacle.
+        Others: See `Secretion`.
+    """
+
     def __init__(self, L, dim, dx, walls, D, dt, sink_rate, source_rate,
                  a_0=0.0):
         fields.WalledDiffusing.__init__(self, L, dim, dx, walls, D, dt,
@@ -29,6 +59,7 @@ class WalledSecretion(fields.WalledDiffusing):
         self.sink_rate = sink_rate
 
     def iterate(self, density):
+        """See `Secretion.iterate`."""
         fields.WalledDiffusing.iterate(self)
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
@@ -36,6 +67,19 @@ class WalledSecretion(fields.WalledDiffusing):
 
 
 def format_parameter(p):
+    """Format a value as a string appropriate for use in a directory name.
+
+    For use when constructing a directory name that encodes the parameters
+    of a model.
+
+    Args:
+        p: A parameter. Special type cases are,
+            *None* is represented as 'N'.
+            *bool* is represented as '1' or '0'.
+
+    Returns:
+        str: Formatted parameter.
+    """
     if isinstance(p, float):
         return '{:.3g}'.format(p)
     elif p is None:
@@ -47,6 +91,30 @@ def format_parameter(p):
 
 
 class Model(object):
+    """Self-propelled particles moving in two dimensions in a chemical field.
+
+    Args:
+        seed (int): A random number seed. `None` causes a random choice.
+        rho_0 (float): The average area density of particles.
+        v_0 (float): The speed of the particles.
+        D_rot (float): The rotational diffusion constant of the particles.
+        p_0 (float): The base rate at which the particles randomise their
+            direction.
+        chi (float): The sensitivity of the particles' chemotactic response
+            to gradients in the chemoattractant concentration field.
+        onesided_flag (bool): Whether or not the particles' chemotactic
+            response can increase their _tumble rate.
+        force_mu (float): The degree to which the particles reorient towards
+            :math:`\\nabla c`, where :math:`c` is the
+            chemoattractant concentration field.
+        vicsek_R (float): A radius within which the particles reorient with
+            their neighbours.
+        walls (Walls): Obstacles in the environment.
+        c_D (float): see `Secretion`
+        c_sink (float): see `Secretion`
+        c_source (float): see `Secretion`
+    """
+
     def __init__(self, seed, dt,
                  rho_0, v_0, D_rot, p_0,
                  chi, onesided_flag,
