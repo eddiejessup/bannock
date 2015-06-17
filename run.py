@@ -53,25 +53,16 @@ default_model_kwargs.update({
 })
 
 
-def run_model(model_kwargs, output_dir, output_every, **iterate_args):
-    m = model.Model(**model_kwargs)
+def run_model(m, output_dir, output_every, **iterate_args):
     r = runner.Runner(output_dir, output_every, model=m, force_resume=True)
     print(r.output_dir)
     r.iterate(**iterate_args)
     return r
 
 
-def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
-    m = model.Model1D(**model_kwargs)
-    r = runner.Runner(output_dir, output_every, model=m)
-    print(r.output_dir)
-    r.iterate(**iterate_args)
-    return r
-
-
-def run_ramp_model_1d(model_kwargs, output_dir, output_every):
-    m = model.RampModel1D(**model_kwargs)
-    r = runner.Runner(output_dir, output_every, model=m)
+def run_ramp_model(RampModelClass, model_kwargs, output_dir, output_every):
+    m = RampModelClass(**model_kwargs)
+    r = runner.Runner(output_dir, output_every, model=m, force_resume=True)
     print(r.output_dir)
     while r.model.chi >= 0.0:
         r.iterate(n=1)
@@ -80,49 +71,35 @@ def run_ramp_model_1d(model_kwargs, output_dir, output_every):
     return r
 
 
-def run():
-    model_kwargs = default_model_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 0.1,
-        'onesided_flag': False,
-        'chi': 0.0,
-        'vicsek_R': 10.0,
-        'walls': walls_blank,
-    }
-    model_kwargs.update(extra_model_kwargs)
-    run_model(model_kwargs, output_dir=None, output_every=200, t_upto=2e4)
-
-
-def run_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
-    extra_model_kwargs = {
-        'rho_0': 2e-5,
-        'onesided_flag': False,
-        'chi': 0.0,
-    }
-    model_kwargs.update(extra_model_kwargs)
-    run_model_1d(model_kwargs, output_dir=None, output_every=200, t_upto=2e4)
-
-
 class TaskRunner(object):
     """Replacement for a closure, which I would use if
     the multiprocessing module supported them.
     """
 
-    def __init__(self, model_kwargs, run_func, output_every, t_upto):
+    def __init__(self, ModelClass, model_kwargs, output_dir,
+                 output_every, t_upto):
+        self.ModelClass = ModelClass
         self.model_kwargs = model_kwargs.copy()
-        self.run_func = run_func
+        self.output_dir = output_dir
         self.output_every = output_every
         self.t_upto = t_upto
 
     def __call__(self, chi):
         self.model_kwargs['chi'] = chi
-        r = self.run_func(self.model_kwargs, output_dir=None,
-                          output_every=self.output_every, t_upto=self.t_upto)
+        m = self.ModelClass(**self.model_kwargs)
+        r = self.run_model(m, output_dir=self.output_dir,
+                           output_every=self.output_every, t_upto=self.t_upto)
         print(chi, utils.get_bcf(r.model))
 
 
-def run_chi_scan():
+def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis):
+    task_runner = TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
+    multiprocessing.Pool(3).map(task_runner, chis)
+    # for chi in chis:
+    #     task_runner(chi)
+
+
+def run():
     model_kwargs = default_model_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 2e-4,
@@ -130,32 +107,22 @@ def run_chi_scan():
         'walls': walls_traps_1,
     }
     model_kwargs.update(extra_model_kwargs)
-
-    task_runner = TaskRunner(model_kwargs, run_model, 400, 1e4)
-
-    chis = np.linspace(0.0, 250.0, 10)
-    multiprocessing.Pool(3).map(task_runner, chis)
-    # for chi in chis:
-    #     task_runner(chi)
+    m = model.Model(**model_kwargs)
+    run_model(m, output_dir=None, output_every=200, t_upto=1e3)
 
 
-def run_chi_scan_1d():
+def run_1d():
     model_kwargs = default_model_1d_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
-
-    task_runner = TaskRunner(model_kwargs, run_model_1d, 200, 50.0)
-
-    chis = np.linspace(2.0, 8.0, 10)
-    # multiprocessing.Pool(3).map(task_runner, chis)
-    for chi in chis:
-        task_runner(chi)
+    m = model.Model1D(**model_kwargs)
+    run_model(m, output_dir=None, output_every=200, t_upto=1e3)
 
 
-def run_chi_hysteresis_1d():
+def run_chi_ramp_1d():
     ramp_kwargs = {
         'ramp_chi_0': 0.0,
         'ramp_chi_max': 10.0,
@@ -172,4 +139,28 @@ def run_chi_hysteresis_1d():
     model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
-    run_ramp_model_1d(model_kwargs, output_dir=None, output_every=2000)
+    run_ramp_model(model.RampModel1D, model_kwargs, output_dir=None,
+                   output_every=2000)
+
+
+def run_chi_scan_2d():
+    model_kwargs = default_model_kwargs.copy()
+    extra_model_kwargs = {
+        'rho_0': 2e-4,
+        'onesided_flag': True,
+        'walls': walls_traps_1,
+    }
+    model_kwargs.update(extra_model_kwargs)
+    run_chi_scan(model.Model, model_kwargs, output_every=400, t_upto=1e4,
+                 chis=np.linspace(0.0, 250.0, 10))
+
+
+def run_chi_scan_1d():
+    model_kwargs = default_model_1d_kwargs.copy()
+    extra_model_kwargs = {
+        'rho_0': 0.1,
+        'onesided_flag': True,
+    }
+    model_kwargs.update(extra_model_kwargs)
+    run_chi_scan(model.Model1D, model_kwargs, output_every=200, t_upto=50.0,
+                 chis=np.linspace(2.0, 8.0, 10))
