@@ -1,6 +1,5 @@
 from __future__ import print_function, division
 import multiprocessing
-import cProfile
 import numpy as np
 import utils
 import model
@@ -59,7 +58,6 @@ def run_model(model_kwargs, output_dir, output_every, **iterate_args):
     r = runner.Runner(output_dir, output_every, model=m, force_resume=True)
     print(r.output_dir)
     r.iterate(**iterate_args)
-    # cProfile.run('m.iterate(10000)' sort='tottime')
     return r
 
 
@@ -68,7 +66,6 @@ def run_model_1d(model_kwargs, output_dir, output_every, **iterate_args):
     r = runner.Runner(output_dir, output_every, model=m)
     print(r.output_dir)
     r.iterate(**iterate_args)
-    # cProfile.run('m.iterate(10000)' sort='tottime')
     return r
 
 
