@@ -82,8 +82,8 @@ class Model(object):
                                  self.walls.a, self.c_D, self.dt,
                                  self.c_sink, self.c_source, a_0=0.0)
 
-        self.n = int(round(self.walls.get_A_free() * rho_0))
-        self.rho_0 = self.n / self.walls.get_A_free()
+        self.n = int(round(self.walls.get_free_area() * rho_0))
+        self.rho_0 = self.n / self.walls.get_free_area()
 
         self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
         self._initialise_r()
