@@ -26,15 +26,14 @@ class Walls(fields.Field):
 
 
 class HalfClosed(Walls):
-    def __init__(self, L, dim, dx):
-        Walls.__init__(self, L, dim, dx)
+    def __init__(self, L, dx):
+        Walls.__init__(self, L, dim=2, dx=dx)
         self.a[:, 0] = True
-        self.a[:, -1] = True
 
 
 class Closed(Walls):
-    def __init__(self, L, dim, dx):
-        Walls.__init__(self, L, dim, dx)
+    def __init__(self, L, dx):
+        Walls.__init__(self, L, dim=2, dx=dx)
         self.a[:, 0] = True
         self.a[:, -1] = True
         self.a[0, :] = True
@@ -42,8 +41,8 @@ class Closed(Walls):
 
 
 class Tittled(Walls):
-    def __init__(self, L, dim, dx, wx, wy, sx, sy):
-        Walls.__init__(self, L, dim, dx)
+    def __init__(self, L, dx, wx, wy, sx, sy):
+        Walls.__init__(self, L, dim=2, dx=dx)
         self.wx_i = int(round(wx / self.dx()))
         self.wy_i = int(round(wy / self.dx()))
         self.sx_i = int(round(sx / self.dx()))
@@ -67,7 +66,6 @@ class Tittled(Walls):
 
 
 class Traps(Walls):
-    def __init__(self, L, dim, dx, n, d, w, s):
         '''Make a set of walls making a number of traps.
 
         d: Wall width.
@@ -75,7 +73,8 @@ class Traps(Walls):
         s: Trap entrance width.
         '''
 
-        Walls.__init__(self, L, dim, dx)
+    def __init__(self, L, dx, n, d, w, s):
+        Walls.__init__(self, L, dim=2, dx=dx)
         self.n = n
         self.d_i = int(d / self.dx()) + 1
         self.w_i = int(w / self.dx()) + 1

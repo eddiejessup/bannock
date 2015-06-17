@@ -10,10 +10,12 @@ import walls
 
 default_wall_args = {
     'L': 5000.0,
-    'dim': 2,
     'dx': 40.0,
 }
 
+default_blank_args = {
+    'dim': 2,
+}
 
 default_trap_args = {
     'n': 1,
@@ -37,7 +39,8 @@ default_model_1d_kwargs = {
 }
 
 
-walls_blank = walls.Walls(**default_wall_args)
+walls_blank = walls.Walls(**dict(default_wall_args.items() +
+                                 default_blank_args.items()))
 walls_traps_1 = walls.Traps(**dict(default_wall_args.items() +
                                    default_trap_args.items()))
 
