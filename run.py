@@ -52,16 +52,15 @@ default_model_kwargs.update({
 })
 
 
-def run_model(m, output_dir, output_every, **iterate_args):
-    r = runner.Runner(output_every, model=m, force_resume=True)
+def run_model(m, output_every, output_dir=None, **iterate_args):
+    r = runner.Runner(output_every, output_dir, m, force_resume=True)
     print(r.output_dir)
     r.iterate(**iterate_args)
     return r
 
 
-def run_ramp_model(RampModelClass, model_kwargs, output_dir, output_every):
-    m = RampModelClass(**model_kwargs)
-    r = runner.Runner(output_every, model=m, force_resume=True)
+def run_ramp_model(m, output_every, output_dir=None):
+    r = runner.Runner(output_every, output_dir, m, force_resume=True)
     print(r.output_dir)
     while r.model.chi >= 0.0:
         r.iterate(n=1)
@@ -75,19 +74,17 @@ class TaskRunner(object):
     the multiprocessing module supported them.
     """
 
-    def __init__(self, ModelClass, model_kwargs, output_dir,
+    def __init__(self, ModelClass, model_kwargs,
                  output_every, t_upto):
         self.ModelClass = ModelClass
         self.model_kwargs = model_kwargs.copy()
-        self.output_dir = output_dir
         self.output_every = output_every
         self.t_upto = t_upto
 
     def __call__(self, chi):
         self.model_kwargs['chi'] = chi
         m = self.ModelClass(**self.model_kwargs)
-        r = self.run_model(m, output_dir=self.output_dir,
-                           output_every=self.output_every, t_upto=self.t_upto)
+        r = run_model(m, output_every=self.output_every, t_upto=self.t_upto)
         print(chi, utils.get_bcf(r.model))
 
 
@@ -107,7 +104,7 @@ def run():
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model(**model_kwargs)
-    run_model(m, output_dir=None, output_every=200, t_upto=1e3)
+    run_model(m, output_every=200, t_upto=1e2, output_dir='test_2d')
 
 
 def run_1d():
@@ -118,7 +115,7 @@ def run_1d():
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
-    run_model(m, output_dir=None, output_every=200, t_upto=1e3)
+    run_model(m, output_every=200, t_upto=1e3, output_dir='test_1d')
 
 
 def run_chi_ramp_1d():
@@ -138,8 +135,8 @@ def run_chi_ramp_1d():
     model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
-    run_ramp_model(model.RampModel1D, model_kwargs, output_dir=None,
-                   output_every=2000)
+    m = model.RampModel1D(**model_kwargs)
+    run_ramp_model(m, output_every=2000)
 
 
 def run_chi_scan_2d():
@@ -150,8 +147,8 @@ def run_chi_scan_2d():
         'walls': walls_traps_1,
     }
     model_kwargs.update(extra_model_kwargs)
-    run_chi_scan(model.Model, model_kwargs, output_every=400, t_upto=1e4,
-                 chis=np.linspace(0.0, 250.0, 10))
+    run_chi_scan(model.Model, model_kwargs, output_every=400, t_upto=50.0,
+                 chis=np.linspace(30.0, 75.0, 10))
 
 
 def run_chi_scan_1d():
