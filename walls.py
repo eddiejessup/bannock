@@ -3,8 +3,6 @@ import numpy as np
 from ciabatta import lattice, fields, maze
 from model import format_parameter
 
-BUFFER_SIZE = 0.999
-
 
 class Walls(fields.Field):
     """A field representing an environment filled with square obstacles."""
