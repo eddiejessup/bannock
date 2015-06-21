@@ -8,17 +8,26 @@ import particle_numerics
 class Secretion(fields.Diffusing):
     """A concentration field of a secreted, diffusing, decaying chemical.
 
-    Args:
-        L (float): The length of the field.
-        dim (int): The number of dimensions.
-        dx (float): The length of a cell.
-        D (float): The diffusion constant of the secreted chemical.
-        dt (float): The time-step represented by one iteration.
-        sink_rate (float): The fraction of the chemical which decays per
-                           unit time. Units are inverse time.
-        source_rate (float): The increase in secretion concentration per
-                             unit time, per unit secreter density.
-        a_0 (float, numpy.ndarray): Initial field state.
+    Parameters
+    ----------
+    L: float
+        The length of the field.
+    dim: int
+        The number of dimensions.
+    dx: float
+        The length of a cell.
+    D: float
+        The diffusion constant of the secreted chemical.
+    dt: float
+        The time-step represented by one iteration.
+    sink_rate: float
+        The fraction of the chemical which decays per unit time.
+        Units are inverse time.
+    source_rate: float
+        The increase in secretion concentration per unit time,
+        per unit secreter density.
+    a_0: array_like
+        Initial field state.
     """
 
     def __init__(self, L, dim, dx, D, dt, sink_rate, source_rate,
@@ -33,8 +42,10 @@ class Secretion(fields.Diffusing):
         Evolve the field's state according to its differential equation, by a
         single time-step.
 
-        Args:
-            density (numpy.array): The density of secreter.
+        Parameters
+        ----------
+        density: numpy.ndarray[dtype=float]
+            The density of secreter.
         """
         fields.Diffusing.iterate(self)
         self.a += self.dt * (self.source_rate * density -
@@ -45,10 +56,12 @@ class Secretion(fields.Diffusing):
 class WalledSecretion(fields.WalledDiffusing):
     """A concentration field of a secreted chemical in a walled environment.
 
-    Args:
-        walls (numpy.array): A boolean array of the same shape as the field,
-            where `True` indicates the presence of an obstacle.
-        Others: See `Secretion`.
+    Parameters
+    ----------
+    walls: numpy.ndarray[dtype=bool]
+        An array of the same shape as the field,
+        where `True` indicates the presence of an obstacle.
+    Others: see :class:`Secretion`.
     """
 
     def __init__(self, L, dim, dx, walls, D, dt, sink_rate, source_rate,
@@ -59,7 +72,7 @@ class WalledSecretion(fields.WalledDiffusing):
         self.sink_rate = sink_rate
 
     def iterate(self, density):
-        """See `Secretion.iterate`."""
+        """See :meth:`Secretion.iterate`."""
         fields.WalledDiffusing.iterate(self)
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
@@ -70,15 +83,20 @@ def format_parameter(p):
     """Format a value as a string appropriate for use in a directory name.
 
     For use when constructing a directory name that encodes the parameters
-    of a model.
+    of a model. Specially handled type cases are,
 
-    Args:
-        p: A parameter. Special type cases are,
-            *None* is represented as 'N'.
-            *bool* is represented as '1' or '0'.
+    - `None` is represented as 'N'.
 
-    Returns:
-        str: Formatted parameter.
+    - `bool` is represented as '1' or '0'.
+
+    Parameters
+    ----------
+    p: various
+
+    Returns
+    -------
+    p_str: str
+        Formatted parameter.
     """
     if isinstance(p, float):
         return '{:.3g}'.format(p)
@@ -93,26 +111,41 @@ def format_parameter(p):
 class Model(object):
     """Self-propelled particles moving in two dimensions in a chemical field.
 
-    Args:
-        seed (int): A random number seed. `None` causes a random choice.
-        rho_0 (float): The average area density of particles.
-        v_0 (float): The speed of the particles.
-        D_rot (float): The rotational diffusion constant of the particles.
-        p_0 (float): The base rate at which the particles randomise their
-            direction.
-        chi (float): The sensitivity of the particles' chemotactic response
-            to gradients in the chemoattractant concentration field.
-        onesided_flag (bool): Whether or not the particles' chemotactic
-            response can increase their _tumble rate.
-        force_mu (float): The degree to which the particles reorient towards
-            :math:`\\nabla c`, where :math:`c` is the
-            chemoattractant concentration field.
-        vicsek_R (float): A radius within which the particles reorient with
-            their neighbours.
-        walls (Walls): Obstacles in the environment.
-        c_D (float): see `Secretion`
-        c_sink (float): see `Secretion`
-        c_source (float): see `Secretion`
+    Parameters
+    ----------
+    seed: int
+        A random number seed. `None` causes a random choice.
+    dt: float
+        The size of a single time-step.
+    rho_0: float
+        The average area density of particles.
+    v_0: float
+        The speed of the particles.
+    D_rot: float
+        The rotational diffusion constant of the particles.
+    p_0: float
+        The base rate at which the particles randomise their
+        direction.
+    chi: float
+        The sensitivity of the particles' chemotactic response to gradients
+        in the chemoattractant concentration field.
+    onesided_flag: bool
+        Whether or not the particles' chemotactic response can increase
+        their _tumble rate.
+    force_mu: float
+        The degree to which the particles reorient towards
+        :math:`\\nabla c`, where :math:`c` is the chemoattractant
+        concentration field.
+    vicsek_R: float
+        A radius within which the particles reorient with their neighbours.
+    walls: Walls
+        Obstacles in the environment
+    c_D: float
+        see :class:`Secretion`
+    c_sink: float
+        see :class:`Secretion`
+    c_source: float
+        see :class:`Secretion`
     """
 
     def __init__(self, seed, dt,
@@ -226,6 +259,23 @@ class Model(object):
         self.v = particle_numerics.vicsek_inters(self.v, inters, intersi)
 
     def iterate(self):
+        """Evolve the model's state by a single time-step.
+
+        - Do Vicsek alignment
+
+        - Make particles tumble at their chemotactic probabilities.
+
+        - Reorient particles according to chemotactic gradient
+
+        - Diffuse the particles' directions
+
+        - Make the particles swim in the periodic space
+
+        - Reorient the particles that collide with walls, and move them back
+          to their original positions
+
+        - Iterate the chemical concentration field
+        """
         if self.vicsek_R:
             self._vicsek()
         if self.p_0:
@@ -244,6 +294,15 @@ class Model(object):
         self.i += 1
 
     def get_density_field(self):
+        """Calculate a field on the same lattice as the chemical concentration,
+        for the particle number density, binning the particles into their
+        nearest cell.
+
+        Returns
+        -------
+        d: numpy.ndarray[dtype=int]
+            Density field
+        """
         return fields.density(self.r, self.L, self.c.dx())
 
     def __repr__(self):
@@ -263,6 +322,17 @@ class Model(object):
 
 
 class Model1D(object):
+    """Self-propelled particles moving in one dimension in a chemical field.
+
+    Parameters
+    ----------
+    L: float
+        Length of the system.
+    dx: float
+        Length of a cell in the chemical concetration field lattice.
+    Others:
+        see :class:`Model`.
+    """
     def __init__(self, seed, dt,
                  rho_0, v_0, p_0,
                  chi, onesided_flag,
@@ -340,6 +410,16 @@ class Model1D(object):
         self.v[:, 0] = self.v_0 * u_new
 
     def iterate(self):
+        """Evolve the model's state by a single time-step.
+
+        - Do Vicsek alignment
+
+        - Make particles tumble at their chemotactic probabilities.
+
+        - Make the particles swim in the periodic space
+
+        - Iterate the chemical concentration field
+        """
         if self.vicsek_R:
             self._vicsek()
         if self.p_0:
@@ -354,6 +434,7 @@ class Model1D(object):
         self.i += 1
 
     def get_density_field(self):
+        """See :meth:`Model.get_density_field`"""
         return fields.density(self.r, self.L, self.c.dx())
 
     def __repr__(self):
@@ -372,6 +453,26 @@ class Model1D(object):
 
 
 class RampModel1D(Model1D):
+    """Self-propelled particles moving in one dimension in a chemical field,
+    whose chemotactic sensitivity varies with a linear ramp.
+
+    Parameters
+    ----------
+    ramp_chi_0: float
+        Starting value.
+    ramp_chi_max: float
+        Maximum value, at which the ramp reverses direction.
+    ramp_dchi_dt: float
+        Rate at which the parameter increases.
+    ramp_t_steady: float
+        Length of time to keep the parameter at `chi_0` before beginning the
+        ramp.
+    ramp_dt: float
+        Length of time the parameter stays at a given value before being
+        incremented. The large this is, the more 'blocky' the ramp becomes.
+    Others: see :class:`Model1D`.
+    """
+
     def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady,
                  ramp_dt,
                  *args, **kwargs):
@@ -388,6 +489,18 @@ class RampModel1D(Model1D):
         self.chi = self.ramp_chi_func(self.t)[0]
 
     def iterate(self):
+        """Evolve the model's state by a single time-step.
+
+        - Do Vicsek alignment
+
+        - Make particles tumble at their chemotactic probabilities.
+
+        - Make the particles swim in the periodic space
+
+        - Iterate the chemical concentration field
+
+        - Set the new chemotactic sensitivity for the next time-step.
+        """
         Model1D.iterate(self)
         self.chi = self.ramp_chi_func(self.t)[0]
 
@@ -416,6 +529,34 @@ class RampModel1D(Model1D):
 
 
 def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):
+    """Make a function to calculate the value of a parameter at a certain time,
+    when doing a linear ramp that increases from a starting value to a maximum,
+    then decreases again. A burn-in time is incorporated, where the parameter
+    stays at its starting value for a time before the ramp is begun, to
+    allow the system to reach steady state.
+
+    Parameters
+    ----------
+    chi_0: float
+        Starting value.
+    chi_max: float
+        Maximum value, at which the ramp reverses direction.
+    dchi_dt: float
+        Rate at which the parameter increases.
+    t_steady: float
+        Length of time to keep the parameter at `chi_0` before beginning the
+        ramp.
+    dt: float
+        Length of time the parameter stays at a given value before being
+        incremented. The large this is, the more 'blocky' the ramp becomes.
+
+    Returns
+    -------
+    ramp_chi: function
+        Takes a float, `t`: the time for which to calculate the
+        parameter's value, and returns a float, the parameter's value at that
+        time.
+    """
     ramp_t_switch = (chi_max - chi_0) / dchi_dt
 
     def ramp_chi(t):

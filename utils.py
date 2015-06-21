@@ -10,10 +10,13 @@ r_cluster_2d = 20.0
 def get_r_cluster(m):
     """Find the cluster length scale appropriate for a model's dimension.
 
-    Args:
-        m (Model): A model instance.
-    Returns:
-        float: The cluster length scale.
+    Parameters
+    ----------
+    m: Model
+
+    Returns
+    -------
+    r_cluster: float
     """
     if m.dim == 1:
         return r_cluster_1d
@@ -28,11 +31,14 @@ def dstd_func(d):
     its deviation from uniformity, that is, 1 everywhere, computed like a
     standard deviation.
 
-    Args:
-        d (numpy.array): Normalised density field.
+    Parameters
+    ----------
+    d: numpy.ndarray[dtype=float]
+        Normalised density field.
 
-    Returns:
-        float: The heterogeneity measure.
+    Returns
+    -------
+    dstd: float
     """
     return np.sqrt(np.sum(np.square(d - 1.0)) / d.shape[0])
 
@@ -43,11 +49,13 @@ def density_norm(m):
     Calculate a model's density field, normalise it by the mean density,
     and ignore points that are on obstacles.
 
-    Args:
-        m (Model): A model instance.
+    Parameters
+    ----------
+    m: Model
 
-    Returns:
-        numpy.array: The normalised density field.
+    Returns
+    -------
+    d: numpy.ndarray[dtype=float]
     """
     d = m.get_density_field() / float(m.rho_0)
     try:
@@ -61,12 +69,18 @@ def get_dstd_mean(dirname, t_steady):
     """Return the density field heterogeneity of a model's output, averaged
     over many output times after steady state is reached.
 
-    Args:
-        dirname (str): A model output directory name
-        t_steady (float): The time at which to consider the model to be at
-                          steady state. Averaging is done over all later times.
-    Returns:
-        float: The heterogeneity measure.
+    Parameters
+    ----------
+    dirname: str
+        A model output directory name
+    t_steady: float
+        The time at which to consider the model to be at steady state.
+        Averaging is done over all later times.
+
+    Returns
+    -------
+    dstd: float
+        The heterogeneity measure.
     """
     fnames = get_filenames(dirname)
     m_0 = filename_to_model(fnames[0])
@@ -84,11 +98,14 @@ def get_dstd_mean(dirname, t_steady):
 def get_dstd(m):
     """Calculate the density field heterogeneity of a model.
 
-    Args:
-        m (Model): A model instance.
+    Parameters
+    ----------
+    m: Model
 
-    Returns:
-        float: The heterogeneity measure.
+    Returns
+    -------
+    dstd: float
+        The heterogeneity measure.
     """
     return dstd_func(density_norm(m))
 
@@ -96,11 +113,13 @@ def get_dstd(m):
 def get_bcf(m):
     """Calculate the fraction of particles in the biggest cluster for a model.
 
-    Args:
-        m (Model): A model instance.
+    Parameters
+    ----------
+    m: Model
 
-    Returns:
-        float: The biggest cluster fraction.
+    Returns
+    -------
+    bcf: float
     """
     labels = cluster.cluster(m.r, get_r_cluster(m))
     return cluster.biggest_cluster_fraction(labels)
@@ -109,16 +128,20 @@ def get_bcf(m):
 def get_pstats(m):
     """Calculate the tumble rate statistics for a model.
 
-    Args:
-        m (Model): A model instance.
+    Parameters
+    ----------
+    m: Model
 
-    Returns:
-        tuple:
-            * *float*: Mean tumble rate, using a floor of zero, so that
-              0, -1 and -100 all count as 0 when calculating the
-              mean. This is done even if the model does not do this.
-            * *float*: Minimum tumble rate. A floor of zero is *not* used.
-            * *float*: Maximum tumble rate.
+    Returns
+    -------
+    p_mean: float
+        Mean tumble rate, using a floor of zero, so that 0, -1 and -100
+        all count as 0 when calculating the mean. This is done even if
+        the model does not do this.
+    p_mean: float
+        Minimum tumble rate. A floor of zero is *not* used.
+    p_max:float
+        Maximum tumble rate.
     """
     return np.maximum(m.p, 0.0).mean(), m.p.min(), m.p.max()
 
@@ -127,13 +150,17 @@ def t_dstds(dirname):
     """Calculate the density field heterogeneity over time for a model output
     directory.
 
-    Args:
-        dirname (str): A model output directory path.
+    Parameters
+    ----------
+    dirname: str
+        A model output directory path.
 
-    Returns:
-        tuple:
-            * *numpy.array*: Times.
-            * *numpy.array*: Heterogeneity measures.
+    Returns
+    -------
+    ts: numpy.ndarray[dtype=float]
+        Times.
+    dstds: numpy.ndarray[dtype=float]
+        Heterogeneity measures.
     """
     ts, dstds = [], []
     for fname in get_filenames(dirname):
@@ -147,13 +174,17 @@ def t_bcfs(dirname):
     """Calculate the fraction of particles in the biggest cluster over time
     for a model output directory.
 
-    Args:
-        dirname (str): A model output directory path
+    Parameters
+    ----------
+    dirname: str
+        A model output directory path
 
-    Returns:
-        tuple:
-            * *numpy.array*: Times.
-            * *numpy.array*: Biggest cluster fractions.
+    Returns
+    -------
+    ts: numpy.ndarray[dtype=float]
+        Times.
+    bcfs: numpy.ndarray[dtype=float]
+        Biggest cluster fractions.
     """
     ts, bcfs = [], []
     for fname in get_filenames(dirname):
@@ -166,20 +197,23 @@ def t_bcfs(dirname):
 def t_pmeans(dirname):
     """Calculate tumble rates statistics over time for a model output directory.
 
-    Args:
-        dirname (str): A model output directory path
+    Parameters
+    ----------
+    dirname: str
+        A model output directory path
 
-    Returns:
-        tuple:
-            * *numpy.array*: Times.
-            * *numpy.array*: Biggest cluster fractions.
-            * *numpy.array*: Mean tumble rates, using a floor of zero, so that
-                              0, -1 and -100 all count as 0 when calculating
-                              the mean. This is done even if the model does
-                              not do this.
-            * *numpy.array*: Minimum tumble rates. A floor of zero is *not*
-                             used.
-            * *numpy.array*: Maximum tumble rates.
+    Returns
+    -------
+    ts: numpy.ndarray[dtype=float]
+        Times.
+    p_means: numpy.ndarray[dtype=float]
+        Mean tumble rates, using a floor of zero, so that 0, -1 and -100 all
+        count as 0 when calculating the mean. This is done even if the model
+        does not do this.
+    p_mins: numpy.ndarray[dtype=float]
+        Minimum tumble rates. A floor of zero is *not* used.
+    p_maxs: numpy.ndarray[dtype=float]
+        Maximum tumble rates.
     """
     ts, p_means, p_mins, p_maxs = [], [], [], []
     for fname in get_filenames(dirname):
@@ -196,13 +230,17 @@ def chi_dstd(dirnames):
     """Calculate the density field heterogeneity of a set of model output
     directories, and their associated chis.
 
-    Args:
-        dirnames (iterable): Model output directory paths.
+    Parameters
+    ----------
+    dirnames: List[str]
+        Model output directory paths.
 
-    Returns:
-        tuple:
-            * *numpy.array*: Chis.
-            * *numpy.array*: Heterogeneity measures.
+    Returns
+    -------
+    chis: numpy.ndarray[dtype=float]
+        Chemotactic sensitivities
+    dstds: numpy.ndarray[dtype=float]
+        Heterogeneity measures.
     """
     chis, dstds = [], []
     for dirname in dirnames:
@@ -217,13 +255,17 @@ def chi_bcfs(dirnames):
     """Calculate the fraction of particles in the biggest cluster of a set of
     model output directories, and their associated chis.
 
-    Args:
-        dirnames (iterable): Model output directory paths.
+    Parameters
+    ----------
+    dirnames: List[str]
+        Model output directory paths.
 
-    Returns:
-        tuple:
-            * *numpy.array*: Chis.
-            * *numpy.array*: Biggest cluster fractions.
+    Returns
+    -------
+    chis: numpy.ndarray[dtype=float]
+        Chemotactic sensitivities
+    bcfs: numpy.ndarray[dtype=float]
+        Biggest cluster fractions.
     """
     chis, bcfs = [], []
     for dirname in dirnames:
@@ -238,17 +280,21 @@ def chi_dstd_ramp(dirname):
     """Calculate the density field heterogeneity over time for a model output
     directory, under a ramping protocol for chi.
 
-    Args:
-        dirnames (str): Model output directory path.
+    Parameters
+    ----------
+    dirname: str
+        Model output directory path.
 
-    Returns:
-        tuple:
-            * *numpy.array*: Times.
-            * *numpy.array*: Times, reflected about the maximum chi when the
-                             ramp starts decreasing. Use these to make a
-                             hysteresis plot.
-            * *numpy.array*: Chis
-            * *numpy.array*: Heterogeneity measures.
+    Returns
+    -------
+    ts: numpy.ndarray[dtype=float]
+        Times.
+    ts_wrap: numpy.ndarray[dtype=float]
+        Times, reflected about the maximum chi when the ramp starts decreasing.
+        Use these to make a hysteresis plot.
+    chis: numpy.ndarray[dtype=float]
+    dstds: numpy.ndarray[dtype=float]
+        Heterogeneity measures.
     """
     fnames = get_filenames(dirname)
     ts, t_wraps, chis, dstds = [], [], [], []

@@ -17,27 +17,33 @@ class Walls(fields.Field):
     def get_free_area_i(self):
         """Calculate the number of elements that are not occupied by obstacles.
 
-        Returns:
-            int: Number of elements.
+        Returns
+        -------
+        area_i: int
         """
         return np.logical_not(self.a).sum()
 
     def get_free_area(self):
         """Calculate the area that is not occupied by obstacles.
 
-        Returns:
-            float: Area.
+        Returns
+        -------
+        area: float
         """
         return self.A() * float(self.get_free_area_i()) / self.A_i()
 
     def is_obstructed(self, r):
         """Determine if a set of position vectors lie on top of obstacles.
 
-        Args:
-            r (numpy.array[n, dim]): `n` position vectors.
+        Parameters
+        ----------
+        r: array_like[shape=(n, 2)]
+            Particle position vectors.
 
-        Returns:
-            numpy.array[n, dtype=bool]: `True` if a vector is obstructed.
+        Returns
+        -------
+        o: numpy.ndarray[dtype=bool, shape=(n,)]
+            `True` if a vector is obstructed.
         """
         return self.a[tuple(self.r_to_i(r).T)]
 
@@ -92,11 +98,16 @@ class Tittled(Walls):
 class Traps(Walls):
     """A set of walls forming a number of 2D traps.
 
-    Args:
-        n (int): The number of traps. Can be 1, 4 or 5.
-        d (float): The width of the trap wall.
-        w (float): The width of the entire trap.
-        s (float): The width of the trap entrance.
+    Parameters
+    ----------
+    n: int
+        The number of traps. Can be 1, 4 or 5.
+    d: float
+        The width of the trap wall.
+    w: float
+        The width of the entire trap.
+    s: float
+        The width of the trap entrance.
     """
 
     def __init__(self, L, dx, n, d, w, s):
@@ -141,8 +152,9 @@ class Traps(Walls):
     def get_trap_area_i(self):
         """Calculate the number of elements occupied by all traps.
 
-        Returns:
-            int: Number of elements.
+        Returns
+        -------
+        trap_area_i: int
         """
         trap_area_i = 0
         w_i_half = self.w_i // 2
@@ -155,8 +167,9 @@ class Traps(Walls):
     def get_trap_area(self):
         """Calculate the area occupied by all traps.
 
-        Returns:
-            float: Area.
+        Returns
+        -------
+        trap_area: float
         """
         return self.A() * (float(self.get_trap_area_i()) /
                            self.get_free_area_i())
@@ -164,11 +177,14 @@ class Traps(Walls):
     def get_fracs(self, r):
         """Calculate the number of particles inside each trap.
 
-        Args:
-            r (numpy.array[n, 2]): `n` Particle position vectors.
+        Parameters
+        ----------
+        r: array_like[shape=(n, 2)]
+            Particle position vectors.
 
-        Returns:
-            list of int: For each trap, the number of particles in that trap.
+        Returns
+        -------
+        fracs: List[int]
         """
         inds = self.r_to_i(r)
         n_traps = [0 for i in range(len(self.traps_i))]
@@ -195,11 +211,14 @@ class Traps(Walls):
 class Maze(Walls):
     """A set of walls forming a maze.
 
-    Args:
-        d (float): The width of the maze walls.
-        seed (int): The random number seed used to generate the maze.
-            Note that this does not affect, or is affected by, pre-existing
-            random number seeding.
+    Parameters
+    ----------
+    d: float
+        The width of the maze walls.
+    seed: int
+        The random number seed used to generate the maze.
+        Note that this does not affect, or is affected by, pre-existing
+        random number seeding.
     """
 
     def __init__(self, L, dim, dx, d, seed=None):
