@@ -95,7 +95,7 @@ def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis):
     #     task_runner(chi)
 
 
-def run():
+def run_2d():
     model_kwargs = default_model_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 2e-4,
