@@ -23,7 +23,12 @@ default_trap_args = {
     's': 80.0,
 }
 
+walls_blank = walls.Walls(**dict(default_wall_args.items() +
+                                 default_blank_args.items()))
+walls_traps_1 = walls.Traps(**dict(default_wall_args.items() +
+                                   default_trap_args.items()))
 
+# Make 1d default model args
 default_model_1d_kwargs = {
     'seed': 1,
     'dt': 0.2,
@@ -37,13 +42,7 @@ default_model_1d_kwargs = {
     'c_source': 1.0,
 }
 
-
-walls_blank = walls.Walls(**dict(default_wall_args.items() +
-                                 default_blank_args.items()))
-walls_traps_1 = walls.Traps(**dict(default_wall_args.items() +
-                                   default_trap_args.items()))
-
-
+# Make 2d default model args
 default_model_kwargs = default_model_1d_kwargs.copy()
 del default_model_kwargs['L']
 del default_model_kwargs['dx']
