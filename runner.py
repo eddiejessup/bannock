@@ -4,7 +4,7 @@ import os
 import glob
 
 
-def f_to_i(f):
+def _f_to_i(f):
     """Infer a model's iteration number from its output filename.
 
     Parameters
@@ -36,7 +36,7 @@ def get_filenames(dirname):
         increasing iteration number.
     """
     filenames = glob.glob('{}/*.pkl'.format(dirname))
-    return sorted(filenames, key=f_to_i)
+    return sorted(filenames, key=_f_to_i)
 
 
 def filename_to_model(filename):

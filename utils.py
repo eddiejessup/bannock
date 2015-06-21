@@ -7,7 +7,7 @@ r_cluster_1d = 5.0
 r_cluster_2d = 20.0
 
 
-def get_r_cluster(m):
+def _get_r_cluster(m):
     """Find the cluster length scale appropriate for a model's dimension.
 
     Parameters
@@ -43,7 +43,7 @@ def dstd_func(d):
     return np.sqrt(np.sum(np.square(d - 1.0)) / d.shape[0])
 
 
-def density_norm(m):
+def _density_norm(m):
     """Calculate a model's normalised density field.
 
     Calculate a model's density field, normalise it by the mean density,
@@ -89,7 +89,7 @@ def get_dstd_mean(dirname, t_steady):
     for fname in fnames:
         m = filename_to_model(fname)
         if m.t > t_steady:
-            density_norm_mean += density_norm(m)
+            density_norm_mean += _density_norm(m)
             i_samples += 1
     density_norm_mean /= float(i_samples)
     return dstd_func(density_norm_mean)
@@ -107,7 +107,7 @@ def get_dstd(m):
     dstd: float
         The heterogeneity measure.
     """
-    return dstd_func(density_norm(m))
+    return dstd_func(_density_norm(m))
 
 
 def get_bcf(m):
@@ -121,7 +121,7 @@ def get_bcf(m):
     -------
     bcf: float
     """
-    labels = cluster.cluster(m.r, get_r_cluster(m))
+    labels = cluster.cluster(m.r, _get_r_cluster(m))
     return cluster.biggest_cluster_fraction(labels)
 
 
