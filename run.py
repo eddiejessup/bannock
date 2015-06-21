@@ -54,7 +54,7 @@ default_model_kwargs.update({
 
 
 def run_model(m, output_dir, output_every, **iterate_args):
-    r = runner.Runner(output_dir, output_every, model=m, force_resume=True)
+    r = runner.Runner(output_every, model=m, force_resume=True)
     print(r.output_dir)
     r.iterate(**iterate_args)
     return r
@@ -62,7 +62,7 @@ def run_model(m, output_dir, output_every, **iterate_args):
 
 def run_ramp_model(RampModelClass, model_kwargs, output_dir, output_every):
     m = RampModelClass(**model_kwargs)
-    r = runner.Runner(output_dir, output_every, model=m, force_resume=True)
+    r = runner.Runner(output_every, model=m, force_resume=True)
     print(r.output_dir)
     while r.model.chi >= 0.0:
         r.iterate(n=1)

@@ -97,7 +97,7 @@ class Runner(object):
         - `None`: Prompt the user.
     """
 
-    def __init__(self, output_dir, output_every, model=None,
+    def __init__(self, output_every, output_dir=None, model=None,
                  force_resume=None):
         self.output_dir = output_dir
         self.output_every = output_every
