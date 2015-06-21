@@ -69,7 +69,7 @@ def run_ramp_model(m, output_every, output_dir=None):
     return r
 
 
-class TaskRunner(object):
+class _TaskRunner(object):
     """Replacement for a closure, which I would use if
     the multiprocessing module supported them.
     """
@@ -89,7 +89,7 @@ class TaskRunner(object):
 
 
 def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis):
-    task_runner = TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
+    task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
     multiprocessing.Pool(3).map(task_runner, chis)
     # for chi in chis:
     #     task_runner(chi)
