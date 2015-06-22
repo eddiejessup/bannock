@@ -1,3 +1,4 @@
+#!/usrbin/env python
 from __future__ import print_function, division
 import sys
 import numpy as np
