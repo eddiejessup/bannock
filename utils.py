@@ -310,7 +310,7 @@ def chi_dstd_ramp(dirname):
     return np.array(ts), np.array(t_wraps), np.array(chis), np.array(dstds)
 
 
-def run_model(m, output_every, output_dir=None, **iterate_args):
+def run_model(output_every, output_dir=None, m=None, **iterate_args):
     """Convenience function to combine making a Runner object, and
     running it for some time.
 
@@ -334,7 +334,7 @@ def run_model(m, output_every, output_dir=None, **iterate_args):
     return r
 
 
-def run_ramp_model(m, output_every, output_dir=None):
+def run_ramp_model(output_every, output_dir=None, m=None):
     """Convenience function to combine making a Runner object, and
     running a RampModel until chi = 0.
 
@@ -374,7 +374,7 @@ class _TaskRunner(object):
     def __call__(self, chi):
         self.model_kwargs['chi'] = chi
         m = self.ModelClass(**self.model_kwargs)
-        r = run_model(m, output_every=self.output_every, t_upto=self.t_upto)
+        r = run_model(self.output_every, model=m, t_upto=self.t_upto)
         print(chi, get_bcf(r.model))
 
 
