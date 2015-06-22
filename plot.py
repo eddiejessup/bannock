@@ -39,7 +39,6 @@ if __name__ == '__main__':
     t_time = fig.text(0.1, 0.5, '')
     t_dstd = fig.text(0.1, 0.4, '')
 
-
     def update(val):
         fname_i = int(round(val))
         if 0 <= fname_i < len(fnames):
@@ -47,7 +46,8 @@ if __name__ == '__main__':
             plot_p.set_offsets(m.r)
             plot_p.set_UVC(m.v[:, 0], m.v[:, 1])
             c_mask = np.ma.array(np.log(m.c.a.T),
-                                 mask=np.logical_or(m.c.a.T == 0.0, m.walls.a.T))
+                                 mask=np.logical_or(m.c.a.T == 0.0,
+                                                    m.walls.a.T))
             plot_c.set_data(c_mask)
             plot_c.autoscale()
             t_time.set_text('Time: {:g}'.format(m.t))

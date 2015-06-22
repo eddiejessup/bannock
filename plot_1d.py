@@ -33,7 +33,6 @@ if __name__ == '__main__':
     ax_slide = plt.axes([0.25, 0.1, 0.65, 0.03])
     t_slider = Slider(ax_slide, 'Index', 0, len(fnames), valinit=0)
 
-
     def update(val):
         fname_i = int(round(val))
         if 0 <= fname_i < len(fnames):
