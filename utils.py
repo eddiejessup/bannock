@@ -1,5 +1,5 @@
 from __future__ import print_function, division
-import multiprocessing
+import multiprocessing as mp
 import numpy as np
 from ciabatta import cluster
 from runner import filename_to_model, get_filenames
@@ -429,4 +429,4 @@ def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
         Iterable of values to use to instantiate each Model object.
      """
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
-    multiprocessing.Pool(3).map(task_runner, chis)
+    mp.Pool(mp.cpu_count() - 1).map(task_runner, chis)
