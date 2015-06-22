@@ -82,7 +82,7 @@ def run_1d():
     t_upto = 1e2
     output_dir = 'test_1d'
 
-    utils.run_model(output_every, model=m, output_dir=output_dir,
+    utils.run_model(output_every, m=m, output_dir=output_dir,
                     t_upto=t_upto)
 
 
@@ -108,7 +108,7 @@ def run_chi_ramp_1d():
 
     output_every = 2000
 
-    utils.run_ramp_model(output_every, model=m)
+    utils.run_ramp_model(output_every, m=m)
 
 
 def run_chi_scan_2d():

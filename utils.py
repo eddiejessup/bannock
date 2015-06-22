@@ -374,7 +374,7 @@ class _TaskRunner(object):
     def __call__(self, chi):
         self.model_kwargs['chi'] = chi
         m = self.ModelClass(**self.model_kwargs)
-        r = run_model(self.output_every, model=m, t_upto=self.t_upto)
+        r = run_model(self.output_every, m=m, t_upto=self.t_upto)
         print(chi, get_bcf(r.model))
 
 
