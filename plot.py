@@ -7,13 +7,14 @@ from runner import get_filenames, filename_to_model
 
 
 def plot_2d(dirname):
+    fig = plt.figure()
+    ax_vis = fig.add_subplot(111)
+
     fnames = get_filenames(dirname)
     m_0 = filename_to_model(fnames[0])
 
     L = m_0.walls.L
 
-    fig = plt.figure()
-    ax_vis = fig.add_subplot(111)
     ax_vis.set_xlim(-L / 2.0, L / 2.0)
     ax_vis.set_ylim(-L / 2.0, L / 2.0)
     ax_vis.set_aspect('equal')
@@ -58,16 +59,16 @@ def plot_2d(dirname):
 
 
 def plot_1d(dirname):
+    fig = plt.figure()
+    ax_vis = fig.add_subplot(311)
+    ax_c = fig.add_subplot(312)
+    ax_d = fig.add_subplot(313)
+
     fnames = get_filenames(dirname)
 
     m_0 = filename_to_model(fnames[0])
 
     L = m_0.L
-
-    fig = plt.figure()
-    ax_vis = fig.add_subplot(311)
-    ax_c = fig.add_subplot(312)
-    ax_d = fig.add_subplot(313)
 
     ax_vis.set_xlim(-L / 2.0, L / 2.0)
     ax_c.set_xlim(-L / 2.0, L / 2.0)
@@ -110,6 +111,7 @@ def plot_t_bcfs(dirname):
 
     ts, bcfs = utils.t_bcfs(dirname)
     ax.plot(ts, bcfs)
+
     plt.show()
 
 
@@ -119,6 +121,7 @@ def plot_t_dstds(dirname):
 
     ts, dstds = utils.t_dstds(dirname)
     ax.plot(ts, dstds)
+
     plt.show()
 
 
@@ -130,13 +133,16 @@ def plot_t_pmeans(dirname):
     ax.plot(ts, p_means)
     ax.plot(ts, p_mins)
     ax.plot(ts, p_maxs)
+
     plt.show()
 
 
 def plot_chi_bcfs(dirnames):
     fig = plt.figure()
     ax = fig.add_subplot(111)
+
     chis, bcfs = utils.chi_bcfs(dirnames)
     ax.scatter(chis, bcfs)
     ax.set_ylim(0.0, 1.1)
+
     plt.show()
