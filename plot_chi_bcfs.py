@@ -12,4 +12,5 @@ if __name__ == '__main__':
 
     chis, bcfs = utils.chi_bcfs(dirnames)
     plt.scatter(chis, bcfs)
+    plt.ylim(0.0, 1.1)
     plt.show()
