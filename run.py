@@ -1,7 +1,7 @@
 import numpy as np
 import model
 import walls
-import runner
+import utils
 
 default_wall_args = {
     'L': 5000.0,
@@ -59,7 +59,8 @@ def run_2d():
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model(**model_kwargs)
-    runner.run_model(m, output_every=200, t_upto=1e2, output_dir='test_2d')
+    utils.run_model(output_every=200, model=m, t_upto=1e2,
+                    output_dir='test_2d')
 
 
 def run_1d():
@@ -71,7 +72,8 @@ def run_1d():
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
-    runner.run_model(m, output_every=200, t_upto=1e3, output_dir='test_1d')
+    utils.run_model(output_every=200, model=m, t_upto=1e3,
+                    output_dir='test_1d')
 
 
 def run_chi_ramp_1d():
@@ -86,13 +88,14 @@ def run_chi_ramp_1d():
         'rho_0': 0.1,
         'onesided_flag': False,
         'chi': ramp_kwargs['ramp_chi_0'],
+        'origin_flag': False,
         'vicsek_R': 10.0,
     }
     model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
     m = model.RampModel1D(**model_kwargs)
-    runner.run_ramp_model(m, output_every=2000)
+    utils.run_ramp_model(output_every=2000, model=m)
 
 
 def run_chi_scan_2d():
@@ -104,8 +107,8 @@ def run_chi_scan_2d():
         'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
-    runner.run_chi_scan(model.Model, model_kwargs, output_every=400,
-                        t_upto=50.0, chis=np.linspace(30.0, 75.0, 10))
+    utils.run_chi_scan_parallel(model.Model, model_kwargs, output_every=5000,
+                                t_upto=1e4, chis=np.linspace(250.0, 600.0, 10))
 
 
 def run_chi_scan_1d():
@@ -116,5 +119,5 @@ def run_chi_scan_1d():
         'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
-    runner.run_chi_scan(model.Model1D, model_kwargs, output_every=200,
-                        t_upto=50.0, chis=np.linspace(2.0, 8.0, 10))
+    utils.run_chi_scan(model.Model1D, model_kwargs, output_every=200,
+                       t_upto=50.0, chis=np.linspace(2.0, 8.0, 10))
