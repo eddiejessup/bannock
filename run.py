@@ -30,6 +30,7 @@ default_model_1d_kwargs = {
     'dt': 0.2,
     'v_0': 20.0,
     'p_0': 1.0,
+    'origin_flag': False,
     'vicsek_R': 0.0,
     'L': default_wall_args['L'],
     'dx': default_wall_args['dx'],
@@ -54,6 +55,7 @@ def run_2d():
         'rho_0': 2e-4,
         'onesided_flag': True,
         'walls': walls_traps_1,
+        'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model(**model_kwargs)
@@ -65,6 +67,7 @@ def run_1d():
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': True,
+        'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
@@ -98,6 +101,7 @@ def run_chi_scan_2d():
         'rho_0': 2e-4,
         'onesided_flag': True,
         'walls': walls_traps_1,
+        'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
     runner.run_chi_scan(model.Model, model_kwargs, output_every=400,
@@ -109,6 +113,7 @@ def run_chi_scan_1d():
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': True,
+        'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
     runner.run_chi_scan(model.Model1D, model_kwargs, output_every=200,

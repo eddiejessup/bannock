@@ -126,6 +126,10 @@ class Model(object):
     p_0: float
         The base rate at which the particles randomise their
         direction.
+    origin_flag: bool
+        Whether or not to start the particles at the centre of the system.
+        If `True`, all particles are initialised in a small region near (0, 0).
+        If `False`, particles are initialised uniformly.
     chi: float
         The sensitivity of the particles' chemotactic response to gradients
         in the chemoattractant concentration field.
@@ -149,7 +153,7 @@ class Model(object):
     """
 
     def __init__(self, seed, dt,
-                 rho_0, v_0, D_rot, p_0,
+                 rho_0, v_0, D_rot, p_0, origin_flag,
                  chi, onesided_flag,
                  force_mu,
                  vicsek_R,
@@ -166,6 +170,7 @@ class Model(object):
         self.v_0 = v_0
         self.D_rot = D_rot
         self.p_0 = p_0
+        self.origin_flag = origin_flag
         self.chi = chi
         self.onesided_flag = onesided_flag
         self.force_mu = force_mu
@@ -191,13 +196,18 @@ class Model(object):
         self.p = np.ones([self.n]) * self.p_0
 
     def _initialise_r(self):
-        self.r = np.zeros_like(self.v)
-        for i in range(self.n):
-            while True:
-                self.r[i] = np.random.uniform(-self.L_half, self.L_half,
-                                              self.dim)
-                if not self.walls.is_obstructed(self.r[i]):
-                    break
+        if self.origin_flag:
+            self.r = np.zeros_like(self.v)
+            if self.walls.is_obstructed(self.r[0, np.newaxis]):
+                raise Exception('Cannot initialise particles at the origin as'
+                                'there is an obstacle there')
+        else:
+            for i in range(self.n):
+                while True:
+                    self.r[i] = np.random.uniform(-self.L_half, self.L_half,
+                                                  self.dim)
+                    if not self.walls.is_obstructed(self.r[i, np.newaxis]):
+                        break
 
     def _update_positions(self):
         r_old = self.r.copy()
@@ -308,7 +318,7 @@ class Model(object):
     def __repr__(self):
         fields = ['dim', 'seed', 'dt', 'L', 'dx',
                   'c_D', 'c_sink', 'c_source',
-                  'v_0', 'p_0', 'D_rot',
+                  'v_0', 'p_0', 'D_rot', 'origin_flag',
                   'rho_0',
                   'chi', 'onesided_flag',
                   'force_mu', 'vicsek_R',
@@ -334,7 +344,7 @@ class Model1D(object):
         see :class:`Model`.
     """
     def __init__(self, seed, dt,
-                 rho_0, v_0, p_0,
+                 rho_0, v_0, p_0, origin_flag,
                  chi, onesided_flag,
                  vicsek_R,
                  L, dx,
@@ -344,6 +354,7 @@ class Model1D(object):
         self.dim = 1
         self.v_0 = v_0
         self.p_0 = p_0
+        self.origin_flag = origin_flag
 
         self.chi = chi
         self.onesided_flag = onesided_flag
@@ -376,8 +387,15 @@ class Model1D(object):
         self.p = np.ones([self.n]) * self.p_0
 
     def _initialise_r(self):
-        self.r = np.random.uniform(-self.L_half, self.L_half,
-                                   [self.n, self.dim])
+        if self.origin_flag:
+            # Randomise initialisation by a small distance, to avoid
+            # unphysical regular spacing otherwise. In 1D the particles are
+            # effectively on a lattice of length `v_0 * dt`.
+            vdt = self.dt * self.v_0
+            self.r = np.random.uniform(-vdt, vdt, [self.n, self.dim])
+        else:
+            self.r = np.random.uniform(-self.L_half, self.L_half,
+                                       [self.n, self.dim])
 
     def _update_positions(self):
         self.r += self.v * self.dt
@@ -440,7 +458,7 @@ class Model1D(object):
     def __repr__(self):
         fields = ['dim', 'seed', 'dt', 'L', 'dx',
                   'c_D', 'c_sink', 'c_source',
-                  'v_0', 'p_0',
+                  'v_0', 'p_0', 'origin_flag',
                   'rho_0',
                   'chi', 'onesided_flag',
                   'vicsek_R',
