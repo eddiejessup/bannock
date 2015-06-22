@@ -182,7 +182,7 @@ class Runner(object):
         if n is not None:
             n_upto = self.model.i + n
 
-        while self.model.i < n_upto:
+        while self.model.i <= n_upto:
             if self.is_snapshot_time():
                 self.make_snapshot()
             self.model.iterate()
