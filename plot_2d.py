@@ -4,4 +4,4 @@ import plot
 
 
 if __name__ == '__main__':
-    plot.plot_t_pmeans(sys.argv[1])
+    plot.plot_2d(sys.argv[1])
