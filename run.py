@@ -59,8 +59,13 @@ def run_2d():
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model(**model_kwargs)
-    utils.run_model(output_every=200, model=m, t_upto=1e2,
-                    output_dir='test_2d')
+
+    output_every = 200
+    t_upto = 1e2
+    output_dir = 'test_2d'
+
+    utils.run_model(output_every, model=m, output_dir=output_dir,
+                    t_upto=t_upto)
 
 
 def run_1d():
@@ -72,8 +77,13 @@ def run_1d():
     }
     model_kwargs.update(extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
-    utils.run_model(output_every=200, model=m, t_upto=1e3,
-                    output_dir='test_1d')
+
+    output_every = 200
+    t_upto = 1e2
+    output_dir = 'test_1d'
+
+    utils.run_model(output_every, model=m, output_dir=output_dir,
+                    t_upto=t_upto)
 
 
 def run_chi_ramp_1d():
@@ -95,7 +105,10 @@ def run_chi_ramp_1d():
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
     m = model.RampModel1D(**model_kwargs)
-    utils.run_ramp_model(output_every=2000, model=m)
+
+    output_every = 2000
+
+    utils.run_ramp_model(output_every, model=m)
 
 
 def run_chi_scan_2d():
@@ -107,8 +120,13 @@ def run_chi_scan_2d():
         'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
-    utils.run_chi_scan_parallel(model.Model, model_kwargs, output_every=5000,
-                                t_upto=1e4, chis=np.linspace(250.0, 600.0, 10))
+
+    output_every = 5000
+    t_upto = 1e4
+    chis = np.linspace(250.0, 600.0, 10)
+
+    utils.run_chi_scan_parallel(model.Model, model_kwargs, output_every,
+                                t_upto, chis)
 
 
 def run_chi_scan_1d():
@@ -119,5 +137,10 @@ def run_chi_scan_1d():
         'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
-    utils.run_chi_scan(model.Model1D, model_kwargs, output_every=200,
-                       t_upto=50.0, chis=np.linspace(2.0, 8.0, 10))
+
+    output_every = 200
+    t_upto = 50.0
+    chis = np.linspace(2.0, 8.0, 10)
+
+    utils.run_chi_scan(model.Model1D, model_kwargs, output_every,
+                       t_upto, chis)
