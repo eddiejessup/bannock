@@ -234,7 +234,7 @@ def chi_dstd(dirnames):
 
     Parameters
     ----------
-    dirnames: List[str]
+    dirnames: list[str]
         Model output directory paths.
 
     Returns
@@ -259,7 +259,7 @@ def chi_bcfs(dirnames):
 
     Parameters
     ----------
-    dirnames: List[str]
+    dirnames: list[str]
         Model output directory paths.
 
     Returns
@@ -475,7 +475,7 @@ def reprify(obj, fields):
 
     Returns
     -------
-    field_strs: List[str]
+    field_strs: list[str]
         Strings, each representing a field and its value,
         formatted as '`field`=`value`'
     """

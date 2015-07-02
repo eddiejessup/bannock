@@ -182,7 +182,7 @@ class Traps(Walls):
 
         Returns
         -------
-        fracs: List[int]
+        fracs: list[int]
         """
         inds = self.r_to_i(r)
         n_traps = [0 for i in range(len(self.traps_i))]

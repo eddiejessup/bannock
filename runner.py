@@ -32,7 +32,7 @@ def get_filenames(dirname):
 
     Returns
     -------
-    filenames: List[str]
+    filenames: list[str]
         Paths to all output files inside `dirname`, sorted in order of
         increasing iteration number.
     """
