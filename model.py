@@ -3,6 +3,7 @@ import numpy as np
 from ciabatta import vector, fields
 from ciabatta.cell_list import intro
 import particle_numerics
+from utils import format_parameter
 
 
 class Secretion(fields.Diffusing):
@@ -77,35 +78,6 @@ class WalledSecretion(fields.WalledDiffusing):
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
         self.a = np.maximum(self.a, 0.0)
-
-
-def format_parameter(p):
-    """Format a value as a string appropriate for use in a directory name.
-
-    For use when constructing a directory name that encodes the parameters
-    of a model. Specially handled type cases are,
-
-    - `None` is represented as 'N'.
-
-    - `bool` is represented as '1' or '0'.
-
-    Parameters
-    ----------
-    p: various
-
-    Returns
-    -------
-    p_str: str
-        Formatted parameter.
-    """
-    if isinstance(p, float):
-        return '{:.3g}'.format(p)
-    elif p is None:
-        return 'N'
-    elif isinstance(p, bool):
-        return '{:d}'.format(p)
-    else:
-        return '{}'.format(p)
 
 
 class Model2D(object):

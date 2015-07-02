@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import numpy as np
 from ciabatta import lattice, fields, maze
-from model import format_parameter
+from utils import format_parameter
 
 
 class Walls(fields.Field):

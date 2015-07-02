@@ -430,3 +430,32 @@ def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
      """
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
     mp.Pool(mp.cpu_count() - 1).map(task_runner, chis)
+
+
+def format_parameter(p):
+    """Format a value as a string appropriate for use in a directory name.
+
+    For use when constructing a directory name that encodes the parameters
+    of a model. Specially handled type cases are,
+
+    - `None` is represented as 'N'.
+
+    - `bool` is represented as '1' or '0'.
+
+    Parameters
+    ----------
+    p: various
+
+    Returns
+    -------
+    p_str: str
+        Formatted parameter.
+    """
+    if isinstance(p, float):
+        return '{:.3g}'.format(p)
+    elif p is None:
+        return 'N'
+    elif isinstance(p, bool):
+        return '{:d}'.format(p)
+    else:
+        return '{}'.format(p)
