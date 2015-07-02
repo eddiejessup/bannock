@@ -1,7 +1,7 @@
 import numpy as np
 import model
 import ramp_model
-import utils
+import run_utils
 from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
                       walls_blank, walls_traps_1)
 
@@ -22,7 +22,8 @@ def run_2d():
     output_dir = 'test_2d'
     force_resume = None
 
-    utils.run_model(output_every, output_dir, m, force_resume, t_upto=t_upto)
+    run_utils.run_model(output_every, output_dir, m, force_resume,
+                        t_upto=t_upto)
 
 
 def run_1d():
@@ -40,7 +41,8 @@ def run_1d():
     output_dir = 'test_1d'
     force_resume = None
 
-    utils.run_model(output_every, output_dir, m, force_resume, t_upto=t_upto)
+    run_utils.run_model(output_every, output_dir, m, force_resume,
+                        t_upto=t_upto)
 
 
 def run_chi_ramp_1d():
@@ -67,7 +69,7 @@ def run_chi_ramp_1d():
     output_dir = None
     force_resume = None
 
-    utils.run_ramp_model(output_every, output_dir, m, force_resume)
+    run_utils.run_ramp_model(output_every, output_dir, m, force_resume)
 
 
 def run_chi_ramp_2d():
@@ -94,7 +96,7 @@ def run_chi_ramp_2d():
     output_dir = None
     force_resume = None
 
-    utils.run_ramp_model(output_every, output_dir, m, force_resume)
+    run_utils.run_ramp_model(output_every, output_dir, m, force_resume)
 
 
 def run_chi_scan_2d():
@@ -111,8 +113,8 @@ def run_chi_scan_2d():
     t_upto = 1e4
     chis = np.linspace(250.0, 600.0, 10)
 
-    utils.run_chi_scan_parallel(model.Model2D, model_kwargs, output_every,
-                                t_upto, chis)
+    run_utils.run_chi_scan_parallel(model.Model2D, model_kwargs, output_every,
+                                    t_upto, chis)
 
 
 def run_chi_scan_1d():
@@ -128,5 +130,5 @@ def run_chi_scan_1d():
     t_upto = 50.0
     chis = np.linspace(2.0, 8.0, 10)
 
-    utils.run_chi_scan(model.Model1D, model_kwargs, output_every,
-                       t_upto, chis)
+    run_utils.run_chi_scan(model.Model1D, model_kwargs, output_every,
+                           t_upto, chis)
