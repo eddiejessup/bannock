@@ -7,7 +7,7 @@ from utils import reprify
 from secretion import Secretion, WalledSecretion
 
 
-class Model(object):
+class BaseModel(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -50,17 +50,45 @@ class Model(object):
         return fields.density(self.r, self.L, self.c.dx())
 
 
-class Model1D(Model):
+class Model1D(BaseModel):
     """Self-propelled particles moving in one dimension in a chemical field.
 
     Parameters
     ----------
+    seed: int
+        A random number seed. `None` causes a random choice.
+    dt: float
+        The size of a single time-step.
+    rho_0: float
+        The average area density of particles.
+    v_0: float
+        The speed of the particles.
+    p_0: float
+        The base rate at which the particles randomise their
+        direction.
+    origin_flag: bool
+        Whether or not to start the particles at the centre of the system.
+        If `True`, all particles are initialised in a small region near the
+        origin.
+        If `False`, particles are initialised uniformly.
+    chi: float
+        The sensitivity of the particles' chemotactic response to gradients
+        in the chemoattractant concentration field.
+    onesided_flag: bool
+        Whether or not the particles' chemotactic response can increase
+        their tumble rate.
+    vicsek_R: float
+        A radius within which the particles reorient with their neighbours.
     L: float
         Length of the system.
     dx: float
-        Length of a cell in the chemical concetration field lattice.
-    Others:
-        see :class:`Model`.
+        Length of a cell in the chemical concentration field lattice.
+    c_D: float
+        see :class:`Secretion`
+    c_sink: float
+        see :class:`Secretion`
+    c_source: float
+        see :class:`Secretion`
     """
     def __init__(self, seed, dt,
                  rho_0, v_0, p_0, origin_flag,
@@ -69,7 +97,7 @@ class Model1D(Model):
                  L, dx,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        Model.__init__(self, 1, seed)
+        BaseModel.__init__(self, 1, seed)
         self.dt = dt
         self.v_0 = v_0
         self.p_0 = p_0
@@ -156,48 +184,21 @@ class Model1D(Model):
         return 'autochemo_model_{}'.format(','.join(field_strs))
 
 
-class Model2D(Model):
+class Model2D(BaseModel):
     """Self-propelled particles moving in two dimensions in a chemical field.
 
     Parameters
     ----------
-    seed: int
-        A random number seed. `None` causes a random choice.
-    dt: float
-        The size of a single time-step.
-    rho_0: float
-        The average area density of particles.
-    v_0: float
-        The speed of the particles.
     D_rot: float
         The rotational diffusion constant of the particles.
-    p_0: float
-        The base rate at which the particles randomise their
-        direction.
-    origin_flag: bool
-        Whether or not to start the particles at the centre of the system.
-        If `True`, all particles are initialised in a small region near (0, 0).
-        If `False`, particles are initialised uniformly.
-    chi: float
-        The sensitivity of the particles' chemotactic response to gradients
-        in the chemoattractant concentration field.
-    onesided_flag: bool
-        Whether or not the particles' chemotactic response can increase
-        their _tumble rate.
     force_mu: float
         The degree to which the particles reorient towards
         :math:`\\nabla c`, where :math:`c` is the chemoattractant
         concentration field.
-    vicsek_R: float
-        A radius within which the particles reorient with their neighbours.
     walls: Walls
         Obstacles in the environment
-    c_D: float
-        see :class:`Secretion`
-    c_sink: float
-        see :class:`Secretion`
-    c_source: float
-        see :class:`Secretion`
+    Others:
+        see :class:`Model1D`.
     """
 
     def __init__(self, seed, dt,
@@ -208,7 +209,7 @@ class Model2D(Model):
                  walls,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        Model.__init__(self, 2, seed)
+        BaseModel.__init__(self, 2, seed)
         self.dt = dt
         self.v_0 = v_0
         self.D_rot = D_rot
