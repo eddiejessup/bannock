@@ -6,13 +6,13 @@ from defaults import (default_model_kwargs, default_model_1d_kwargs,
 
 
 def run_2d():
-    model_kwargs = default_model_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
         'walls': walls_traps_1,
         'origin_flag': True,
     }
+    model_kwargs = default_model_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
     m = model.Model2D(**model_kwargs)
 
@@ -25,12 +25,12 @@ def run_2d():
 
 
 def run_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': True,
         'origin_flag': True,
     }
+    model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
 
@@ -103,6 +103,7 @@ def run_chi_scan_2d():
         'walls': walls_traps_1,
         'origin_flag': True,
     }
+    model_kwargs = default_model_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
 
     output_every = 5000
@@ -114,12 +115,12 @@ def run_chi_scan_2d():
 
 
 def run_chi_scan_1d():
-    model_kwargs = default_model_1d_kwargs.copy()
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': True,
         'origin_flag': True,
     }
+    model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
 
     output_every = 200
