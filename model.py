@@ -130,7 +130,8 @@ class Model2D(object):
                  force_mu,
                  vicsek_R,
                  walls,
-                 c_D, c_sink, c_source):
+                 c_D, c_sink, c_source,
+                 *args, **kwargs):
         self.seed = seed
         self.dt = dt
         self.walls = walls
@@ -320,7 +321,8 @@ class Model1D(object):
                  chi, onesided_flag,
                  vicsek_R,
                  L, dx,
-                 c_D, c_sink, c_source):
+                 c_D, c_sink, c_source,
+                 *args, **kwargs):
         self.seed = seed
         self.dt = dt
         self.dim = 1
@@ -442,9 +444,16 @@ class Model1D(object):
         return 'autochemo_model_{}'.format(field_str)
 
 
-class RampModel1D(Model1D):
-    """Self-propelled particles moving in one dimension in a chemical field,
-    whose chemotactic sensitivity varies with a linear ramp.
+class RampModelMixin(object):
+    """Model mixin to make chemotactic sensitivity vary with a linear ramp.
+
+    Usage
+    -----
+    Add as a secondary superclass to a Model subclass,
+    and call its `__init__` and `iterate` methods after calling the `Model`
+    methods.
+
+    Also add to the __repr__ string.
 
     Parameters
     ----------
@@ -460,14 +469,11 @@ class RampModel1D(Model1D):
     ramp_dt: float
         Length of time the parameter stays at a given value before being
         incremented. The large this is, the more 'blocky' the ramp becomes.
-    Others: see :class:`Model1D`.
     """
 
     def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady,
                  ramp_dt,
                  *args, **kwargs):
-        Model1D.__init__(self, *args, **kwargs)
-
         self.ramp_chi_0 = ramp_chi_0
         self.ramp_chi_max = ramp_chi_max
         self.ramp_dchi_dt = ramp_dchi_dt
@@ -479,19 +485,6 @@ class RampModel1D(Model1D):
         self.chi = self.ramp_chi_func(self.t)[0]
 
     def iterate(self):
-        """Evolve the model's state by a single time-step.
-
-        - Do Vicsek alignment
-
-        - Make particles tumble at their chemotactic probabilities.
-
-        - Make the particles swim in the periodic space
-
-        - Iterate the chemical concentration field
-
-        - Set the new chemotactic sensitivity for the next time-step.
-        """
-        Model1D.iterate(self)
         self.chi = self.ramp_chi_func(self.t)[0]
 
     def __getstate__(self):
@@ -512,8 +505,38 @@ class RampModel1D(Model1D):
                   'ramp_t_steady', 'ramp_dt']
         field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
                                   for f in fields])
-        field_strs = [Model1D.__repr__(self)]
-        field_strs += ['='.join([f, v]) for f, v in field_vals.items()]
+        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
+        field_str = ','.join(field_strs)
+        return '{}'.format(field_str)
+
+
+class RampModel1D(Model1D, RampModelMixin):
+    def __init__(self, *args, **kwargs):
+        Model1D.__init__(self, *args, **kwargs)
+        RampModelMixin.__init__(self, *args, **kwargs)
+
+    def iterate(self):
+        Model1D.iterate(self)
+        RampModelMixin.iterate(self)
+
+    def __repr__(self):
+        field_strs = [Model1D.__repr__(self), RampModelMixin.__repr__(self)]
+        field_str = ','.join(field_strs)
+        return '{}'.format(field_str)
+
+
+class RampModel2D(Model2D, RampModelMixin):
+
+    def __init__(self, *args, **kwargs):
+        Model2D.__init__(self, *args, **kwargs)
+        RampModelMixin.__init__(self, *args, **kwargs)
+
+    def iterate(self):
+        Model2D.iterate(self)
+        RampModelMixin.iterate(self)
+
+    def __repr__(self):
+        field_strs = [Model2D.__repr__(self), RampModelMixin.__repr__(self)]
         field_str = ','.join(field_strs)
         return '{}'.format(field_str)
 

@@ -69,8 +69,34 @@ def run_chi_ramp_1d():
     utils.run_ramp_model(output_every, output_dir, m, force_resume)
 
 
-def run_chi_scan_2d():
+def run_chi_ramp_2d():
+    ramp_kwargs = {
+        'ramp_chi_0': 0.0,
+        'ramp_chi_max': 10.0,
+        'ramp_dchi_dt': 5e-5,
+        'ramp_t_steady': 1e4,
+        'ramp_dt': 32e2,
+    }
+    extra_model_kwargs = {
+        'rho_0': 2e-4,
+        'onesided_flag': True,
+        # 'walls': walls_traps_1,
+        'walls': walls_blank,
+        'origin_flag': False,
+    }
     model_kwargs = default_model_kwargs.copy()
+    model_kwargs.update(ramp_kwargs)
+    model_kwargs.update(extra_model_kwargs)
+    m = model.RampModel2D(**model_kwargs)
+
+    output_every = 2000
+    output_dir = None
+    force_resume = None
+
+    utils.run_ramp_model(output_every, output_dir, m, force_resume)
+
+
+def run_chi_scan_2d():
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
