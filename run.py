@@ -1,5 +1,6 @@
 import numpy as np
 import model
+import ramp_model
 import utils
 from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
                       walls_blank, walls_traps_1)
@@ -60,7 +61,7 @@ def run_chi_ramp_1d():
     model_kwargs = default_model_1d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
-    m = model.RampModel1D(**model_kwargs)
+    m = ramp_model.RampModel1D(**model_kwargs)
 
     output_every = 2000
     output_dir = None
@@ -87,7 +88,7 @@ def run_chi_ramp_2d():
     model_kwargs = default_model_2d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
-    m = model.RampModel2D(**model_kwargs)
+    m = ramp_model.RampModel2D(**model_kwargs)
 
     output_every = 2000
     output_dir = None
