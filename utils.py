@@ -1,7 +1,9 @@
 from __future__ import print_function, division
+import pickle
+import glob
+from os.path import basename, splitext
 import numpy as np
 from ciabatta import cluster
-from runner import filename_to_model, get_filenames
 
 r_cluster_1d = 5.0
 r_cluster_2d = 20.0
@@ -355,3 +357,55 @@ def reprify(obj, fields):
         formatted as '`field`=`value`'
     """
     return ['='.join([f, format_parameter(obj.__dict__[f])]) for f in fields]
+
+
+def _f_to_i(f):
+    """Infer a model's iteration number from its output filename.
+
+    Parameters
+    ----------
+    f: str
+        A path to a model output file.
+
+    Returns
+    -------
+    i: int
+        The iteration number of the model.
+    """
+    return int(splitext(basename(f))[0])
+
+
+def get_filenames(dirname):
+    """Return all model output filenames inside a model output directory,
+    sorted by iteration number.
+
+    Parameters
+    ----------
+    dirname: str
+        A path to a directory.
+
+    Returns
+    -------
+    filenames: list[str]
+        Paths to all output files inside `dirname`, sorted in order of
+        increasing iteration number.
+    """
+    filenames = glob.glob('{}/*.pkl'.format(dirname))
+    return sorted(filenames, key=_f_to_i)
+
+
+def filename_to_model(filename):
+    """Load a model output file and return the model.
+
+    Parameters
+    ----------
+    filename: str
+        The path to a model output file.
+
+    Returns
+    -------
+    m: Model
+        The associated model instance.
+    """
+    with open(filename, 'rb') as f:
+        return pickle.load(f)

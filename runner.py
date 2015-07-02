@@ -1,60 +1,7 @@
 from __future__ import print_function, division
-import pickle
-from os.path import join, basename, splitext, isdir
+from os.path import join, basename, isdir
 import os
-import glob
-
-
-def _f_to_i(f):
-    """Infer a model's iteration number from its output filename.
-
-    Parameters
-    ----------
-    f: str
-        A path to a model output file.
-
-    Returns
-    -------
-    i: int
-        The iteration number of the model.
-    """
-    return int(splitext(basename(f))[0])
-
-
-def get_filenames(dirname):
-    """Return all model output filenames inside a model output directory,
-    sorted by iteration number.
-
-    Parameters
-    ----------
-    dirname: str
-        A path to a directory.
-
-    Returns
-    -------
-    filenames: list[str]
-        Paths to all output files inside `dirname`, sorted in order of
-        increasing iteration number.
-    """
-    filenames = glob.glob('{}/*.pkl'.format(dirname))
-    return sorted(filenames, key=_f_to_i)
-
-
-def filename_to_model(filename):
-    """Load a model output file and return the model.
-
-    Parameters
-    ----------
-    filename: str
-        The path to a model output file.
-
-    Returns
-    -------
-    m: Model
-        The associated model instance.
-    """
-    with open(filename, 'rb') as file:
-        return pickle.load(file)
+import utils
 
 
 class Runner(object):
@@ -117,10 +64,10 @@ class Runner(object):
         if not isdir(self.output_dir):
             os.makedirs(self.output_dir)
 
-        output_filenames = get_filenames(self.output_dir)
+        output_filenames = utils.get_filenames(self.output_dir)
 
         if output_filenames:
-            model_recent = filename_to_model(output_filenames[-1])
+            model_recent = utils.filename_to_model(output_filenames[-1])
 
         # If a model is provided
         if model is not None:
@@ -148,7 +95,7 @@ class Runner(object):
 
     def clear_dir(self):
         """Clear the output directory of all output files."""
-        for snapshot in get_filenames(self.output_dir):
+        for snapshot in utils.get_filenames(self.output_dir):
             if snapshot.endswith('.pkl'):
                 os.remove(snapshot)
 
