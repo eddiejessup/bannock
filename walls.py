@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import numpy as np
 from ciabatta import lattice, fields, maze
-from utils import format_parameter
+from utils import reprify
 
 
 class Walls(fields.Field):
@@ -199,11 +199,8 @@ class Traps(Walls):
 
     def __repr__(self):
         fields = ['n', 'd', 'w', 's']
-        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
-                                  for f in fields])
-        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
-        field_str = ','.join(field_strs)
-        return 'walls_traps_{}'.format(field_str)
+        field_strs = reprify(self, fields)
+        return 'walls_traps_{}'.format(','.join(field_strs))
 
 
 class Maze(Walls):
@@ -238,8 +235,5 @@ class Maze(Walls):
 
     def __repr__(self):
         fields = ['d', 'seed']
-        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
-                                  for f in fields])
-        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
-        field_str = ','.join(field_strs)
-        return 'walls_maze_{}'.format(field_str)
+        field_strs = reprify(self, fields)
+        return 'walls_maze_{}'.format(','.join(field_strs))

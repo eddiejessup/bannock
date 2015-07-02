@@ -1,9 +1,8 @@
-from collections import OrderedDict
 import numpy as np
 from ciabatta import vector, fields
 from ciabatta.cell_list import intro
 import particle_numerics
-from utils import format_parameter
+from utils import reprify
 
 
 class Secretion(fields.Diffusing):
@@ -299,12 +298,9 @@ class Model2D(Model):
                   'chi', 'onesided_flag',
                   'force_mu', 'vicsek_R',
                   ]
-        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
-                                  for f in fields])
-        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
-        field_strs.append('{}'.format(self.walls))
-        field_str = ','.join(field_strs)
-        return 'autochemo_model_{}'.format(field_str)
+        field_strs = reprify(self, fields)
+        field_strs.append(repr(self.walls))
+        return 'autochemo_model_{}'.format(','.join(field_strs))
 
 
 class Model1D(Model):
@@ -419,11 +415,8 @@ class Model1D(Model):
                   'chi', 'onesided_flag',
                   'vicsek_R',
                   ]
-        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
-                                  for f in fields])
-        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
-        field_str = ','.join(field_strs)
-        return 'autochemo_model_{}'.format(field_str)
+        field_strs = reprify(self, fields)
+        return 'autochemo_model_{}'.format(','.join(field_strs))
 
 
 class RampModelMixin(object):
@@ -485,11 +478,8 @@ class RampModelMixin(object):
     def __repr__(self):
         fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
                   'ramp_t_steady', 'ramp_dt']
-        field_vals = OrderedDict([(f, format_parameter(self.__dict__[f]))
-                                  for f in fields])
-        field_strs = ['='.join([f, v]) for f, v in field_vals.items()]
-        field_str = ','.join(field_strs)
-        return '{}'.format(field_str)
+        field_strs = reprify(self, fields)
+        return ','.join(field_strs)
 
 
 class RampModel1D(Model1D, RampModelMixin):
@@ -503,8 +493,7 @@ class RampModel1D(Model1D, RampModelMixin):
 
     def __repr__(self):
         field_strs = [Model1D.__repr__(self), RampModelMixin.__repr__(self)]
-        field_str = ','.join(field_strs)
-        return '{}'.format(field_str)
+        return ','.join(field_strs)
 
 
 class RampModel2D(Model2D, RampModelMixin):
@@ -519,8 +508,7 @@ class RampModel2D(Model2D, RampModelMixin):
 
     def __repr__(self):
         field_strs = [Model2D.__repr__(self), RampModelMixin.__repr__(self)]
-        field_str = ','.join(field_strs)
-        return '{}'.format(field_str)
+        return ','.join(field_strs)
 
 
 def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):

@@ -460,3 +460,23 @@ def format_parameter(p):
         return '{:d}'.format(p)
     else:
         return '{}'.format(p)
+
+
+def reprify(obj, fields):
+    """Make a string representing an object from a subset of its attributes.
+
+    Parameters
+    --------
+    obj: object
+        The object which is to be represented.
+    fields: list[str]
+        Strings matching the object's attributes to include in the
+        representation.
+
+    Returns
+    -------
+    field_strs: List[str]
+        Strings, each representing a field and its value,
+        formatted as '`field`=`value`'
+    """
+    return ['='.join([f, format_parameter(obj.__dict__[f])]) for f in fields]
