@@ -8,6 +8,15 @@ from secretion import Secretion, WalledSecretion
 
 class Model(object):
 
+    def __init__(self, dim, seed):
+        self.dim = dim
+        self.seed = seed
+
+        self.t = 0.0
+        self.i = 0
+
+        np.random.seed(self.seed)
+
     def _tumble(self):
         self.p[:] = self.p_0
 
@@ -57,30 +66,20 @@ class Model1D(Model):
                  L, dx,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        self.seed = seed
+        Model.__init__(self, 1, seed)
         self.dt = dt
-        self.dim = 1
         self.v_0 = v_0
         self.p_0 = p_0
         self.origin_flag = origin_flag
-
         self.chi = chi
         self.onesided_flag = onesided_flag
-
         self.vicsek_R = vicsek_R
-
         self.L = L
         self.L_half = self.L / 2.0
         self.dx = dx
-
         self.c_D = c_D
         self.c_sink = c_sink
         self.c_source = c_source
-
-        self.t = 0.0
-        self.i = 0
-
-        np.random.seed(self.seed)
 
         if self.c_source:
             self.c = Secretion(self.L, self.dim, self.dx,
@@ -206,13 +205,7 @@ class Model2D(Model):
                  walls,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        self.seed = seed
-        self.dt = dt
-        self.walls = walls
-        self.L = walls.L
-        self.L_half = self.L / 2.0
-        self.dim = walls.dim
-        self.dx = walls.dx()
+        Model.__init__(self, 2, seed)
         self.dt = dt
         self.v_0 = v_0
         self.D_rot = D_rot
@@ -222,14 +215,13 @@ class Model2D(Model):
         self.onesided_flag = onesided_flag
         self.force_mu = force_mu
         self.vicsek_R = vicsek_R
+        self.walls = walls
+        self.L = walls.L
+        self.L_half = self.L / 2.0
+        self.dx = walls.dx()
         self.c_D = c_D
         self.c_sink = c_sink
         self.c_source = c_source
-
-        self.t = 0.0
-        self.i = 0
-
-        np.random.seed(self.seed)
 
         self.c = WalledSecretion(self.walls.L, self.walls.dim, self.walls.dx(),
                                  self.walls.a, self.c_D, self.dt,
