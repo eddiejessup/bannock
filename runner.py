@@ -140,8 +140,7 @@ class Runner(object):
         determined by its iteration number.
         """
         filename = join(self.output_dir, '{:010d}.pkl'.format(self.model.i))
-        with open(filename, 'wb') as f:
-            pickle.dump(self.model, f)
+        utils.model_to_file(self.model, filename)
 
     def __repr__(self):
         info = '{}(out={}, model={})'

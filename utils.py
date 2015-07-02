@@ -409,3 +409,16 @@ def filename_to_model(filename):
     """
     with open(filename, 'rb') as f:
         return pickle.load(f)
+
+
+def model_to_file(model, filename):
+    """Dump a model to a file as a pickle file.
+
+    Parameters
+    ----------
+    model: Model
+    filename: str
+        Path to the file in which to store the pickle output.
+    """
+    with open(filename, 'wb') as f:
+        pickle.dump(model, f)
