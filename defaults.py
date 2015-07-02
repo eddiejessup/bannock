@@ -37,10 +37,10 @@ default_model_1d_kwargs = {
 }
 
 # Make 2d default model args
-default_model_kwargs = default_model_1d_kwargs.copy()
-del default_model_kwargs['L']
-del default_model_kwargs['dx']
-default_model_kwargs.update({
+default_model_2d_kwargs = default_model_1d_kwargs.copy()
+del default_model_2d_kwargs['L']
+del default_model_2d_kwargs['dx']
+default_model_2d_kwargs.update({
     'D_rot': 0.2,
     'force_mu': 0.0,
 })

@@ -1,7 +1,7 @@
 import numpy as np
 import model
 import utils
-from defaults import (default_model_kwargs, default_model_1d_kwargs,
+from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
                       walls_blank, walls_traps_1)
 
 
@@ -12,7 +12,7 @@ def run_2d():
         'walls': walls_traps_1,
         'origin_flag': True,
     }
-    model_kwargs = default_model_kwargs.copy()
+    model_kwargs = default_model_2d_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
     m = model.Model2D(**model_kwargs)
 
@@ -84,7 +84,7 @@ def run_chi_ramp_2d():
         'walls': walls_blank,
         'origin_flag': False,
     }
-    model_kwargs = default_model_kwargs.copy()
+    model_kwargs = default_model_2d_kwargs.copy()
     model_kwargs.update(ramp_kwargs)
     model_kwargs.update(extra_model_kwargs)
     m = model.RampModel2D(**model_kwargs)
@@ -103,7 +103,7 @@ def run_chi_scan_2d():
         'walls': walls_traps_1,
         'origin_flag': True,
     }
-    model_kwargs = default_model_kwargs.copy()
+    model_kwargs = default_model_2d_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
 
     output_every = 5000
