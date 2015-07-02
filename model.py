@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 import numpy as np
 from ciabatta import vector, fields
 from ciabatta.cell_list import intro
@@ -7,7 +8,9 @@ from secretion import Secretion, WalledSecretion
 
 
 class Model(object):
+    __metaclass__ = ABCMeta
 
+    @abstractmethod
     def __init__(self, dim, seed):
         self.dim = dim
         self.seed = seed
