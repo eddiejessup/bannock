@@ -19,9 +19,9 @@ def run_2d():
     output_every = 200
     t_upto = 1e2
     output_dir = 'test_2d'
+    force_resume = None
 
-    utils.run_model(output_every, model=m, output_dir=output_dir,
-                    t_upto=t_upto)
+    utils.run_model(output_every, output_dir, m, force_resume, t_upto=t_upto)
 
 
 def run_1d():
@@ -37,9 +37,9 @@ def run_1d():
     output_every = 200
     t_upto = 1e2
     output_dir = 'test_1d'
+    force_resume = None
 
-    utils.run_model(output_every, m=m, output_dir=output_dir,
-                    t_upto=t_upto)
+    utils.run_model(output_every, output_dir, m, force_resume, t_upto=t_upto)
 
 
 def run_chi_ramp_1d():
@@ -63,8 +63,10 @@ def run_chi_ramp_1d():
     m = model.RampModel1D(**model_kwargs)
 
     output_every = 2000
+    output_dir = None
+    force_resume = None
 
-    utils.run_ramp_model(output_every, m=m)
+    utils.run_ramp_model(output_every, output_dir, m, force_resume)
 
 
 def run_chi_scan_2d():

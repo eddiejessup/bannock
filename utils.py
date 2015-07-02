@@ -310,7 +310,8 @@ def chi_dstd_ramp(dirname):
     return np.array(ts), np.array(t_wraps), np.array(chis), np.array(dstds)
 
 
-def run_model(output_every, output_dir=None, m=None, **iterate_args):
+def run_model(output_every, output_dir=None, m=None, force_resume=True,
+              **iterate_args):
     """Convenience function to combine making a Runner object, and
     running it for some time.
 
@@ -328,13 +329,13 @@ def run_model(output_every, output_dir=None, m=None, **iterate_args):
     r: Runner
         runner object after it has finished running for the required time.
     """
-    r = runner.Runner(output_every, output_dir, m, force_resume=True)
+    r = runner.Runner(output_every, output_dir, m, force_resume)
     print(r.output_dir)
     r.iterate(**iterate_args)
     return r
 
 
-def run_ramp_model(output_every, output_dir=None, m=None):
+def run_ramp_model(output_every, output_dir=None, m=None, force_resume=True):
     """Convenience function to combine making a Runner object, and
     running a RampModel until chi = 0.
 
@@ -350,7 +351,7 @@ def run_ramp_model(output_every, output_dir=None, m=None):
     r: Runner
         runner object after it has finished running for the required time.
     """
-    r = runner.Runner(output_every, output_dir, m, force_resume=True)
+    r = runner.Runner(output_every, output_dir, m, force_resume)
     print(r.output_dir)
     while r.model.chi >= 0.0:
         r.iterate(n=1)
