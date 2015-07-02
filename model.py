@@ -108,7 +108,7 @@ def format_parameter(p):
         return '{}'.format(p)
 
 
-class Model(object):
+class Model2D(object):
     """Self-propelled particles moving in two dimensions in a chemical field.
 
     Parameters

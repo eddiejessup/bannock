@@ -14,7 +14,7 @@ def run_2d():
         'origin_flag': True,
     }
     model_kwargs.update(extra_model_kwargs)
-    m = model.Model(**model_kwargs)
+    m = model.Model2D(**model_kwargs)
 
     output_every = 200
     t_upto = 1e2
@@ -81,7 +81,7 @@ def run_chi_scan_2d():
     t_upto = 1e4
     chis = np.linspace(250.0, 600.0, 10)
 
-    utils.run_chi_scan_parallel(model.Model, model_kwargs, output_every,
+    utils.run_chi_scan_parallel(model.Model2D, model_kwargs, output_every,
                                 t_upto, chis)
 
 
