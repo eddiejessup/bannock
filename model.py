@@ -80,7 +80,39 @@ class WalledSecretion(fields.WalledDiffusing):
         self.a = np.maximum(self.a, 0.0)
 
 
-class Model2D(object):
+class Model(object):
+
+    def _tumble(self):
+        self.p[:] = self.p_0
+
+        if self.chi:
+            grad_c_i = self.c.grad_i(self.r)
+            v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
+            fitness = self.chi * v_dot_grad_c / self.v_0
+
+            self.p *= 1.0 - fitness
+            if self.onesided_flag:
+                self.p = np.minimum(self.p_0, self.p)
+            # self.p = np.maximum(self.p, 0.1)
+
+        tumbles = np.random.uniform(size=self.n) < self.p * self.dt
+        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
+                                                        tumbles.sum())
+
+    def get_density_field(self):
+        """Calculate a field on the same lattice as the chemical concentration,
+        for the particle number density, binning the particles into their
+        nearest cell.
+
+        Returns
+        -------
+        d: numpy.ndarray[dtype=int]
+            Density field
+        """
+        return fields.density(self.r, self.L, self.c.dx())
+
+
+class Model2D(Model):
     """Self-propelled particles moving in two dimensions in a chemical field.
 
     Parameters
@@ -207,23 +239,6 @@ class Model2D(object):
             # Rescale new directions, randomising stationary particles.
             self.v[obs] = vector.vector_unit_nullrand(self.v[obs]) * self.v_0
 
-    def _tumble(self):
-        self.p[:] = self.p_0
-
-        if self.chi:
-            grad_c_i = self.c.grad_i(self.r)
-            v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
-            fitness = self.chi * v_dot_grad_c / self.v_0
-
-            self.p *= 1.0 - fitness
-            if self.onesided_flag:
-                self.p = np.minimum(self.p_0, self.p)
-            # self.p = np.maximum(self.p, 0.1)
-
-        tumbles = np.random.uniform(size=self.n) < self.p * self.dt
-        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
-                                                        tumbles.sum())
-
     def _force(self):
         grad_c_i = self.c.grad_i(self.r)
         v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
@@ -276,18 +291,6 @@ class Model2D(object):
         self.t += self.dt
         self.i += 1
 
-    def get_density_field(self):
-        """Calculate a field on the same lattice as the chemical concentration,
-        for the particle number density, binning the particles into their
-        nearest cell.
-
-        Returns
-        -------
-        d: numpy.ndarray[dtype=int]
-            Density field
-        """
-        return fields.density(self.r, self.L, self.c.dx())
-
     def __repr__(self):
         fields = ['dim', 'seed', 'dt', 'L', 'dx',
                   'c_D', 'c_sink', 'c_source',
@@ -304,7 +307,7 @@ class Model2D(object):
         return 'autochemo_model_{}'.format(field_str)
 
 
-class Model1D(object):
+class Model1D(Model):
     """Self-propelled particles moving in one dimension in a chemical field.
 
     Parameters
@@ -376,23 +379,6 @@ class Model1D(object):
         self.r[self.r > self.L_half] -= self.L
         self.r[self.r < -self.L_half] += self.L
 
-    def _tumble(self):
-        self.p[:] = self.p_0
-
-        if self.chi:
-            grad_c_i = self.c.grad_i(self.r)
-            v_dot_grad_c = np.sum(self.v * grad_c_i, axis=-1)
-            fitness = self.chi * v_dot_grad_c / self.v_0
-
-            self.p *= 1.0 - fitness
-            if self.onesided_flag:
-                self.p = np.minimum(self.p_0, self.p)
-            # self.p = np.maximum(self.p, 0.1)
-
-        tumbles = np.random.uniform(size=self.n) < self.p * self.dt
-        self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
-                                                        tumbles.sum())
-
     def _vicsek(self):
         u = np.array(np.round(self.v[:, 0] / self.v_0), dtype=np.int)
         u_new = particle_numerics.vicsek_1d(self.r[:, 0], u,
@@ -424,10 +410,6 @@ class Model1D(object):
 
         self.t += self.dt
         self.i += 1
-
-    def get_density_field(self):
-        """See :meth:`Model.get_density_field`"""
-        return fields.density(self.r, self.L, self.c.dx())
 
     def __repr__(self):
         fields = ['dim', 'seed', 'dt', 'L', 'dx',

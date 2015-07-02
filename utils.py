@@ -341,7 +341,7 @@ def run_ramp_model(output_every, output_dir=None, m=None, force_resume=True):
 
     Parameters
     ----------
-    m: RampModel1D or RampModel2D
+    m: RampModel
         Ramp model to run.
     Others:
         see :class:`Runner`.
