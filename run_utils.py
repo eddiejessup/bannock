@@ -60,20 +60,23 @@ class _TaskRunner(object):
     """
 
     def __init__(self, ModelClass, model_kwargs,
-                 output_every, t_upto):
+                 output_every, t_upto, force_resume=True):
         self.ModelClass = ModelClass
         self.model_kwargs = model_kwargs.copy()
         self.output_every = output_every
         self.t_upto = t_upto
+        self.force_resume = force_resume
 
     def __call__(self, chi):
         self.model_kwargs['chi'] = chi
         m = self.ModelClass(**self.model_kwargs)
-        r = run_model(self.output_every, m=m, t_upto=self.t_upto)
+        r = run_model(self.output_every, m=m, force_resume=self.force_resume,
+                      t_upto=self.t_upto)
         print(chi, utils.get_bcf(r.model))
 
 
-def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis):
+def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis,
+                 force_resume=True):
     """Run many models with the same parameters but variable chi.
 
     For each `chi` in `chis`, a new model will be made, and run up to a time.
@@ -94,13 +97,14 @@ def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis):
     chis: array_like[dtype=float]
         Iterable of values to use to instantiate each Model object.
      """
-    task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
+    task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
+                              force_resume)
     for chi in chis:
         task_runner(chi)
 
 
 def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
-                          chis):
+                          chis, force_resume=True):
     """Run many models with the same parameters but variable chi.
 
     Run them in parallel using the Multiprocessing library.
@@ -123,7 +127,8 @@ def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
     chis: array_like[dtype=float]
         Iterable of values to use to instantiate each Model object.
      """
-    task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
+    task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
+                              force_resume)
     mp.Pool(mp.cpu_count() - 1).map(task_runner, chis)
 
 
