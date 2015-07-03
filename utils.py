@@ -406,6 +406,11 @@ def get_recent_model(dirname):
     return filename_to_model(get_recent_filename(dirname))
 
 
+def get_recent_time(dirname):
+    """Get latest time in a directory."""
+    return filename_to_model(get_recent_filename(dirname)).t
+
+
 def filename_to_model(filename):
     """Load a model output file and return the model.
 
