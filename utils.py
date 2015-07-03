@@ -125,7 +125,7 @@ def get_bcf(m):
     """
     labels = cluster.cluster(m.r, _get_r_cluster(m))
     clust_sizes = cluster.cluster_sizes(labels)
-    return cluster.biggest_cluster_fraction(clust_sizes)
+    return cluster.cluster_measure(clust_sizes)
 
 
 def get_pstats(m):
