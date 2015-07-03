@@ -1,3 +1,4 @@
+from functools import partial
 import multiprocessing as mp
 import runner
 import utils
@@ -141,3 +142,20 @@ def resume_runs(dirnames, output_every, t_upto):
     for dirname in dirnames:
         run_model(output_every, output_dir=dirname, force_resume=True,
                   t_upto=t_upto)
+
+
+def resume_runs_parallel(dirnames, output_every, t_upto):
+    """Resume many models, and run in parallel.
+
+    Parameters
+    ----------
+    dirnames: list[str]
+        List of output directory paths from which to resume.
+    output_every: int
+        see :class:`Runner`.
+    t_upto: float
+        Run each model until the time is equal to this
+     """
+    run_model_partial = partial(run_model, output_every, force_resume=True,
+                                t_upto=t_upto)
+    mp.Pool(mp.cpu_count() - 1).map(run_model_partial, dirnames)
