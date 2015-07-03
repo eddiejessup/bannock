@@ -89,7 +89,7 @@ def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis):
     output_every: int
         see :class:`Runner`.
     t_upto: float
-        How long to run each model for
+        Run each model until the time is equal to this
     chis: array_like[dtype=float]
         Iterable of values to use to instantiate each Model object.
      """
@@ -118,7 +118,7 @@ def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
     output_every: int
         see :class:`Runner`.
     t_upto: float
-        How long to run each model for
+        Run each model until the time is equal to this
     chis: array_like[dtype=float]
         Iterable of values to use to instantiate each Model object.
      """
