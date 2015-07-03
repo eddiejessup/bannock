@@ -124,3 +124,20 @@ def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
      """
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto)
     mp.Pool(mp.cpu_count() - 1).map(task_runner, chis)
+
+
+def resume_runs(dirnames, output_every, t_upto):
+    """Resume many models, and run.
+
+    Parameters
+    ----------
+    dirnames: list[str]
+        List of output directory paths from which to resume.
+    output_every: int
+        see :class:`Runner`.
+    t_upto: float
+        Run each model until the time is equal to this
+     """
+    for dirname in dirnames:
+        run_model(output_every, output_dir=dirname, force_resume=True,
+                  t_upto=t_upto)
