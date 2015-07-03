@@ -3,15 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import utils
-from runner import get_filenames, filename_to_model
 
 
 def plot_2d(dirname):
     fig = plt.figure()
     ax_vis = fig.add_subplot(111)
 
-    fnames = get_filenames(dirname)
-    m_0 = filename_to_model(fnames[0])
+    fnames = utils.get_filenames(dirname)
+    m_0 = utils.filename_to_model(fnames[0])
 
     L = m_0.walls.L
 
@@ -41,7 +40,7 @@ def plot_2d(dirname):
     def update(val):
         fname_i = int(round(val))
         if 0 <= fname_i < len(fnames):
-            m = filename_to_model(fnames[fname_i])
+            m = utils.filename_to_model(fnames[fname_i])
             plot_p.set_offsets(m.r)
             plot_p.set_UVC(m.v[:, 0], m.v[:, 1])
             c_mask = np.ma.array(np.log(m.c.a.T),
@@ -64,9 +63,9 @@ def plot_1d(dirname):
     ax_c = fig.add_subplot(312)
     ax_d = fig.add_subplot(313)
 
-    fnames = get_filenames(dirname)
+    fnames = utils.get_filenames(dirname)
 
-    m_0 = filename_to_model(fnames[0])
+    m_0 = utils.filename_to_model(fnames[0])
 
     L = m_0.L
 
@@ -88,7 +87,7 @@ def plot_1d(dirname):
     def update(val):
         fname_i = int(round(val))
         if 0 <= fname_i < len(fnames):
-            m = filename_to_model(fnames[fname_i])
+            m = utils.filename_to_model(fnames[fname_i])
             plot_p.set_offsets(np.array([m.r[:, 0], np.zeros([m.n])]).T)
             cs = m.c.a
             for rect, c in zip(plot_c, cs):
