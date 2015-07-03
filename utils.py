@@ -394,6 +394,17 @@ def get_filenames(dirname):
     return sorted(filenames, key=_f_to_i)
 
 
+def get_recent_filename(dirname):
+    """Get filename of latest-time model in a directory.
+    """
+    return get_filenames(dirname)[-1]
+
+
+def get_recent_model(dirname):
+    """Get latest-time model in a directory."""
+    return filename_to_model(get_recent_filename(dirname))
+
+
 def filename_to_model(filename):
     """Load a model output file and return the model.
 
