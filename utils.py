@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import pickle
 import glob
+import os
 from os.path import basename, splitext
 import numpy as np
 from ciabatta import cluster
@@ -471,3 +472,33 @@ def model_to_file(model, filename):
     """
     with open(filename, 'wb') as f:
         pickle.dump(model, f)
+
+
+def sparsify(dirname, output_every):
+    """Remove files from an output directory at regular interval, so as to
+    make it as if there had been more iterations between outputs. Can be used
+    to reduce the storage size of a directory.
+
+    If the new number of iterations between outputs is not an integer multiple
+    of the old number, then raise an exception.
+
+    Parameters
+    ----------
+    dirname: str
+        A path to a directory.
+    output_every: int
+        Desired new number of iterations between outputs.
+
+    Raises
+    ------
+    ValueError
+        The directory cannot be coerced into representing `output_every`.
+    """
+    fnames = get_filenames(dirname)
+    output_every_old = get_output_every(dirname)
+    if output_every % output_every_old != 0:
+        raise ValueError('Directory with output_every={} cannot be coerced to'
+                         'desired new value.'.format(output_every_old))
+    delete_every = output_every // output_every_old
+    for fname in fnames[1::delete_every]:
+        os.remove(fname)
