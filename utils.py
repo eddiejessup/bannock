@@ -411,6 +411,37 @@ def get_recent_time(dirname):
     return filename_to_model(get_recent_filename(dirname)).t
 
 
+def get_output_every(dirname):
+    """Get how many iterations between outputs have been done in a directory
+    run.
+
+    If there are multiple values used in a run, raise an exception.
+
+    Parameters
+    ----------
+    dirname: str
+        A path to a directory.
+
+    Returns
+    -------
+    output_every: int
+        The inferred number of iterations between outputs.
+
+    Raises
+    ------
+    TypeError
+        If there are multiple different values for `output_every` found. This
+        usually means a run has been resumed with a different value.
+    """
+    fnames = get_filenames(dirname)
+    i_s = np.array([_f_to_i(fname) for fname in fnames])
+    everys = list(set(np.diff(i_s)))
+    if len(everys) > 1:
+        raise TypeError('Multiple values for `output_every` '
+                        'found, {}.'.format(everys))
+    return everys[0]
+
+
 def filename_to_model(filename):
     """Load a model output file and return the model.
 
