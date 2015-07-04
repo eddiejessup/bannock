@@ -499,6 +499,8 @@ def sparsify(dirname, output_every):
     if output_every % output_every_old != 0:
         raise ValueError('Directory with output_every={} cannot be coerced to'
                          'desired new value.'.format(output_every_old))
-    delete_every = output_every // output_every_old
-    for fname in fnames[1::delete_every]:
+    keep_every = output_every // output_every_old
+    fnames_to_keep = fnames[::keep_every]
+    fnames_to_delete = set(fnames) - set(fnames_to_keep)
+    for fname in fnames_to_delete:
         os.remove(fname)
