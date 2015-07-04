@@ -434,8 +434,9 @@ def model_to_file(model, filename):
     Parameters
     ----------
     model: Model
+        Model instance.
     filename: str
-        Path to the file in which to store the pickle output.
+        A path to the file in which to store the pickle output.
     """
     with open(filename, 'wb') as f:
         pickle.dump(model, f)
