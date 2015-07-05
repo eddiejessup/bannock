@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 from collections import OrderedDict
 import numpy as np
 from ciabatta import lattice, fields, maze

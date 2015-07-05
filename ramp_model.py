@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 from model import Model1D, Model2D
 from utils import reprify
 

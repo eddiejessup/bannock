@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 from abc import ABCMeta, abstractmethod
 import numpy as np
 from ciabatta import vector, fields
