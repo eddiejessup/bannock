@@ -120,7 +120,7 @@ def t_pmeans(dirname):
     return np.array(ts), np.array(p_means), np.array(p_mins), np.array(p_maxs)
 
 
-def chi_bcfs(dirnames):
+def chi_bcfs(dirnames, t_steady=None):
     """Calculate the fraction of particles in the biggest cluster of a set of
     model output directories, and their associated chis.
 
@@ -138,11 +138,19 @@ def chi_bcfs(dirnames):
     """
     chis, bcfs = [], []
     for dirname in dirnames:
-        fname_recent = get_filenames(dirname)[-1]
-        m_recent = filename_to_model(fname_recent)
+        m_recent = filename_to_model(get_recent_filename(dirname))
         chis.append(m_recent.chi)
-        bcfs.append(get_bcf(m_recent))
+        bcfs.append(get_average_measure(dirname, get_bcf, t_steady))
     return np.array(chis), np.array(bcfs)
+
+
+def get_average_measure(dirname, get_measure_func, t_steady=None):
+    if t_steady is None:
+        return get_measure_func(get_recent_model(dirname))
+    else:
+        ms = [filename_to_model(fname) for fname in get_filenames(dirname)]
+        ms_steady = [m for m in ms if m.t > t_steady]
+        return np.mean([get_measure_func(m) for m in ms_steady])
 
 
 def format_parameter(p):
