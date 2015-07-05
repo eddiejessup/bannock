@@ -35,7 +35,7 @@ def plot_2d(dirname):
     fig.colorbar(plot_c, cax=ax_cb)
 
     t_time = fig.text(0.1, 0.5, '')
-    t_dstd = fig.text(0.1, 0.4, '')
+    t_bcf = fig.text(0.1, 0.4, '')
 
     def update(val):
         fname_i = int(round(val))
@@ -49,7 +49,7 @@ def plot_2d(dirname):
             plot_c.set_data(c_mask)
             plot_c.autoscale()
             t_time.set_text('Time: {:g}'.format(m.t))
-            t_dstd.set_text('Dstd: {:g}'.format(utils.get_dstd(m)))
+            t_bcf.set_text('k: {:g}'.format(utils.get_bcf(m)))
             fig.canvas.draw_idle()
 
     t_slider.on_changed(update)
@@ -110,16 +110,6 @@ def plot_t_bcfs(dirname):
 
     ts, bcfs = utils.t_bcfs(dirname)
     ax.plot(ts, bcfs)
-
-    plt.show()
-
-
-def plot_t_dstds(dirname):
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    ts, dstds = utils.t_dstds(dirname)
-    ax.plot(ts, dstds)
 
     plt.show()
 
