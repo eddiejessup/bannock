@@ -68,19 +68,20 @@ class _TaskRunner(object):
         self.t_upto = t_upto
         self.force_resume = force_resume
 
-    def __call__(self, chi):
-        self.model_kwargs['chi'] = chi
-        m = self.ModelClass(**self.model_kwargs)
+    def __call__(self, extra_model_kwargs):
+        model_kwargs = self.model_kwargs.copy()
+        model_kwargs.update(extra_model_kwargs)
+        m = self.ModelClass(**model_kwargs)
         r = run_model(self.output_every, m=m, force_resume=self.force_resume,
                       t_upto=self.t_upto)
-        print(chi, utils.get_bcf(r.model))
+        print(extra_model_kwargs, 'k: {}'.format(utils.get_bcf(r.model)))
 
 
-def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis,
-                 force_resume=True):
-    """Run many models with the same parameters but variable chi.
+def run_field_scan(ModelClass, model_kwargs, output_every, t_upto, field, vals,
+                   force_resume=True):
+    """Run many models with the same parameters but variable `field`.
 
-    For each `chi` in `chis`, a new model will be made, and run up to a time.
+    For each `val` in `vals`, a new model will be made, and run up to a time.
     The output directory is automatically generated from the model arguments.
 
     Parameters
@@ -95,22 +96,25 @@ def run_chi_scan(ModelClass, model_kwargs, output_every, t_upto, chis,
         see :class:`Runner`.
     t_upto: float
         Run each model until the time is equal to this
-    chis: array_like[dtype=float]
+    field: str
+        The name of the field to be varied, whose values are in `vals`.
+    vals: array_like
         Iterable of values to use to instantiate each Model object.
      """
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
                               force_resume)
-    for chi in chis:
-        task_runner(chi)
+    extra_model_kwarg_sets = [{field: val} for val in vals]
+    for extra_model_kwargs in extra_model_kwarg_sets:
+        task_runner(extra_model_kwargs)
 
 
-def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
-                          chis, force_resume=True):
-    """Run many models with the same parameters but variable chi.
+def run_field_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
+                            field, vals, force_resume=True):
+    """Run many models with the same parameters but variable `field`.
 
     Run them in parallel using the Multiprocessing library.
 
-    For each `chi` in `chis`, a new model will be made, and run up to a time.
+    For each `val` in `vals`, a new model will be made, and run up to a time.
     The output directory is automatically generated from the model arguments.
 
     Parameters
@@ -125,12 +129,15 @@ def run_chi_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
         see :class:`Runner`.
     t_upto: float
         Run each model until the time is equal to this
-    chis: array_like[dtype=float]
+    field: str
+        The name of the field to be varied, whose values are in `vals`.
+    vals: array_like
         Iterable of values to use to instantiate each Model object.
      """
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
                               force_resume)
-    mp.Pool(mp.cpu_count() - 1).map(task_runner, chis)
+    extra_model_kwarg_sets = [{field: val} for val in vals]
+    mp.Pool(mp.cpu_count() - 1).map(task_runner, extra_model_kwarg_sets)
 
 
 def resume_runs(dirnames, output_every, t_upto):

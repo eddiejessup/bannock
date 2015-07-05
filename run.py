@@ -115,8 +115,9 @@ def run_chi_scan_2d():
     chis = np.linspace(250.0, 600.0, 10)
     force_resume = True
 
-    run_utils.run_chi_scan_parallel(model.Model2D, model_kwargs, output_every,
-                                    t_upto, chis, force_resume)
+    run_utils.run_field_scan_parallel(model.Model2D, model_kwargs,
+                                      output_every, t_upto, 'chi', chis,
+                                      force_resume)
 
 
 def run_chi_scan_1d():
@@ -133,5 +134,5 @@ def run_chi_scan_1d():
     chis = np.linspace(2.0, 8.0, 10)
     force_resume = True
 
-    run_utils.run_chi_scan(model.Model1D, model_kwargs, output_every,
-                           t_upto, chis, force_resume)
+    run_utils.run_field_scan(model.Model1D, model_kwargs, output_every,
+                             t_upto, 'chi', chis, force_resume)
