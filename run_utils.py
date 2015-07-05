@@ -78,7 +78,7 @@ class _TaskRunner(object):
 
 
 def run_field_scan(ModelClass, model_kwargs, output_every, t_upto, field, vals,
-                   force_resume=True):
+                   force_resume=True, parallel=False):
     """Run many models with the same parameters but variable `field`.
 
     For each `val` in `vals`, a new model will be made, and run up to a time.
@@ -100,47 +100,22 @@ def run_field_scan(ModelClass, model_kwargs, output_every, t_upto, field, vals,
         The name of the field to be varied, whose values are in `vals`.
     vals: array_like
         Iterable of values to use to instantiate each Model object.
+    parallel: bool
+        Whether or not to run the models in parallel, using the Multiprocessing
+        library. If `True`, the number of concurrent tasks will be equal to
+        one less than the number of available cores detected.
      """
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
                               force_resume)
     extra_model_kwarg_sets = [{field: val} for val in vals]
-    for extra_model_kwargs in extra_model_kwarg_sets:
-        task_runner(extra_model_kwargs)
+    if parallel:
+        mp.Pool(mp.cpu_count() - 1).map(task_runner, extra_model_kwarg_sets)
+    else:
+        for extra_model_kwargs in extra_model_kwarg_sets:
+            task_runner(extra_model_kwargs)
 
 
-def run_field_scan_parallel(ModelClass, model_kwargs, output_every, t_upto,
-                            field, vals, force_resume=True):
-    """Run many models with the same parameters but variable `field`.
-
-    Run them in parallel using the Multiprocessing library.
-
-    For each `val` in `vals`, a new model will be made, and run up to a time.
-    The output directory is automatically generated from the model arguments.
-
-    Parameters
-    ----------
-    ModelClass: type
-        A class that can be instantiated into a Model object by calling
-        `ModelClass(model_kwargs)`
-    model_kwargs: dict
-        Arguments that can instantiate a `ModelClass` object when passed
-        to the `__init__` method.
-    output_every: int
-        see :class:`Runner`.
-    t_upto: float
-        Run each model until the time is equal to this
-    field: str
-        The name of the field to be varied, whose values are in `vals`.
-    vals: array_like
-        Iterable of values to use to instantiate each Model object.
-     """
-    task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
-                              force_resume)
-    extra_model_kwarg_sets = [{field: val} for val in vals]
-    mp.Pool(mp.cpu_count() - 1).map(task_runner, extra_model_kwarg_sets)
-
-
-def resume_runs(dirnames, output_every, t_upto):
+def resume_runs(dirnames, output_every, t_upto, parallel=False):
     """Resume many models, and run.
 
     Parameters
@@ -151,24 +126,16 @@ def resume_runs(dirnames, output_every, t_upto):
         see :class:`Runner`.
     t_upto: float
         Run each model until the time is equal to this
+    parallel: bool
+        Whether or not to run the models in parallel, using the Multiprocessing
+        library. If `True`, the number of concurrent tasks will be equal to
+        one less than the number of available cores detected.
      """
-    for dirname in dirnames:
-        run_model(output_every, output_dir=dirname, force_resume=True,
-                  t_upto=t_upto)
-
-
-def resume_runs_parallel(dirnames, output_every, t_upto):
-    """Resume many models, and run in parallel.
-
-    Parameters
-    ----------
-    dirnames: list[str]
-        List of output directory paths from which to resume.
-    output_every: int
-        see :class:`Runner`.
-    t_upto: float
-        Run each model until the time is equal to this
-     """
-    run_model_partial = partial(run_model, output_every, force_resume=True,
-                                t_upto=t_upto)
-    mp.Pool(mp.cpu_count() - 1).map(run_model_partial, dirnames)
+    if parallel:
+        run_model_partial = partial(run_model, output_every, force_resume=True,
+                                    t_upto=t_upto)
+        mp.Pool(mp.cpu_count() - 1).map(run_model_partial, dirnames)
+    else:
+        for dirname in dirnames:
+            run_model(output_every, output_dir=dirname, force_resume=True,
+                      t_upto=t_upto)
