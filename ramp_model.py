@@ -1,6 +1,5 @@
 from __future__ import print_function, division
 from model import Model1D, Model2D
-from utils import reprify
 
 
 def make_ramp_chi_func(chi_0, chi_max, dchi_dt, t_steady, dt):
@@ -79,6 +78,9 @@ class RampModelMixin(object):
         incremented. The large this is, the more 'blocky' the ramp becomes.
     """
 
+    repr_fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
+                   'ramp_t_steady', 'ramp_dt']
+
     def __init__(self, ramp_chi_0, ramp_chi_max, ramp_dchi_dt, ramp_t_steady,
                  ramp_dt,
                  *args, **kwargs):
@@ -108,14 +110,10 @@ class RampModelMixin(object):
                                                 self.ramp_t_steady,
                                                 self.ramp_dt)
 
-    def __repr__(self):
-        fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
-                  'ramp_t_steady', 'ramp_dt']
-        field_strs = reprify(self, fields)
-        return ','.join(field_strs)
-
 
 class RampModel1D(Model1D, RampModelMixin):
+    repr_fields = Model1D.repr_fields + RampModelMixin.repr_fields
+
     def __init__(self, *args, **kwargs):
         Model1D.__init__(self, *args, **kwargs)
         RampModelMixin.__init__(self, *args, **kwargs)
@@ -124,12 +122,9 @@ class RampModel1D(Model1D, RampModelMixin):
         Model1D.iterate(self)
         RampModelMixin.iterate(self)
 
-    def __repr__(self):
-        field_strs = [Model1D.__repr__(self), RampModelMixin.__repr__(self)]
-        return ','.join(field_strs)
-
 
 class RampModel2D(Model2D, RampModelMixin):
+    repr_fields = Model2D.repr_fields + RampModelMixin.repr_fields
 
     def __init__(self, *args, **kwargs):
         Model2D.__init__(self, *args, **kwargs)

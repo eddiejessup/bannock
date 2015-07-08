@@ -1,15 +1,16 @@
 from __future__ import print_function, division
 from abc import ABCMeta, abstractmethod
 import numpy as np
-from ciabatta import vector, fields
+from ciabatta import vector, fields, fileio
 from ciabatta.cell_list import intro
 import particle_numerics
-from utils import reprify
 from secretion import Secretion, WalledSecretion
 
 
 class BaseModel(object):
     __metaclass__ = ABCMeta
+
+    repr_fields = ['dim', 'seed']
 
     @abstractmethod
     def __init__(self, dim, seed):
@@ -49,6 +50,10 @@ class BaseModel(object):
             Density field
         """
         return fields.density(self.r, self.L, self.c.dx)
+
+    def __repr__(self):
+        return '{}_{}'.format(self.__class__.__name__,
+                              fileio.reprify(self, self.repr_fields))
 
 
 class Model1D(BaseModel):
@@ -91,6 +96,15 @@ class Model1D(BaseModel):
     c_source: float
         see :class:`Secretion`
     """
+
+    repr_fields = BaseModel.repr_fields + ['dt', 'L', 'dx',
+                                           'c_D', 'c_sink', 'c_source',
+                                           'v_0', 'p_0', 'origin_flag',
+                                           'rho_0',
+                                           'chi', 'onesided_flag',
+                                           'vicsek_R',
+                                           ]
+
     def __init__(self, seed, dt,
                  rho_0, v_0, p_0, origin_flag,
                  chi, onesided_flag,
@@ -173,17 +187,6 @@ class Model1D(BaseModel):
         self.t += self.dt
         self.i += 1
 
-    def __repr__(self):
-        fields = ['dim', 'seed', 'dt', 'L', 'dx',
-                  'c_D', 'c_sink', 'c_source',
-                  'v_0', 'p_0', 'origin_flag',
-                  'rho_0',
-                  'chi', 'onesided_flag',
-                  'vicsek_R',
-                  ]
-        field_strs = reprify(self, fields)
-        return 'autochemo_model_{}'.format(','.join(field_strs))
-
 
 class Model2D(BaseModel):
     """Self-propelled particles moving in two dimensions in a chemical field.
@@ -201,6 +204,16 @@ class Model2D(BaseModel):
     Others:
         see :class:`Model1D`.
     """
+
+    repr_fields = BaseModel.repr_fields + [
+        'dt', 'L', 'dx',
+        'c_D', 'c_sink', 'c_source',
+        'v_0', 'p_0', 'D_rot', 'origin_flag',
+        'rho_0',
+        'chi', 'onesided_flag',
+        'force_mu', 'vicsek_R',
+        'walls',
+    ]
 
     def __init__(self, seed, dt,
                  rho_0, v_0, D_rot, p_0, origin_flag,
@@ -329,15 +342,3 @@ class Model2D(BaseModel):
 
         self.t += self.dt
         self.i += 1
-
-    def __repr__(self):
-        fields = ['dim', 'seed', 'dt', 'L', 'dx',
-                  'c_D', 'c_sink', 'c_source',
-                  'v_0', 'p_0', 'D_rot', 'origin_flag',
-                  'rho_0',
-                  'chi', 'onesided_flag',
-                  'force_mu', 'vicsek_R',
-                  ]
-        field_strs = reprify(self, fields)
-        field_strs.append(repr(self.walls))
-        return 'autochemo_model_{}'.format(','.join(field_strs))

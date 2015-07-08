@@ -1,7 +1,6 @@
 from __future__ import print_function, division
 import numpy as np
 from ciabatta import lattice, fields, maze
-from utils import reprify
 
 
 class Walls(fields.Field):
@@ -45,9 +44,6 @@ class Walls(fields.Field):
         """
         return self.a[tuple(self.r_to_i(r).T)]
 
-    def __repr__(self):
-        return 'walls_blank'
-
 
 class HalfClosed(Walls):
     """A set of walls closing the 2D environment along one edge."""
@@ -69,6 +65,8 @@ class Closed(Walls):
 
 
 class Tittled(Walls):
+    repr_fields = Walls.repr_fields + ['wx', 'wy', 'sx', 'sy']
+
     def __init__(self, L, dx, wx, wy, sx, sy):
         Walls.__init__(self, L, dim=2, dx=dx)
         self.wx_i = int(round(wx / self.dx))
@@ -107,6 +105,8 @@ class Traps(Walls):
     s: float
         The width of the trap entrance.
     """
+
+    repr_fields = Walls.repr_fields + ['n', 'd', 'w', 's']
 
     def __init__(self, L, dx, n, d, w, s):
         Walls.__init__(self, L, dim=2, dx=dx)
@@ -197,11 +197,6 @@ class Traps(Walls):
                     n_traps[i_trap] += 1
         return [float(n_trap) / float(r.shape[0]) for n_trap in n_traps]
 
-    def __repr__(self):
-        fields = ['n', 'd', 'w', 's']
-        field_strs = reprify(self, fields)
-        return 'walls_traps_{}'.format(','.join(field_strs))
-
 
 class Maze(Walls):
     """A set of walls forming a maze.
@@ -215,6 +210,8 @@ class Maze(Walls):
         Note that this does not affect, or is affected by, pre-existing
         random number seeding.
     """
+
+    repr_fields = Walls.repr_fields + ['d', 'seed']
 
     def __init__(self, L, dim, dx, d, seed=None):
         Walls.__init__(self, L, dim, dx)
@@ -232,8 +229,3 @@ class Maze(Walls):
         self.d_i = int(self.M / self.M_m)
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
-
-    def __repr__(self):
-        fields = ['d', 'seed']
-        field_strs = reprify(self, fields)
-        return 'walls_maze_{}'.format(','.join(field_strs))
