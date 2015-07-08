@@ -11,21 +11,22 @@ r_cluster_1d = 5.0
 r_cluster_2d = 20.0
 
 
-def _get_r_cluster(m):
+def _get_r_cluster(dim):
     """Find the cluster length scale appropriate for a model's dimension.
 
     Parameters
     ----------
-    m: Model
+    dim: int
+        Dimension.
 
     Returns
     -------
     r_cluster: float
         Cluster length scale.
     """
-    if m.dim == 1:
+    if dim == 1:
         return r_cluster_1d
-    elif m.dim == 2:
+    elif dim == 2:
         return r_cluster_2d
 
 
@@ -42,7 +43,7 @@ def get_bcf(m):
     bcf: float
         Clumpiness measure.
     """
-    labels = cluster.cluster(m.r, _get_r_cluster(m))
+    labels = cluster.cluster(m.r, _get_r_cluster(m.dim))
     clust_sizes = cluster.cluster_sizes(labels)
     return cluster.cluster_measure(clust_sizes)
 
