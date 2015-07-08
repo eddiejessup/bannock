@@ -190,7 +190,7 @@ class Traps(Walls):
             low_x, high_x = mid_x - w_i_half, mid_x + w_i_half
             low_y, high_y = mid_y - w_i_half, mid_y + w_i_half
             for i_x, i_y in inds:
-                if low_x < i_x < high_x and low_y < i_y < high_y:
+                if low_x <= i_x <= high_x and low_y <= i_y <= high_y:
                     n_traps[i_trap] += 1
         return [float(n_trap) / float(r.shape[0]) for n_trap in n_traps]
 
