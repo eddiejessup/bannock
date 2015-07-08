@@ -3,6 +3,7 @@ import pickle
 import glob
 import os
 from os.path import basename, splitext
+from collections import defaultdict
 import numpy as np
 from ciabatta import cluster
 
@@ -369,3 +370,57 @@ def sparsify(dirname, output_every):
     fnames_to_delete = set(fnames) - set(fnames_to_keep)
     for fname in fnames_to_delete:
         os.remove(fname)
+
+
+def group_by_key(dirnames, key):
+    """Group a set of output directories according to a model parameter.
+
+    Parameters
+    ----------
+    dirnames: list[str]
+        Output directories
+    key: various
+        A field of a :class:`Model` instance.
+
+    Returns
+    -------
+    groups: dict[various: list[str]]
+        For each value of `key` that is found at least once in the models, a
+        list of the output directories where `key` is that value.
+    """
+    groups = defaultdict(lambda: [])
+    for dirname in dirnames:
+        m = get_recent_model(dirname)
+        groups[m.__dict__[key]].append(dirname)
+    return dict(groups)
+
+
+def chi_bcfs_run_average(dirnames, t_steady=None):
+    """Calculate the particle clumpiness of a set of
+    model output directories, and their associated chis.
+    Take the average over all directories with equal chi.
+
+    Parameters
+    ----------
+    dirnames: list[str]
+        Model output directory paths.
+    t_steady: None or float
+        Time to consider the model to be at steady-state.
+        The measure will be averaged over all later times.
+        `None` means just consider the latest time.
+
+    Returns
+    -------
+    chis: numpy.ndarray[dtype=float]
+        Chemotactic sensitivities
+    bcfs: numpy.ndarray[dtype=float]
+        Particle clumpinesses.
+    """
+
+    chi_groups = group_by_key(dirnames, 'chi')
+    chis, bcfs = [], []
+    for chi, dirnames in chi_groups.items():
+        chis.append(chi)
+        bcfs.append(np.mean([get_average_measure(dirname, get_bcf, t_steady)
+                             for dirname in dirnames]))
+    return np.array(chis), np.array(bcfs)
