@@ -48,6 +48,23 @@ def get_bcf(m):
     return cluster.cluster_measure(clust_sizes)
 
 
+def get_frac(m):
+    """Calculate the fraction of particles in a trap for a model.
+
+    Parameters
+    ----------
+    m: Model
+        Model instance.
+
+    Returns
+    -------
+    frac: float
+        Fraction of particles in any trap.
+    """
+    return np.sum(m.walls.get_fracs(m.r)) / (m.walls.get_trap_area() /
+                                             m.walls.get_free_area())
+
+
 def get_pstats(m):
     """Calculate the tumble rate statistics for a model.
 
@@ -92,6 +109,30 @@ def t_bcfs(dirname):
         ts.append(m.t)
         bcfs.append(get_bcf(m))
     return np.array(ts), np.array(bcfs)
+
+
+def t_fracs(dirname):
+    """Calculate the trap fraction over time
+    for a model output directory.
+
+    Parameters
+    ----------
+    dirname: str
+        A model output directory path
+
+    Returns
+    -------
+    ts: numpy.ndarray[dtype=float]
+        Times.
+    fracs: numpy.ndarray[dtype=float]
+        Trap fractions.
+    """
+    ts, fracs = [], []
+    for fname in get_filenames(dirname):
+        m = filename_to_model(fname)
+        ts.append(m.t)
+        fracs.append(get_frac(m))
+    return np.array(ts), np.array(fracs)
 
 
 def t_pmeans(dirname):

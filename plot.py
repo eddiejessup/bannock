@@ -114,6 +114,16 @@ def plot_t_bcfs(dirname):
     plt.show()
 
 
+def plot_t_fracs(dirname):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ts, fracs = utils.t_fracs(dirname)
+    ax.plot(ts, fracs)
+
+    plt.show()
+
+
 def plot_t_pmeans(dirname):
     fig = plt.figure()
     ax = fig.add_subplot(111)
