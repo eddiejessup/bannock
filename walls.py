@@ -71,14 +71,14 @@ class Closed(Walls):
 class Tittled(Walls):
     def __init__(self, L, dx, wx, wy, sx, sy):
         Walls.__init__(self, L, dim=2, dx=dx)
-        self.wx_i = int(round(wx / self.dx()))
-        self.wy_i = int(round(wy / self.dx()))
-        self.sx_i = int(round(sx / self.dx()))
-        self.sy_i = int(round(sy / self.dx()))
-        self.wx = self.wx_i * self.dx()
-        self.wy = self.wy_i * self.dx()
-        self.sx = self.sx_i * self.dx()
-        self.sy = self.sy_i * self.dx()
+        self.wx_i = int(round(wx / self.dx))
+        self.wy_i = int(round(wy / self.dx))
+        self.sx_i = int(round(sx / self.dx))
+        self.sy_i = int(round(sy / self.dx))
+        self.wx = self.wx_i * self.dx
+        self.wy = self.wy_i * self.dx
+        self.sx = self.sx_i * self.dx
+        self.sy = self.sy_i * self.dx
 
         for i_x in range(self.sx_i,
                          self.a.shape[0] - self.sx_i,
@@ -111,12 +111,12 @@ class Traps(Walls):
     def __init__(self, L, dx, n, d, w, s):
         Walls.__init__(self, L, dim=2, dx=dx)
         self.n = n
-        self.d_i = int(d / self.dx()) + 1
-        self.w_i = int(w / self.dx()) + 1
-        self.s_i = int(s / self.dx()) + 1
-        self.d = self.d_i * self.dx()
-        self.w = self.w_i * self.dx()
-        self.s = self.s_i * self.dx()
+        self.d_i = int(d / self.dx) + 1
+        self.w_i = int(w / self.dx) + 1
+        self.s_i = int(s / self.dx) + 1
+        self.d = self.d_i * self.dx
+        self.w = self.w_i * self.dx
+        self.s = self.s_i * self.dx
 
         if self.w < 0.0 or self.w > self.L:
             raise Exception('Invalid trap width')
@@ -218,11 +218,11 @@ class Maze(Walls):
 
     def __init__(self, L, dim, dx, d, seed=None):
         Walls.__init__(self, L, dim, dx)
-        if self.L / self.dx() % 1 != 0:
+        if self.L / self.dx % 1 != 0:
             raise Exception('Require L / dx to be an integer')
         if self.L / self.d % 1 != 0:
             raise Exception('Require L / d to be an integer')
-        if (self.L / self.dx()) / (self.L / self.d) % 1 != 0:
+        if (self.L / self.dx) / (self.L / self.d) % 1 != 0:
             raise Exception('Require array size / maze size to be integer')
 
         self.seed = seed

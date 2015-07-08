@@ -48,7 +48,7 @@ class BaseModel(object):
         d: numpy.ndarray[dtype=int]
             Density field
         """
-        return fields.density(self.r, self.L, self.c.dx())
+        return fields.density(self.r, self.L, self.c.dx)
 
 
 class Model1D(BaseModel):
@@ -223,12 +223,12 @@ class Model2D(BaseModel):
         self.walls = walls
         self.L = walls.L
         self.L_half = self.L / 2.0
-        self.dx = walls.dx()
+        self.dx = walls.dx
         self.c_D = c_D
         self.c_sink = c_sink
         self.c_source = c_source
 
-        self.c = WalledSecretion(self.walls.L, self.walls.dim, self.walls.dx(),
+        self.c = WalledSecretion(self.walls.L, self.walls.dim, self.walls.dx,
                                  self.walls.a, self.c_D, self.dt,
                                  self.c_sink, self.c_source, a_0=0.0)
 
