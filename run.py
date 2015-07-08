@@ -1,10 +1,42 @@
 from __future__ import print_function, division
 import numpy as np
 import model
+import walls
 import ramp_model
 import run_utils
 from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
+                      default_trap_args,
                       walls_blank, walls_traps_1)
+
+
+def run_trap_nochi():
+    extra_trap_args = {
+        'L': 2500.0,
+        'dx': 40.0,
+    }
+    trap_args = default_trap_args.copy()
+    trap_args.update(extra_trap_args)
+    w = walls.Traps(**trap_args)
+
+    extra_model_kwargs = {
+        'rho_0': 1e-2,
+        'onesided_flag': False,
+        'chi': 0.0,
+        'walls': w,
+        'origin_flag': False,
+        'p_0': 1.0,
+    }
+    model_kwargs = default_model_2d_kwargs.copy()
+    model_kwargs.update(extra_model_kwargs)
+    m = model.Model2D(**model_kwargs)
+
+    output_every = 200
+    t_upto = 1e4
+    output_dir = None
+    force_resume = None
+
+    run_utils.run_model(output_every, output_dir, m, force_resume,
+                        t_upto=t_upto)
 
 
 def run_2d():
