@@ -142,7 +142,9 @@ def plot_chi_bcfs(dirnames):
     ax = fig.add_subplot(111)
 
     chis, bcfs = utils.chi_bcfs(dirnames)
-    ax.scatter(chis, bcfs)
+    i_sort = np.argsort(chis)
+    chis, bcfs = chis[i_sort], bcfs[i_sort]
+    ax.plot(chis, bcfs)
     ax.set_ylim(0.0, 1.1)
 
     plt.show()
