@@ -21,6 +21,7 @@ def _get_r_cluster(m):
     Returns
     -------
     r_cluster: float
+        Cluster length scale.
     """
     if m.dim == 1:
         return r_cluster_1d
@@ -34,10 +35,12 @@ def get_bcf(m):
     Parameters
     ----------
     m: Model
+        Model instance.
 
     Returns
     -------
     bcf: float
+        Clumpiness measure.
     """
     labels = cluster.cluster(m.r, _get_r_cluster(m))
     clust_sizes = cluster.cluster_sizes(labels)
@@ -50,6 +53,7 @@ def get_pstats(m):
     Parameters
     ----------
     m: Model
+        Model instance.
 
     Returns
     -------

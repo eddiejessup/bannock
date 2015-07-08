@@ -27,7 +27,7 @@ class Walls(fields.Field):
         -------
         area: float
         """
-        return self.A() * float(self.get_free_area_i()) / self.A_i()
+        return self.get_free_area_i() * self.dA()
 
     def is_obstructed(self, r):
         """Determine if a set of position vectors lie on top of obstacles.
@@ -81,14 +81,11 @@ class Tittled(Walls):
         for i_x in range(self.sx_i,
                          self.a.shape[0] - self.sx_i,
                          self.sx_i):
-            print(i_x)
             for i_y in range(self.sy_i,
                              self.a.shape[1] - self.sy_i,
                              self.sy_i):
-                print(i_y)
                 self.a[i_x - self.wx_i:i_x + self.wx_i,
                        i_y - self.wy_i:i_y + self.wy_i] = True
-        print(self.a.max())
 
 
 class Traps(Walls):
@@ -169,11 +166,10 @@ class Traps(Walls):
         -------
         trap_area: float
         """
-        return self.A() * (float(self.get_trap_area_i()) /
-                           self.get_free_area_i())
+        return self.get_trap_area_i() * self.dA()
 
     def get_fracs(self, r):
-        """Calculate the number of particles inside each trap.
+        """Calculate the fraction of particles inside each trap.
 
         Parameters
         ----------
@@ -183,6 +179,7 @@ class Traps(Walls):
         Returns
         -------
         fracs: list[int]
+            Fraction of the total population that is inside each trap.
         """
         inds = self.r_to_i(r)
         n_traps = [0 for i in range(len(self.traps_i))]
