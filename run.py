@@ -78,6 +78,29 @@ def run_1d():
                         t_upto=t_upto)
 
 
+def run_cannock_1d():
+    extra_model_kwargs = {
+        'rho_0': 1.0,
+        'onesided_flag': True,
+        'chi': 1.5,
+        'origin_flag': True,
+        'vicsek_R': 0.0,
+        # 'v_0': 20.0,
+        'p_0': 1.0,
+    }
+    model_kwargs = default_model_1d_kwargs.copy()
+    model_kwargs.update(extra_model_kwargs)
+    m = model.Model1D(**model_kwargs)
+
+    output_every = 500
+    t_upto = 1e4
+    output_dir = '/Users/ewj/Desktop/cannock/agent_data/{}'.format(m)
+    force_resume = None
+
+    run_utils.run_model(output_every, output_dir, m, force_resume,
+                        t_upto=t_upto)
+
+
 def run_chi_ramp_1d():
     ramp_kwargs = {
         'ramp_chi_0': 0.0,
