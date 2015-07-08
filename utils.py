@@ -28,7 +28,7 @@ def _get_r_cluster(m):
 
 
 def get_bcf(m):
-    """Calculate the fraction of particles in the biggest cluster for a model.
+    """Calculate the particle clumpiness for a model.
 
     Parameters
     ----------
@@ -65,7 +65,7 @@ def get_pstats(m):
 
 
 def t_bcfs(dirname):
-    """Calculate the fraction of particles in the biggest cluster over time
+    """Calculate the particle clumpiness over time
     for a model output directory.
 
     Parameters
@@ -78,7 +78,7 @@ def t_bcfs(dirname):
     ts: numpy.ndarray[dtype=float]
         Times.
     bcfs: numpy.ndarray[dtype=float]
-        Biggest cluster fractions.
+        Particle clumpinesses.
     """
     ts, bcfs = [], []
     for fname in get_filenames(dirname):
@@ -121,7 +121,7 @@ def t_pmeans(dirname):
 
 
 def chi_bcfs(dirnames, t_steady=None):
-    """Calculate the fraction of particles in the biggest cluster of a set of
+    """Calculate the particle clumpiness of a set of
     model output directories, and their associated chis.
 
     Parameters
@@ -134,7 +134,7 @@ def chi_bcfs(dirnames, t_steady=None):
     chis: numpy.ndarray[dtype=float]
         Chemotactic sensitivities
     bcfs: numpy.ndarray[dtype=float]
-        Biggest cluster fractions.
+        Particle clumpinesses.
     """
     chis, bcfs = [], []
     for dirname in dirnames:
