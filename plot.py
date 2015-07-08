@@ -49,7 +49,8 @@ def plot_2d(dirname):
             plot_c.set_data(c_mask)
             plot_c.autoscale()
             t_time.set_text('Time: {:g}'.format(m.t))
-            t_bcf.set_text('k: {:g}'.format(utils.get_bcf(m)))
+            if m.n < 500:
+                t_bcf.set_text('k: {:g}'.format(utils.get_bcf(m)))
             fig.canvas.draw_idle()
 
     t_slider.on_changed(update)
