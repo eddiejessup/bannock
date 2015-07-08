@@ -42,7 +42,7 @@ class Walls(fields.Field):
         o: numpy.ndarray[dtype=bool, shape=(n,)]
             `True` if a vector is obstructed.
         """
-        return self.a[tuple(self.r_to_i(r).T)]
+        return self.a[tuple(self.r_to_i(r).T)].astype(np.bool)
 
 
 class HalfClosed(Walls):
