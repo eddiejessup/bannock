@@ -2,7 +2,7 @@ from __future__ import print_function, division
 import walls
 
 default_wall_args = {
-    'L': 5000.0,
+    'L': 2500.0,
     'dx': 40.0,
 }
 
