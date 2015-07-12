@@ -45,7 +45,7 @@ def get_bcf(m):
     """
     labels = cluster.cluster(m.r, _get_r_cluster(m.dim))
     clust_sizes = cluster.cluster_sizes(labels)
-    return cluster.cluster_measure(clust_sizes)
+    return cluster.get_clumpiness(clust_sizes)
 
 
 def get_fracs(m):
