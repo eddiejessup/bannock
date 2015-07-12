@@ -254,7 +254,7 @@ class Model2D(BaseModel):
         self.r = np.zeros_like(self.v)
         if self.origin_flag:
             if self.walls.is_obstructed(self.r[0, np.newaxis]):
-                raise Exception('Cannot initialise particles at the origin as'
+                raise Exception('Cannot initialise particles at the origin as '
                                 'there is an obstacle there')
         else:
             for i in range(self.n):
