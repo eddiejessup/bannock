@@ -16,6 +16,7 @@ def run_trap_nochi():
         'walls': walls_traps_1,
         'origin_flag': False,
         'p_0': 1.0,
+        'c_source': 0.0,
     }
     model_kwargs = default_model_2d_kwargs.copy()
     model_kwargs.update(extra_model_kwargs)
