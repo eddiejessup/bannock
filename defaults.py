@@ -24,9 +24,16 @@ default_extra_traps_kwargs = {
 }
 default_traps_kwargs = dict(default_trap_kwargs, **default_extra_traps_kwargs)
 
+default_extra_maze_kwargs = {
+    'd': 40.0,
+    'seed': 1,
+}
+default_maze_kwargs = dict(default_blank_kwargs, **default_extra_maze_kwargs)
+
 walls_blank = walls.Walls(**default_blank_kwargs)
 walls_traps_1 = walls.Traps(**default_trap_kwargs)
 walls_traps_m = walls.Traps(**default_traps_kwargs)
+walls_maze = walls.Maze(**default_maze_kwargs)
 
 # Make 1d default model args
 default_model_1d_kwargs = {
