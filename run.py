@@ -43,6 +43,7 @@ def run_2d():
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
+        'chi': 0.0,
         'walls': walls_traps_1,
         'origin_flag': True,
     }
@@ -63,6 +64,7 @@ def run_1d():
     extra_model_kwargs = {
         'rho_0': 0.1,
         'onesided_flag': True,
+        'chi': 0.0,
         'origin_flag': True,
     }
     model_kwargs = default_model_1d_kwargs.copy()
