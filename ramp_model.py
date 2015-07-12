@@ -77,7 +77,6 @@ class RampModelMixin(object):
         Length of time the parameter stays at a given value before being
         incremented. The large this is, the more 'blocky' the ramp becomes.
     """
-
     repr_fields = ['ramp_chi_0', 'ramp_chi_max', 'ramp_dchi_dt',
                    'ramp_t_steady', 'ramp_dt']
 

@@ -102,7 +102,6 @@ class Traps(Walls):
     s: float
         The width of the trap entrance.
     """
-
     repr_fields = Walls.repr_fields + ['n', 'd', 'w', 's']
 
     def __init__(self, L, dx, n, d, w, s):
@@ -208,7 +207,6 @@ class Maze(Walls):
         Note that this does not affect, or is affected by, pre-existing
         random number seeding.
     """
-
     repr_fields = Walls.repr_fields + ['d', 'seed']
 
     def __init__(self, L, dim, dx, d, seed=None):

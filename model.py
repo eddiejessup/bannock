@@ -96,7 +96,6 @@ class Model1D(BaseModel):
     c_source: float
         see :class:`Secretion`
     """
-
     repr_fields = BaseModel.repr_fields + ['dt', 'L', 'dx',
                                            'c_D', 'c_sink', 'c_source',
                                            'v_0', 'p_0', 'origin_flag',
@@ -204,7 +203,6 @@ class Model2D(BaseModel):
     Others:
         see :class:`Model1D`.
     """
-
     repr_fields = BaseModel.repr_fields + [
         'dt', 'L', 'dx',
         'c_D', 'c_sink', 'c_source',
