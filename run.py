@@ -5,7 +5,7 @@ import walls
 import ramp_model
 import run_utils
 from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
-                      walls_blank, walls_traps_1)
+                      walls_blank, walls_traps_1, walls_traps_m)
 
 
 def run_trap_nochi():
