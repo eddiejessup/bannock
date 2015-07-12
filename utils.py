@@ -43,7 +43,7 @@ def get_bcf(m):
     bcf: float
         Clumpiness measure.
     """
-    labels = cluster.cluster(m.r, _get_r_cluster(m.dim))
+    labels = cluster.cluster_periodic(m.r, _get_r_cluster(m.dim), m.L)
     clust_sizes = cluster.cluster_sizes(labels)
     return cluster.get_clumpiness(clust_sizes)
 
