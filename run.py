@@ -10,7 +10,7 @@ from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
 
 def run_trap_nochi():
     extra_model_kwargs = {
-        'rho_0': 1e-2,
+        'rho_0': 1e-1,
         'onesided_flag': False,
         'chi': 0.0,
         'walls': walls_traps_1,
