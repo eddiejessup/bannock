@@ -120,7 +120,8 @@ def plot_t_fracs(dirname):
     ax = fig.add_subplot(111)
 
     ts, fracs = utils.t_fracs(dirname)
-    ax.plot(ts, fracs)
+    for frac_set in fracs.T:
+        ax.plot(ts, frac_set)
 
     plt.show()
 

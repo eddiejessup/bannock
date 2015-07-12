@@ -48,8 +48,13 @@ def get_bcf(m):
     return cluster.cluster_measure(clust_sizes)
 
 
-def get_frac(m):
-    """Calculate the fraction of particles in a trap for a model.
+def get_fracs(m):
+    """Calculate an order parameter, f, the 'confinedness',
+    representing the fraction of particles in each trap for a model.
+
+    f = 1 means all particles are in a trap.
+    f = 0 means the fraction is that expected for a uniform distribution.
+    f < 0 means there are fewer particles than expected.
 
     Parameters
     ----------
@@ -58,11 +63,11 @@ def get_frac(m):
 
     Returns
     -------
-    frac: float
-        Fraction of particles in any trap.
+    fs: list[float]
+        Confinedness for each trap.
     """
-    return np.sum(m.walls.get_fracs(m.r)) / (m.walls.get_trap_area() /
-                                             m.walls.get_free_area())
+    frac_0 = m.walls.get_trap_area() / m.walls.get_free_area()
+    return (m.walls.get_fracs(m.r) - frac_0) / (1.0 - frac_0)
 
 
 def get_pstats(m):
@@ -112,7 +117,7 @@ def t_bcfs(dirname):
 
 
 def t_fracs(dirname):
-    """Calculate the trap fraction over time
+    """Calculate the trap confinedness over time
     for a model output directory.
 
     Parameters
@@ -124,14 +129,14 @@ def t_fracs(dirname):
     -------
     ts: numpy.ndarray[dtype=float]
         Times.
-    fracs: numpy.ndarray[dtype=float]
-        Trap fractions.
+    fs: numpy.ndarray[dtype=float, shape=(ts.shape[0], num_traps)]
+        Trap confinednesses, where `num_traps` is the number of traps.
     """
     ts, fracs = [], []
     for fname in get_filenames(dirname):
         m = filename_to_model(fname)
         ts.append(m.t)
-        fracs.append(get_frac(m))
+        fracs.append(get_fracs(m))
     return np.array(ts), np.array(fracs)
 
 
