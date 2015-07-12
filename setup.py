@@ -5,6 +5,7 @@ import numpy
 
 setup(
     cmdclass={'build_ext': build_ext},
-    ext_modules=[Extension("particle_numerics", ["particle_numerics.pyx"])],
-    include_dirs=[numpy.get_include()],
+    ext_modules=[Extension("particle_numerics", ["particle_numerics.pyx"],
+                           include_dirs=[numpy.get_include()]),
+                 ],
 )
