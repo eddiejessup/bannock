@@ -1,11 +1,9 @@
 from __future__ import print_function, division
 import numpy as np
 import model
-import walls
 import ramp_model
 import run_utils
-from defaults import (default_model_2d_kwargs, default_model_1d_kwargs,
-                      walls_blank, walls_traps_1, walls_traps_m)
+import defaults
 
 
 def run_trap_nochi():
@@ -13,12 +11,12 @@ def run_trap_nochi():
         'rho_0': 1e-1,
         'onesided_flag': False,
         'chi': 0.0,
-        'walls': walls_traps_1,
+        'walls': defaults.walls_traps_1,
         'origin_flag': False,
         'p_0': 1.0,
         'c_source': 0.0,
     }
-    model_kwargs = dict(default_model_2d_kwargs, **extra_model_kwargs)
+    model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
     m = model.Model2D(**model_kwargs)
 
     output_every = 200
@@ -35,10 +33,10 @@ def run_2d():
         'rho_0': 2e-4,
         'onesided_flag': True,
         'chi': 0.0,
-        'walls': walls_traps_1,
+        'walls': defaults.walls_traps_m,
         'origin_flag': True,
     }
-    model_kwargs = dict(default_model_2d_kwargs, **extra_model_kwargs)
+    model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
     m = model.Model2D(**model_kwargs)
 
     output_every = 200
@@ -57,7 +55,7 @@ def run_1d():
         'chi': 0.0,
         'origin_flag': True,
     }
-    model_kwargs = dict(default_model_1d_kwargs, **extra_model_kwargs)
+    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
 
     output_every = 200
@@ -79,7 +77,7 @@ def run_cannock_1d():
         # 'v_0': 20.0,
         'p_0': 1.0,
     }
-    model_kwargs = dict(default_model_1d_kwargs, **extra_model_kwargs)
+    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
     m = model.Model1D(**model_kwargs)
 
     output_every = 500
@@ -106,7 +104,7 @@ def run_chi_ramp_1d():
         'origin_flag': False,
         'vicsek_R': 10.0,
     }
-    ramp_model_kwargs = dict(default_model_1d_kwargs, **ramp_kwargs)
+    ramp_model_kwargs = dict(defaults.default_model_1d_kwargs, **ramp_kwargs)
     model_kwargs = dict(ramp_model_kwargs, **extra_model_kwargs)
     m = ramp_model.RampModel1D(**model_kwargs)
 
@@ -128,11 +126,11 @@ def run_chi_ramp_2d():
     extra_model_kwargs = {
         'rho_0': 2e-4,
         'onesided_flag': True,
-        # 'walls': walls_traps_1,
-        'walls': walls_blank,
+        # 'walls': defaults.walls_traps_1,
+        'walls': defaults.walls_blank,
         'origin_flag': False,
     }
-    ramp_model_kwargs = dict(default_model_2d_kwargs, **ramp_kwargs)
+    ramp_model_kwargs = dict(defaults.default_model_2d_kwargs, **ramp_kwargs)
     model_kwargs = dict(ramp_model_kwargs, **extra_model_kwargs)
     m = ramp_model.RampModel2D(**model_kwargs)
 
@@ -147,10 +145,10 @@ def run_chi_scan_2d():
     extra_model_kwargs = {
         'rho_0': 1e-3,
         'onesided_flag': True,
-        'walls': walls_traps_1,
+        'walls': defaults.walls_traps_1,
         'origin_flag': True,
     }
-    model_kwargs = dict(default_model_2d_kwargs, **extra_model_kwargs)
+    model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
 
     output_every = 5000
     t_upto = 4e4
@@ -168,7 +166,7 @@ def run_chi_scan_1d():
         'onesided_flag': True,
         'origin_flag': True,
     }
-    model_kwargs = dict(default_model_1d_kwargs, **extra_model_kwargs)
+    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
 
     output_every = 200
     t_upto = 50.0
