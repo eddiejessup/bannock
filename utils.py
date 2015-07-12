@@ -418,7 +418,6 @@ def chi_bcfs_run_average(dirnames, t_steady=None):
     bcfs: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-
     chi_groups = group_by_key(dirnames, 'chi')
     chis, bcfs = [], []
     for chi, dirnames in chi_groups.items():
