@@ -106,8 +106,8 @@ def run_chi_ramp_1d():
         'origin_flag': False,
         'vicsek_R': 10.0,
     }
-    default_ramp_model_kwargs = dict(default_model_1d_kwargs, **ramp_kwargs)
-    model_kwargs = dict(default_ramp_model_kwargs, **extra_model_kwargs)
+    ramp_model_kwargs = dict(default_model_1d_kwargs, **ramp_kwargs)
+    model_kwargs = dict(ramp_model_kwargs, **extra_model_kwargs)
     m = ramp_model.RampModel1D(**model_kwargs)
 
     output_every = 2000
@@ -132,8 +132,8 @@ def run_chi_ramp_2d():
         'walls': walls_blank,
         'origin_flag': False,
     }
-    default_ramp_model_kwargs = dict(default_model_2d_kwargs, **ramp_kwargs)
-    model_kwargs = dict(default_ramp_model_kwargs, **extra_model_kwargs)
+    ramp_model_kwargs = dict(default_model_2d_kwargs, **ramp_kwargs)
+    model_kwargs = dict(ramp_model_kwargs, **extra_model_kwargs)
     m = ramp_model.RampModel2D(**model_kwargs)
 
     output_every = 2000
