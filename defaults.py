@@ -9,8 +9,7 @@ default_wall_args = {
 default_extra_blank_args = {
     'dim': 2,
 }
-default_blank_args = default_wall_args.copy()
-default_blank_args.update(default_extra_blank_args)
+default_blank_args = dict(default_wall_args, **default_extra_blank_args)
 
 default_extra_trap_args = {
     'n': 1,
@@ -18,8 +17,7 @@ default_extra_trap_args = {
     'w': 280.0,
     's': 80.0,
 }
-default_trap_args = default_wall_args.copy()
-default_trap_args.update(default_extra_trap_args)
+default_trap_args = dict(default_wall_args, **default_extra_trap_args)
 
 walls_blank = walls.Walls(**default_blank_args)
 walls_traps_1 = walls.Traps(**default_trap_args)
@@ -40,10 +38,11 @@ default_model_1d_kwargs = {
 }
 
 # Make 2d default model args
-default_model_2d_kwargs = default_model_1d_kwargs.copy()
-del default_model_2d_kwargs['L']
-del default_model_2d_kwargs['dx']
-default_model_2d_kwargs.update({
+default_extra_model_2d_kwargs = {
     'D_rot': 0.2,
     'force_mu': 0.0,
-})
+}
+default_model_2d_kwargs = dict(default_model_1d_kwargs,
+                               **default_extra_model_2d_kwargs)
+del default_model_2d_kwargs['L']
+del default_model_2d_kwargs['dx']
