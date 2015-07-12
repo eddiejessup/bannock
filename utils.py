@@ -66,8 +66,8 @@ def get_fracs(m):
     fs: list[float]
         Confinedness for each trap.
     """
-    frac_0 = m.walls.get_trap_area() / m.walls.get_free_area()
-    return (m.walls.get_fracs(m.r) - frac_0) / (1.0 - frac_0)
+    fracs_0 = m.walls.get_trap_areas() / m.walls.get_free_area()
+    return (m.walls.get_fracs(m.r) - fracs_0) / (1.0 - fracs_0)
 
 
 def get_pstats(m):

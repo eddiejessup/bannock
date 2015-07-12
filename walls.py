@@ -143,29 +143,29 @@ class Traps(Walls):
             self.a[x - s_i_half:x + s_i_half + 1,
                    y + w_i_half:y + w_i_half + self.d_i + 1] = False
 
-    def get_trap_area_i(self):
-        """Calculate the number of elements occupied by all traps.
+    def get_trap_areas_i(self):
+        """Calculate the number of elements occupied by each trap.
 
         Returns
         -------
-        trap_area_i: int
+        trap_areas_i: list[int]
         """
-        trap_area_i = 0
+        trap_areas_i = []
         w_i_half = self.w_i // 2
         for x, y in self.traps_i:
             trap = self.a[x - w_i_half:x + w_i_half + 1,
                           y - w_i_half:y + w_i_half + 1]
-            trap_area_i += np.sum(np.logical_not(trap))
-        return trap_area_i
+            trap_areas_i.append(np.sum(np.logical_not(trap)))
+        return np.array(trap_areas_i)
 
-    def get_trap_area(self):
-        """Calculate the area occupied by all traps.
+    def get_trap_areas(self):
+        """Calculate the area occupied by each trap.
 
         Returns
         -------
-        trap_area: float
+        trap_areas: list[float]
         """
-        return self.get_trap_area_i() * self.dA()
+        return self.get_trap_areas_i() * self.dA()
 
     def get_fracs(self, r):
         """Calculate the fraction of particles inside each trap.
