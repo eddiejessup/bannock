@@ -234,17 +234,9 @@ class Maze(Walls):
 
     def __init__(self, L, dim, dx, d, seed=None):
         Walls.__init__(self, L, dim, dx)
-        if self.L / self.dx % 1 != 0:
-            raise Exception('Require L / dx to be an integer')
-        if self.L / self.d % 1 != 0:
-            raise Exception('Require L / d to be an integer')
-        if (self.L / self.dx) / (self.L / self.d) % 1 != 0:
-            raise Exception('Require array size / maze size to be integer')
-
         self.seed = seed
-        self.d = d
-
-        self.M_m = int(self.L / self.d)
-        self.d_i = int(self.M / self.M_m)
+        self.M_m = int(round(self.L / d))
+        self.d_i = int(round(self.M / self.M_m))
+        self.d = d_i * self.dx
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
