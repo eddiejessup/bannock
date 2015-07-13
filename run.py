@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
 import model
+import walls
 import ramp_model
 import run_utils
 import defaults
@@ -158,6 +159,29 @@ def run_chi_scan_2d():
 
     run_utils.run_field_scan(model.Model2D, model_kwargs, output_every, t_upto,
                              'chi', chis, force_resume, parallel)
+
+
+def run_trap_s_scan():
+    extra_model_kwargs = {
+        'rho_0': 1e-3,
+        'onesided_flag': True,
+        'walls': None,
+        'origin_flag': True,
+    }
+    model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
+    trap_kwargs = defaults.default_trap_kwargs.copy()
+
+    output_every = 5000
+    t_upto = 8e4
+    chis = np.linspace(200.0, 600.0, 11)
+    force_resume = True
+    parallel = True
+
+    for s in [40.0, 80.0, 120.0, 160.0, 200.0]:
+        trap_kwargs['s'] = s
+        model_kwargs['walls'] = walls.Traps(**trap_kwargs)
+        run_utils.run_field_scan(model.Model2D, model_kwargs, output_every,
+                                 t_upto, 'chi', chis, force_resume, parallel)
 
 
 def run_chi_scan_1d():
