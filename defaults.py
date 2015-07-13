@@ -15,7 +15,7 @@ default_extra_trap_kwargs = {
     'n': 1,
     'd': 40.0,
     'w': 280.0,
-    's': 80.0,
+    's': 120.0,
 }
 default_trap_kwargs = dict(default_wall_kwargs, **default_extra_trap_kwargs)
 
