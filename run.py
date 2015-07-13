@@ -151,8 +151,8 @@ def run_chi_scan_2d():
     }
     model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
 
-    output_every = 5000
-    t_upto = 4e4
+    output_every = 10000
+    t_upto = 8e4
     chis = np.linspace(0.0, 800, 22)
     force_resume = True
     parallel = True
@@ -171,7 +171,7 @@ def run_trap_s_scan():
     model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
     trap_kwargs = defaults.default_trap_kwargs.copy()
 
-    output_every = 5000
+    output_every = 10000
     t_upto = 8e4
     chis = np.linspace(200.0, 600.0, 11)
     force_resume = True
@@ -186,15 +186,15 @@ def run_trap_s_scan():
 
 def run_chi_scan_1d():
     extra_model_kwargs = {
-        'rho_0': 0.1,
+        'rho_0': 0.5,
         'onesided_flag': True,
         'origin_flag': True,
     }
     model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
 
-    output_every = 200
-    t_upto = 50.0
-    chis = np.linspace(2.0, 8.0, 10)
+    output_every = 10000
+    t_upto = 4e4
+    chis = np.linspace(0.0, 6.0, 28)
     force_resume = True
     parallel = True
 
