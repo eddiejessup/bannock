@@ -97,19 +97,41 @@ class Traps(Walls):
         The number of traps. Can be 1, 4 or 5.
     d: float
         The width of the trap wall.
+        Valid values are `i * dx`, where `i` is an integer >= 1.
     w: float
         The width of the entire trap.
+        Valid values are `(i + 1) * dx`, where `i` is an integer >= 0.
     s: float
         The width of the trap entrance.
+        Valid values are `(i + 1) * dx`, where `i` is an integer >= 0.
     """
     repr_fields = Walls.repr_fields + ['n', 'd', 'w', 's']
 
     def __init__(self, L, dx, n, d, w, s):
         Walls.__init__(self, L, dim=2, dx=dx)
         self.n = n
-        self.d_i = int(d / self.dx) + 1
-        self.w_i = int(w / self.dx) + 1
-        self.s_i = int(s / self.dx) + 1
+
+        # Calculate length in terms of lattice indices
+        d_i = int(round(d / self.dx))
+        w_i = int(round(w / self.dx))
+        s_i = int(round(s / self.dx))
+
+        # Calculate how many indices to go in each direction
+        w_i_half = w_i // 2
+        s_i_half = s_i // 2
+        # l is the width of the trap, including its walls.
+        l_i_half = w_i_half + d_i
+        # Going to carve out `w_i_half` in each direction from a cell,
+        # so will carve out this many cells.
+        w_i = 2 * w_i_half + 1
+        # Same goes for the slit.
+        s_i = 2 * s_i_half + 1
+
+        self.d_i = d_i
+        self.w_i = w_i
+        self.s_i = s_i
+
+        # Scale back up to physical lengths.
         self.d = self.d_i * self.dx
         self.w = self.w_i * self.dx
         self.s = self.s_i * self.dx
@@ -132,16 +154,17 @@ class Traps(Walls):
         else:
             raise Exception('Traps not implemented for this number of traps')
 
-        w_i_half = self.w_i // 2
-        s_i_half = self.s_i // 2
         self.traps_i = np.asarray(self.M * self.traps_f, dtype=np.int)
         for x, y in self.traps_i:
-            self.a[x - w_i_half - self.d_i:x + w_i_half + self.d_i + 1,
-                   y - w_i_half - self.d_i:y + w_i_half + self.d_i + 1] = True
+            # First fill in entire trap-related area.
+            self.a[x - l_i_half:x + l_i_half + 1,
+                   y - l_i_half:y + l_i_half + 1] = True
+            # Then carve out trap interior.
             self.a[x - w_i_half:x + w_i_half + 1,
                    y - w_i_half:y + w_i_half + 1] = False
+            # Then make the slit.
             self.a[x - s_i_half:x + s_i_half + 1,
-                   y + w_i_half:y + w_i_half + self.d_i + 1] = False
+                   y + w_i_half:y + l_i_half + 1] = False
 
     def get_trap_areas_i(self):
         """Calculate the number of elements occupied by each trap.
