@@ -5,4 +5,4 @@ import plot
 
 
 if __name__ == '__main__':
-    plot.plot_1d(sys.argv[1])
+    plot.plot_vis(sys.argv[1])

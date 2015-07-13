@@ -105,6 +105,14 @@ def plot_1d(dirname):
     plt.show()
 
 
+def plot_vis(dirname):
+    dim = utils.get_recent_model(dirname).dim
+    if dim == 1:
+        plot_1d(dirname)
+    elif dim == 2:
+        plot_2d(dirname)
+
+
 def plot_t_bcfs(dirname):
     fig = plt.figure()
     ax = fig.add_subplot(111)
