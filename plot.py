@@ -35,7 +35,7 @@ def plot_2d(dirname):
     fig.colorbar(plot_c, cax=ax_cb)
 
     t_time = fig.text(0.1, 0.5, '')
-    t_bcf = fig.text(0.1, 0.4, '')
+    t_k = fig.text(0.1, 0.4, '')
 
     def update(val):
         fname_i = int(round(val))
@@ -50,7 +50,7 @@ def plot_2d(dirname):
             plot_c.autoscale()
             t_time.set_text('Time: {:g}'.format(m.t))
             if m.n < 500:
-                t_bcf.set_text('k: {:g}'.format(utils.get_bcf(m)))
+                t_k.set_text('k: {:g}'.format(utils.get_k(m)))
             fig.canvas.draw_idle()
 
     t_slider.on_changed(update)
@@ -113,12 +113,12 @@ def plot_vis(dirname):
         plot_2d(dirname)
 
 
-def plot_t_bcfs(dirname):
+def plot_t_ks(dirname):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ts, bcfs = utils.t_bcfs(dirname)
-    ax.plot(ts, bcfs)
+    ts, ks = utils.t_ks(dirname)
+    ax.plot(ts, ks)
 
     plt.show()
 
@@ -146,14 +146,14 @@ def plot_t_pmeans(dirname):
     plt.show()
 
 
-def plot_chi_bcfs(dirnames):
+def plot_chi_ks(dirnames):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    chis, bcfs = utils.chi_bcfs(dirnames)
+    chis, ks = utils.chi_ks(dirnames)
     i_sort = np.argsort(chis)
-    chis, bcfs = chis[i_sort], bcfs[i_sort]
-    ax.plot(chis, bcfs)
+    chis, ks = chis[i_sort], ks[i_sort]
+    ax.plot(chis, ks)
     ax.set_ylim(0.0, 1.1)
 
     plt.show()

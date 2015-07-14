@@ -51,7 +51,7 @@ def run_ramp_model(output_every, output_dir=None, m=None, force_resume=True):
     while r.model.chi >= 0.0:
         r.iterate(n=1)
         if r.is_snapshot_time():
-            print(r.model.chi, utils.get_bcf(r.model))
+            print(r.model.chi, utils.get_k(r.model))
     return r
 
 
@@ -74,7 +74,7 @@ class _TaskRunner(object):
         m = self.ModelClass(**model_kwargs)
         r = run_model(self.output_every, m=m, force_resume=self.force_resume,
                       t_upto=self.t_upto)
-        print(extra_model_kwargs, 'k: {}'.format(utils.get_bcf(r.model)))
+        print(extra_model_kwargs, 'k: {}'.format(utils.get_k(r.model)))
 
 
 def run_field_scan(ModelClass, model_kwargs, output_every, t_upto, field, vals,

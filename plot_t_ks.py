@@ -5,4 +5,4 @@ import plot
 
 
 if __name__ == '__main__':
-    plot.plot_t_bcfs(sys.argv[1])
+    plot.plot_t_ks(sys.argv[1])

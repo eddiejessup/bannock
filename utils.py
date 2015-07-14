@@ -30,7 +30,7 @@ def _get_r_cluster(dim):
         return r_cluster_2d
 
 
-def get_bcf(m):
+def get_k(m):
     """Calculate the particle clumpiness for a model.
 
     Parameters
@@ -40,7 +40,7 @@ def get_bcf(m):
 
     Returns
     -------
-    bcf: float
+    k: float
         Clumpiness measure.
     """
     labels = cluster.cluster_periodic(m.r, _get_r_cluster(m.dim), m.L)
@@ -92,7 +92,7 @@ def get_pstats(m):
     return np.maximum(m.p, 0.0).mean(), m.p.min(), m.p.max()
 
 
-def t_bcfs(dirname):
+def t_ks(dirname):
     """Calculate the particle clumpiness over time
     for a model output directory.
 
@@ -105,15 +105,15 @@ def t_bcfs(dirname):
     -------
     ts: numpy.ndarray[dtype=float]
         Times.
-    bcfs: numpy.ndarray[dtype=float]
+    ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-    ts, bcfs = [], []
+    ts, ks = [], []
     for fname in get_filenames(dirname):
         m = filename_to_model(fname)
         ts.append(m.t)
-        bcfs.append(get_bcf(m))
-    return np.array(ts), np.array(bcfs)
+        ks.append(get_k(m))
+    return np.array(ts), np.array(ks)
 
 
 def t_fracs(dirname):
@@ -172,7 +172,7 @@ def t_pmeans(dirname):
     return np.array(ts), np.array(p_means), np.array(p_mins), np.array(p_maxs)
 
 
-def chi_bcfs(dirnames, t_steady=None):
+def chi_ks(dirnames, t_steady=None):
     """Calculate the particle clumpiness of a set of
     model output directories, and their associated chis.
 
@@ -189,15 +189,15 @@ def chi_bcfs(dirnames, t_steady=None):
     -------
     chis: numpy.ndarray[dtype=float]
         Chemotactic sensitivities
-    bcfs: numpy.ndarray[dtype=float]
+    ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-    chis, bcfs = [], []
+    chis, ks = [], []
     for dirname in dirnames:
         m_recent = filename_to_model(get_recent_filename(dirname))
         chis.append(m_recent.chi)
-        bcfs.append(get_average_measure(dirname, get_bcf, t_steady))
-    return np.array(chis), np.array(bcfs)
+        ks.append(get_average_measure(dirname, get_k, t_steady))
+    return np.array(chis), np.array(ks)
 
 
 def get_average_measure(dirname, get_measure_func, t_steady=None):
@@ -397,7 +397,7 @@ def group_by_key(dirnames, key):
     return dict(groups)
 
 
-def chi_bcfs_run_average(dirnames, t_steady=None):
+def chi_ks_run_average(dirnames, t_steady=None):
     """Calculate the particle clumpiness of a set of
     model output directories, and their associated chis.
     Take the average over all directories with equal chi.
@@ -415,13 +415,13 @@ def chi_bcfs_run_average(dirnames, t_steady=None):
     -------
     chis: numpy.ndarray[dtype=float]
         Chemotactic sensitivities
-    bcfs: numpy.ndarray[dtype=float]
+    ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
     chi_groups = group_by_key(dirnames, 'chi')
-    chis, bcfs = [], []
+    chis, ks = [], []
     for chi, dirnames in chi_groups.items():
         chis.append(chi)
-        bcfs.append(np.mean([get_average_measure(dirname, get_bcf, t_steady)
-                             for dirname in dirnames]))
-    return np.array(chis), np.array(bcfs)
+        ks.append(np.mean([get_average_measure(dirname, get_k, t_steady)
+                           for dirname in dirnames]))
+    return np.array(chis), np.array(ks)
