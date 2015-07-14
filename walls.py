@@ -237,6 +237,6 @@ class Maze(Walls):
         self.seed = seed
         self.M_m = int(round(self.L / d))
         self.d_i = int(round(self.M / self.M_m))
-        self.d = d_i * self.dx
+        self.d = self.d_i * self.dx
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
