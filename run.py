@@ -162,22 +162,27 @@ def run_chi_scan_2d():
 
 
 def run_trap_s_scan():
+    trap_kwargs = defaults.default_trap_kwargs.copy()
+    # Halve dx to let us do finer increments in `s`.
+    trap_kwargs['dx'] = 20.0
     extra_model_kwargs = {
         'rho_0': 1e-3,
         'onesided_flag': True,
         'walls': None,
         'origin_flag': True,
+        'dx': trap_kwargs['dx'],
+        # Quarter dt to keep diffusion stable.
+        'dt': 0.025,
     }
     model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
-    trap_kwargs = defaults.default_trap_kwargs.copy()
 
-    output_every = 10000
+    output_every = 20000
     t_upto = 16e4
-    chis = np.linspace(200.0, 600.0, 11)
+    chis = np.linspace(200.0, 600.0, 22)
     force_resume = True
     parallel = True
 
-    for s in [40.0, 120.0, 200.0]:
+    for s in [20.0, 60.0, 100.0, 140.0, 180.0]:
         trap_kwargs['s'] = s
         model_kwargs['walls'] = walls.Traps(**trap_kwargs)
         run_utils.run_field_scan(model.Model2D, model_kwargs, output_every,
