@@ -7,28 +7,6 @@ import run_utils
 import defaults
 
 
-def run_trap_nochi():
-    extra_model_kwargs = {
-        'rho_0': 1e-1,
-        'onesided_flag': False,
-        'chi': 0.0,
-        'walls': defaults.walls_traps_1,
-        'origin_flag': False,
-        'p_0': 1.0,
-        'c_source': 0.0,
-    }
-    model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
-    m = model.Model2D(**model_kwargs)
-
-    output_every = 1000
-    t_upto = 2e4
-    output_dir = None
-    force_resume = None
-
-    run_utils.run_model(output_every, output_dir, m, force_resume,
-                        t_upto=t_upto)
-
-
 def run_2d():
     extra_model_kwargs = {
         'rho_0': 2e-4,
@@ -62,28 +40,6 @@ def run_1d():
     output_every = 200
     t_upto = 1e2
     output_dir = 'test_1d'
-    force_resume = None
-
-    run_utils.run_model(output_every, output_dir, m, force_resume,
-                        t_upto=t_upto)
-
-
-def run_cannock_1d():
-    extra_model_kwargs = {
-        'rho_0': 1.0,
-        'onesided_flag': True,
-        'chi': 1.5,
-        'origin_flag': True,
-        'vicsek_R': 0.0,
-        # 'v_0': 20.0,
-        'p_0': 1.0,
-    }
-    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
-    m = model.Model1D(**model_kwargs)
-
-    output_every = 500
-    t_upto = 1e4
-    output_dir = '/Users/ewj/Desktop/cannock/agent_data/{}'.format(m)
     force_resume = None
 
     run_utils.run_model(output_every, output_dir, m, force_resume,
@@ -161,6 +117,68 @@ def run_chi_scan_2d():
                              'chi', chis, force_resume, parallel)
 
 
+def run_chi_scan_1d():
+    extra_model_kwargs = {
+        'rho_0': 0.5,
+        'onesided_flag': True,
+        'origin_flag': True,
+    }
+    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
+
+    output_every = 10000
+    t_upto = 4e4
+    chis = np.linspace(0.0, 6.0, 28)
+    force_resume = True
+    parallel = True
+
+    run_utils.run_field_scan(model.Model1D, model_kwargs, output_every, t_upto,
+                             'chi', chis, force_resume, parallel)
+
+
+def run_cannock_1d():
+    extra_model_kwargs = {
+        'rho_0': 1.0,
+        'onesided_flag': True,
+        'chi': 1.5,
+        'origin_flag': True,
+        'vicsek_R': 0.0,
+        # 'v_0': 20.0,
+        'p_0': 1.0,
+    }
+    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
+    m = model.Model1D(**model_kwargs)
+
+    output_every = 500
+    t_upto = 1e4
+    output_dir = '/Users/ewj/Desktop/cannock/agent_data/{}'.format(m)
+    force_resume = None
+
+    run_utils.run_model(output_every, output_dir, m, force_resume,
+                        t_upto=t_upto)
+
+
+def run_trap_nochi():
+    extra_model_kwargs = {
+        'rho_0': 1e-1,
+        'onesided_flag': False,
+        'chi': 0.0,
+        'walls': defaults.walls_traps_1,
+        'origin_flag': False,
+        'p_0': 1.0,
+        'c_source': 0.0,
+    }
+    model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
+    m = model.Model2D(**model_kwargs)
+
+    output_every = 1000
+    t_upto = 2e4
+    output_dir = None
+    force_resume = None
+
+    run_utils.run_model(output_every, output_dir, m, force_resume,
+                        t_upto=t_upto)
+
+
 def run_trap_s_scan():
     trap_kwargs = defaults.default_trap_kwargs.copy()
     # Halve dx to let us do finer increments in `s`.
@@ -189,19 +207,3 @@ def run_trap_s_scan():
                                  t_upto, 'chi', chis, force_resume, parallel)
 
 
-def run_chi_scan_1d():
-    extra_model_kwargs = {
-        'rho_0': 0.5,
-        'onesided_flag': True,
-        'origin_flag': True,
-    }
-    model_kwargs = dict(defaults.default_model_1d_kwargs, **extra_model_kwargs)
-
-    output_every = 10000
-    t_upto = 4e4
-    chis = np.linspace(0.0, 6.0, 28)
-    force_resume = True
-    parallel = True
-
-    run_utils.run_field_scan(model.Model1D, model_kwargs, output_every, t_upto,
-                             'chi', chis, force_resume, parallel)
