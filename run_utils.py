@@ -55,6 +55,14 @@ def run_ramp_model(output_every, output_dir=None, m=None, force_resume=True):
     return r
 
 
+def _run_func(func, args, parallel=False):
+    if parallel:
+        mp.Pool(mp.cpu_count() - 1).map(func, args)
+    else:
+        for arg in args:
+            func(arg)
+
+
 class _TaskRunner(object):
     """Replacement for a closure, which I would use if
     the multiprocessing module supported them.
@@ -111,11 +119,7 @@ def run_field_scan(ModelClass, model_kwargs, output_every, t_upto, field, vals,
     task_runner = _TaskRunner(ModelClass, model_kwargs, output_every, t_upto,
                               force_resume)
     extra_model_kwarg_sets = [{field: val} for val in vals]
-    if parallel:
-        mp.Pool(mp.cpu_count() - 1).map(task_runner, extra_model_kwarg_sets)
-    else:
-        for extra_model_kwargs in extra_model_kwarg_sets:
-            task_runner(extra_model_kwargs)
+    _run_func(task_runner, extra_model_kwarg_sets, parallel)
 
 
 def resume_runs(dirnames, output_every, t_upto, parallel=False):
@@ -134,11 +138,6 @@ def resume_runs(dirnames, output_every, t_upto, parallel=False):
         library. If `True`, the number of concurrent tasks will be equal to
         one less than the number of available cores detected.
      """
-    if parallel:
-        run_model_partial = partial(run_model, output_every, force_resume=True,
-                                    t_upto=t_upto)
-        mp.Pool(mp.cpu_count() - 1).map(run_model_partial, dirnames)
-    else:
-        for dirname in dirnames:
-            run_model(output_every, output_dir=dirname, force_resume=True,
-                      t_upto=t_upto)
+    run_model_partial = partial(run_model, output_every, force_resume=True,
+                                t_upto=t_upto)
+    _run_func(run_model_partial, dirnames, parallel)
