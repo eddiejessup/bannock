@@ -207,3 +207,13 @@ def run_trap_s_scan():
                                  t_upto, 'chi', chis, force_resume, parallel)
 
 
+def run_chi_scan_resume():
+    dirname_resume = ''
+    output_every = 10000
+    t_upto = 8e4
+    chis = np.linspace(0.0, 800.0, 22)
+    force_resume = True
+    parallel = True
+
+    run_utils.run_field_scan_resume(dirname_resume, output_every, t_upto,
+                                    'chi', chis, force_resume, parallel)
