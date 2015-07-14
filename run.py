@@ -20,8 +20,8 @@ def run_trap_nochi():
     model_kwargs = dict(defaults.default_model_2d_kwargs, **extra_model_kwargs)
     m = model.Model2D(**model_kwargs)
 
-    output_every = 200
-    t_upto = 1e4
+    output_every = 1000
+    t_upto = 2e4
     output_dir = None
     force_resume = None
 
