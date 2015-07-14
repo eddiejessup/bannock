@@ -100,10 +100,10 @@ class Traps(Walls):
         Valid values are `i * dx`, where `i` is an integer >= 1.
     w: float
         The width of the entire trap.
-        Valid values are `(i + 1) * dx`, where `i` is an integer >= 0.
+        Valid values are `(2i + 1) dx`, where `i` is an integer >= 0.
     s: float
         The width of the trap entrance.
-        Valid values are `(i + 1) * dx`, where `i` is an integer >= 0.
+        Valid values are `(2i + 1) dx`, where `i` is an integer >= 0.
     """
     repr_fields = Walls.repr_fields + ['n', 'd', 'w', 's']
 
