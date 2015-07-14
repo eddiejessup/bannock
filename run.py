@@ -172,12 +172,12 @@ def run_trap_s_scan():
     trap_kwargs = defaults.default_trap_kwargs.copy()
 
     output_every = 10000
-    t_upto = 8e4
+    t_upto = 16e4
     chis = np.linspace(200.0, 600.0, 11)
     force_resume = True
     parallel = True
 
-    for s in [40.0, 80.0, 120.0, 160.0, 200.0]:
+    for s in [40.0, 120.0, 200.0]:
         trap_kwargs['s'] = s
         model_kwargs['walls'] = walls.Traps(**trap_kwargs)
         run_utils.run_field_scan(model.Model2D, model_kwargs, output_every,
