@@ -58,6 +58,9 @@ def run_ramp_model(output_every, output_dir=None, m=None, force_resume=True):
 class _TaskRunner(object):
     """Replacement for a closure, which I would use if
     the multiprocessing module supported them.
+
+    Imagine `__init__` is the captured outside state,
+    and `__call__` is the closure body.
     """
 
     def __init__(self, ModelClass, model_kwargs,
