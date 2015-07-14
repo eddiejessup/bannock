@@ -340,3 +340,39 @@ class Model2D(BaseModel):
 
         self.t += self.dt
         self.i += 1
+
+
+class Model2DNoAlignment(Model2D):
+    """Self-propelled particles moving in two dimensions in a chemical field.
+
+    Particles do not align with obstacles, but instead reflect off.
+
+    Parameters
+    ----------
+    see :class:`Model2D`.
+    """
+
+    def _update_positions(self):
+        r_old = self.r.copy()
+
+        self.r += self.v * self.dt
+        self.r[self.r > self.L_half] -= self.L
+        self.r[self.r < -self.L_half] += self.L
+
+        if self.walls.a.any():
+            obs = self.walls.is_obstructed(self.r)
+            # Find particles and dimensions which have changed cell.
+            changeds = np.not_equal(self.walls.r_to_i(self.r),
+                                    self.walls.r_to_i(r_old))
+            # Find where particles have collided with a wall,
+            # and the dimensions on which it happened.
+            colls = np.logical_and(obs[:, np.newaxis], changeds)
+
+            # Reset particle position components along which a collision
+            # occurred
+            self.r[colls] = r_old[colls]
+            # Reflect velocity along that axis.
+            self.v[colls] = -self.v[colls]
+
+            # Rescale new directions, randomising stationary particles.
+            self.v[obs] = vector.vector_unit_nullrand(self.v[obs]) * self.v_0
