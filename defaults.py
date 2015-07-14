@@ -2,7 +2,7 @@ from __future__ import print_function, division
 import walls
 
 default_wall_kwargs = {
-    'L': 2500.0,
+    'L': 2480.0,
     'dx': 40.0,
 }
 
