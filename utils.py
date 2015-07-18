@@ -172,6 +172,34 @@ def t_pmeans(dirname):
     return np.array(ts), np.array(p_means), np.array(p_mins), np.array(p_maxs)
 
 
+def _chi_measures(dirnames, measure_func, t_steady=None):
+    """Calculate a measure of a set of
+    model output directories, and their associated chis.
+
+    Parameters
+    ----------
+    dirnames: list[str]
+        Model output directory paths.
+    t_steady: None or float
+        Time to consider the model to be at steady-state.
+        The measure will be averaged over all later times.
+        `None` means just consider the latest time.
+
+    Returns
+    -------
+    chis: numpy.ndarray[dtype=float]
+        Chemotactic sensitivities
+    measures: numpy.ndarray[dtype=float]
+        Measures.
+    """
+    chis, measures = [], []
+    for dirname in dirnames:
+        m_recent = filename_to_model(get_recent_filename(dirname))
+        chis.append(m_recent.chi)
+        measures.append(get_average_measure(dirname, measure_func, t_steady))
+    return np.array(chis), np.array(measures)
+
+
 def chi_ks(dirnames, t_steady=None):
     """Calculate the particle clumpiness of a set of
     model output directories, and their associated chis.
@@ -192,12 +220,30 @@ def chi_ks(dirnames, t_steady=None):
     ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-    chis, ks = [], []
-    for dirname in dirnames:
-        m_recent = filename_to_model(get_recent_filename(dirname))
-        chis.append(m_recent.chi)
-        ks.append(get_average_measure(dirname, get_k, t_steady))
-    return np.array(chis), np.array(ks)
+    return _chi_measures(dirnames, get_k, t_steady)
+
+
+def chi_fs(dirnames, t_steady=None):
+    """Calculate particle confinedness of a set of
+    model output directories, and their associated chis.
+
+    Parameters
+    ----------
+    dirnames: list[str]
+        Model output directory paths.
+    t_steady: None or float
+        Time to consider the model to be at steady-state.
+        The measure will be averaged over all later times.
+        `None` means just consider the latest time.
+
+    Returns
+    -------
+    chis: numpy.ndarray[dtype=float]
+        Chemotactic sensitivities
+    fs: numpy.ndarray[dtype=float]
+        Particle confinednesses.
+    """
+    return _chi_measures(dirnames, get_fracs, t_steady)
 
 
 def get_average_measure(dirname, get_measure_func, t_steady=None):

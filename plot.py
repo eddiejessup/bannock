@@ -157,3 +157,17 @@ def plot_chi_ks(dirnames):
     ax.set_ylim(0.0, 1.1)
 
     plt.show()
+
+
+def plot_chi_fs(dirnames):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    chis, fracs = utils.chi_fs(dirnames)
+    i_sort = np.argsort(chis)
+    chis, fracs = chis[i_sort], fracs[i_sort]
+    for frac_set in fracs.T:
+        ax.plot(chis, frac_set)
+    ax.set_ylim(0.0, 1.1)
+
+    plt.show()
