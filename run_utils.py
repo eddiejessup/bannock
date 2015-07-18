@@ -2,6 +2,7 @@ from __future__ import print_function, division
 from functools import partial
 import multiprocessing as mp
 from ciabatta import runner
+from ciabatta import runner_utils
 import utils
 
 
@@ -106,7 +107,7 @@ class _TaskResumeRunner(object):
     def __call__(self, extra_model_kwargs):
         # Get the model's starting state
         # from the resume directory's final state
-        m = utils.get_recent_model(self.dirname_resume)
+        m = runner_utils.get_recent_model(self.dirname_resume)
         # Reset the time and number of iterations
         m.t = 0.0
         m.i = 0
