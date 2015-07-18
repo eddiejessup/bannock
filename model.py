@@ -10,7 +10,7 @@ from secretion import Secretion, WalledSecretion
 class AutoBaseModel(BaseModel):
 
     def __init__(self, seed, dt, dim):
-        BaseModel.__init__(self, seed, dt)
+        super(AutoBaseModel, self).__init__(seed, dt)
         self.dim = dim
 
     def _tumble(self):
@@ -98,7 +98,7 @@ class Model1D(AutoBaseModel):
                  L, dx,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        AutoBaseModel.__init__(self, seed, dt, 1)
+        super(Model1D, self).__init__(seed, dt, 1)
         self.v_0 = v_0
         self.p_0 = p_0
         self.origin_flag = origin_flag
@@ -206,7 +206,7 @@ class Model2D(AutoBaseModel):
                  walls,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        AutoBaseModel.__init__(self, seed, dt, 2)
+        super(Model2D, self).__init__(seed, dt, 2)
         self.v_0 = v_0
         self.D_rot = D_rot
         self.p_0 = p_0
