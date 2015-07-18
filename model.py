@@ -1,26 +1,17 @@
 from __future__ import print_function, division
-from abc import ABCMeta, abstractmethod
 import numpy as np
-from ciabatta import vector, fields, fileio
+from ciabatta import vector, fields
 from ciabatta.cell_list import intro
+from ciabatta.model import BaseModel
 import particle_numerics
 from secretion import Secretion, WalledSecretion
 
 
-class BaseModel(object):
-    __metaclass__ = ABCMeta
+class AutoBaseModel(BaseModel):
 
-    repr_fields = ['dim', 'seed']
-
-    @abstractmethod
-    def __init__(self, dim, seed):
+    def __init__(self, seed, dt, dim):
+        BaseModel.__init__(self, seed, dt)
         self.dim = dim
-        self.seed = seed
-
-        self.t = 0.0
-        self.i = 0
-
-        np.random.seed(self.seed)
 
     def _tumble(self):
         self.p[:] = self.p_0
@@ -51,12 +42,8 @@ class BaseModel(object):
         """
         return fields.density(self.r, self.L, self.c.dx)
 
-    def __repr__(self):
-        return '{}_{}'.format(self.__class__.__name__,
-                              fileio.reprify(self, self.repr_fields))
 
-
-class Model1D(BaseModel):
+class Model1D(AutoBaseModel):
     """Self-propelled particles moving in one dimension in a chemical field.
 
     Parameters
@@ -96,13 +83,13 @@ class Model1D(BaseModel):
     c_source: float
         see :class:`Secretion`
     """
-    repr_fields = BaseModel.repr_fields + ['dt', 'L', 'dx',
-                                           'c_D', 'c_sink', 'c_source',
-                                           'v_0', 'p_0', 'origin_flag',
-                                           'rho_0',
-                                           'chi', 'onesided_flag',
-                                           'vicsek_R',
-                                           ]
+    repr_fields = AutoBaseModel.repr_fields + ['dt', 'L', 'dx',
+                                               'c_D', 'c_sink', 'c_source',
+                                               'v_0', 'p_0', 'origin_flag',
+                                               'rho_0',
+                                               'chi', 'onesided_flag',
+                                               'vicsek_R',
+                                               ]
 
     def __init__(self, seed, dt,
                  rho_0, v_0, p_0, origin_flag,
@@ -111,8 +98,7 @@ class Model1D(BaseModel):
                  L, dx,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        BaseModel.__init__(self, 1, seed)
-        self.dt = dt
+        AutoBaseModel.__init__(self, seed, dt, 1)
         self.v_0 = v_0
         self.p_0 = p_0
         self.origin_flag = origin_flag
@@ -183,11 +169,10 @@ class Model1D(BaseModel):
             density = self.get_density_field()
             self.c.iterate(density)
 
-        self.t += self.dt
-        self.i += 1
+        super(Model1D, self).iterate()
 
 
-class Model2D(BaseModel):
+class Model2D(AutoBaseModel):
     """Self-propelled particles moving in two dimensions in a chemical field.
 
     Parameters
@@ -203,7 +188,7 @@ class Model2D(BaseModel):
     Others:
         see :class:`Model1D`.
     """
-    repr_fields = BaseModel.repr_fields + [
+    repr_fields = AutoBaseModel.repr_fields + [
         'dt', 'L', 'dx',
         'c_D', 'c_sink', 'c_source',
         'v_0', 'p_0', 'D_rot', 'origin_flag',
@@ -221,8 +206,7 @@ class Model2D(BaseModel):
                  walls,
                  c_D, c_sink, c_source,
                  *args, **kwargs):
-        BaseModel.__init__(self, 2, seed)
-        self.dt = dt
+        AutoBaseModel.__init__(self, seed, dt, 2)
         self.v_0 = v_0
         self.D_rot = D_rot
         self.p_0 = p_0
@@ -338,8 +322,7 @@ class Model2D(BaseModel):
             density = self.get_density_field()
             self.c.iterate(density)
 
-        self.t += self.dt
-        self.i += 1
+        super(Model2D, self).iterate()
 
 
 class Model2DNoAlignment(Model2D):
