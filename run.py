@@ -1,10 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
 from agaro import run_utils
-import model
-import walls
-import ramp_model
-import defaults
+from bannock import model, walls, ramp_model, defaults
 from bannock import run_utils as brun_utils
 
 

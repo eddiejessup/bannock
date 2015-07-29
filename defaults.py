@@ -1,5 +1,5 @@
 from __future__ import print_function, division
-import walls
+from bannock import walls
 
 default_wall_kwargs = {
     'L': 2480.0,
