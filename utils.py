@@ -1,9 +1,10 @@
 from __future__ import print_function, division
-from collections import defaultdict
 import numpy as np
 from ciabatta import cluster
-from ciabatta.runner_utils import (get_recent_model, get_recent_filename,
-                                   get_filenames, filename_to_model)
+from agaro.output_utils import (get_recent_filename, get_filenames,
+                                filename_to_model)
+from agaro.measure_utils import get_average_measure, group_by_key
+
 
 r_cluster_1d = 5.0
 r_cluster_2d = 20.0
@@ -242,58 +243,6 @@ def chi_fs(dirnames, t_steady=None):
         Particle confinednesses.
     """
     return _chi_measures(dirnames, get_fracs, t_steady)
-
-
-def get_average_measure(dirname, get_measure_func, t_steady=None):
-    """
-    Calculate a measure of a model in an output directory, averaged over
-    all times when the model is at steady-state.
-
-    Parameters
-    ----------
-    dirname: str
-        Output directory
-    get_measure_func: function
-        Function which takes a :class:`Model` instance as a single argument,
-        and returns the measure of interest.
-    t_steady: None or float
-        Time to consider the model to be at steady-state.
-        `None` means just consider the latest time.
-
-    Returns
-    -------
-    measure: various
-        Average measure.
-    """
-    if t_steady is None:
-        return get_measure_func(get_recent_model(dirname))
-    else:
-        ms = [filename_to_model(fname) for fname in get_filenames(dirname)]
-        ms_steady = [m for m in ms if m.t > t_steady]
-        return np.mean([get_measure_func(m) for m in ms_steady])
-
-
-def group_by_key(dirnames, key):
-    """Group a set of output directories according to a model parameter.
-
-    Parameters
-    ----------
-    dirnames: list[str]
-        Output directories
-    key: various
-        A field of a :class:`Model` instance.
-
-    Returns
-    -------
-    groups: dict[various: list[str]]
-        For each value of `key` that is found at least once in the models, a
-        list of the output directories where `key` is that value.
-    """
-    groups = defaultdict(lambda: [])
-    for dirname in dirnames:
-        m = get_recent_model(dirname)
-        groups[m.__dict__[key]].append(dirname)
-    return dict(groups)
 
 
 def chi_ks_run_average(dirnames, t_steady=None):

@@ -1,10 +1,11 @@
 from __future__ import print_function, division
 import numpy as np
+from agaro import run_utils
 import model
 import walls
 import ramp_model
-import run_utils
 import defaults
+from bannock import run_utils as brun_utils
 
 
 def run_2d():
@@ -215,5 +216,5 @@ def run_chi_scan_resume():
     force_resume = True
     parallel = True
 
-    run_utils.run_field_scan_resume(dirname_resume, output_every, t_upto,
-                                    'chi', chis, force_resume, parallel)
+    brun_utils.run_field_scan_resume(dirname_resume, output_every, t_upto,
+                                     'chi', chis, force_resume, parallel)
