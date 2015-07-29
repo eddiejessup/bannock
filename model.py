@@ -1,16 +1,23 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import vector, fields
+from ciabatta import vector, fields, fileio
 from ciabatta.cell_list import intro
-from ciabatta.model import BaseModel
 import particle_numerics
 from secretion import Secretion, WalledSecretion
 
 
-class AutoBaseModel(BaseModel):
+class AutoBaseModel(object):
+
+    repr_fields = ['dt']
 
     def __init__(self, seed, dt, dim):
-        super(AutoBaseModel, self).__init__(seed, dt)
+        self.seed = seed
+        np.random.seed(seed)
+        self.dt = dt
+
+        self.t = 0.0
+        self.i = 0
+
         self.dim = dim
 
     def _tumble(self):
@@ -41,6 +48,14 @@ class AutoBaseModel(BaseModel):
             Density field
         """
         return fields.density(self.r, self.L, self.c.dx)
+
+    def __repr__(self):
+        return '{}_{}'.format(self.__class__.__name__,
+                              fileio.reprify(self, self.repr_fields))
+
+    def iterate(self):
+        self.t += self.dt
+        self.i += 1
 
 
 class Model1D(AutoBaseModel):
@@ -83,7 +98,7 @@ class Model1D(AutoBaseModel):
     c_source: float
         see :class:`Secretion`
     """
-    repr_fields = AutoBaseModel.repr_fields + ['dt', 'L', 'dx',
+    repr_fields = AutoBaseModel.repr_fields + ['L', 'dx',
                                                'c_D', 'c_sink', 'c_source',
                                                'v_0', 'p_0', 'origin_flag',
                                                'rho_0',
@@ -189,7 +204,7 @@ class Model2D(AutoBaseModel):
         see :class:`Model1D`.
     """
     repr_fields = AutoBaseModel.repr_fields + [
-        'dt', 'L', 'dx',
+        'L', 'dx',
         'c_D', 'c_sink', 'c_source',
         'v_0', 'p_0', 'D_rot', 'origin_flag',
         'rho_0',
