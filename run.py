@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
 from agaro import run_utils
-from bannock import model, walls, ramp_model, defaults
+from bannock import model, walls, defaults
 from bannock import run_utils as brun_utils
 
 
@@ -42,58 +42,6 @@ def run_1d():
 
     run_utils.run_model(output_every, output_dir, m, force_resume,
                         t_upto=t_upto)
-
-
-def run_chi_ramp_1d():
-    ramp_kwargs = {
-        'ramp_chi_0': 0.0,
-        'ramp_chi_max': 10.0,
-        'ramp_dchi_dt': 5e-5,
-        'ramp_t_steady': 1e4,
-        'ramp_dt': 32e2,
-    }
-    extra_model_kwargs = {
-        'rho_0': 0.1,
-        'onesided_flag': False,
-        'chi': ramp_kwargs['ramp_chi_0'],
-        'origin_flag': False,
-        'vicsek_R': 10.0,
-    }
-    ramp_model_kwargs = dict(defaults.default_model_1d_kwargs, **ramp_kwargs)
-    model_kwargs = dict(ramp_model_kwargs, **extra_model_kwargs)
-    m = ramp_model.RampModel1D(**model_kwargs)
-
-    output_every = 2000
-    output_dir = None
-    force_resume = None
-
-    run_utils.run_ramp_model(output_every, output_dir, m, force_resume)
-
-
-def run_chi_ramp_2d():
-    ramp_kwargs = {
-        'ramp_chi_0': 0.0,
-        'ramp_chi_max': 10.0,
-        'ramp_dchi_dt': 5e-5,
-        'ramp_t_steady': 1e4,
-        'ramp_dt': 32e2,
-    }
-    extra_model_kwargs = {
-        'rho_0': 2e-4,
-        'onesided_flag': True,
-        # 'walls': defaults.walls_traps_1,
-        'walls': defaults.walls_blank,
-        'origin_flag': False,
-    }
-    ramp_model_kwargs = dict(defaults.default_model_2d_kwargs, **ramp_kwargs)
-    model_kwargs = dict(ramp_model_kwargs, **extra_model_kwargs)
-    m = ramp_model.RampModel2D(**model_kwargs)
-
-    output_every = 2000
-    output_dir = None
-    force_resume = None
-
-    run_utils.run_ramp_model(output_every, output_dir, m, force_resume)
 
 
 def run_chi_scan_2d():
