@@ -5,3 +5,4 @@ Data*/
 *.pyc
 *.*~
 particle_numerics.c
+venv/
