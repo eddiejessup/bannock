@@ -2,7 +2,7 @@ from __future__ import print_function, division
 from ciabatta import runner_utils
 from agaro.run_utils import run_model
 from ciabatta.parallel import run_func
-import utils
+from bannock.utils import utils
 
 
 class _TaskResumeRunner(object):

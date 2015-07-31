@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from agaro import output_utils
-from bannock import utils
+from bannock.utils import utils
+from cannock import utils as cutils
 
 
 def plot_2d(dirname):
@@ -172,3 +173,19 @@ def plot_chi_fs(dirnames):
     ax.set_ylim(0.0, 1.1)
 
     plt.show()
+
+
+def vis_chi_k(dirnames, ax, label, c):
+    m = utils.get_recent_model(dirnames[0])
+    chis, ks = utils.chi_ks(dirnames, t_steady=None)
+    # chis, fs = utils.chi_fs(dirnames, t_steady=None)
+    i_sort = np.argsort(chis)
+    chis, ks = chis[i_sort], ks[i_sort]
+    # chis, fs = chis[i_sort], fs[i_sort]
+    D_rhos = cutils.get_D_rho(m.v_0, m.p_0, m.dim)
+    mus = cutils.get_mu(chis, m.v_0, m.p_0, m.onesided_flag, m.L)
+    mus_red = cutils.get_reduced_mu(mus, m.c_source, m.rho_0, m.c_sink, m.c_D)
+    D_rhos_red = cutils.get_reduced_D_rho(D_rhos, m.c_D)
+    ax.plot(mus_red / D_rhos_red, ks, label=label, c=c)
+    # ax.plot(chis, ks, label=label, c=c)
+    # ax.plot(mus_red / D_rhos_red, fs, label=label, c=c)

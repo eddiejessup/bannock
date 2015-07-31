@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 import sys
-import plot
+from bannock.plot import plot
 
 
 if __name__ == '__main__':
-    plot.plot_vis(sys.argv[1])
+    plot.plot_t_fracs(sys.argv[1])

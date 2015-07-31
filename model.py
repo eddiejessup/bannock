@@ -2,8 +2,8 @@ from __future__ import print_function, division
 import numpy as np
 from ciabatta import vector, fields, fileio
 from ciabatta.cell_list import intro
-import particle_numerics
-from secretion import Secretion, WalledSecretion
+from bannock import particle_numerics
+from bannock.secretion import Secretion, WalledSecretion
 
 
 class AutoBaseModel(object):
