@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from agaro import output_utils
 from bannock.utils import utils
-from cannock import utils as cutils
+from cannock.utils import utils as cutils
 
 
 def plot_2d(dirname):

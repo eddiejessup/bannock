@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ciabatta import ejm_rcparams
 from ciabatta.ejm_rcparams import set2
-from bannock.utils import utils as bu
-from cannock import utils as cu
+from bannock.utils import utils as butils
+from cannock.utils import utils as cutils
 
 
 def get_rho(m, bins):
@@ -40,18 +40,18 @@ bins = 400
 
 cs = iter(ejm_rcparams.set2)
 for label, dirname in dirnames:
-    fnames = bu.get_filenames(dirname)
-    ms = [bu.filename_to_model(fname) for fname in fnames]
+    fnames = butils.get_filenames(dirname)
+    ms = [butils.filename_to_model(fname) for fname in fnames]
     ms_steady = [m for m in ms if m.t > t_steady]
 
     m_0 = ms_steady[-1]
 
     rho = np.mean([get_rho(m, bins) for m in ms_steady], axis=0)
-    rho_red = cu.get_reduced_rho(m_0.rho_0, rho)
+    rho_red = cutils.get_reduced_rho(m_0.rho_0, rho)
 
     x = np.linspace(-m_0.L / 2.0, m_0.L / 2.0, rho.shape[0])
-    D_rho = cu.get_D_rho(m_0.v_0, m_0.p_0, m_0.dim)
-    x_red = cu.get_reduced_length(m_0.c_sink, D_rho, x)
+    D_rho = cutils.get_D_rho(m_0.v_0, m_0.p_0, m_0.dim)
+    x_red = cutils.get_reduced_length(m_0.c_sink, D_rho, x)
 
     ax.plot(x_red, rho_red, label=label, c=next(cs))
 

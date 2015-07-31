@@ -4,7 +4,7 @@ from ciabatta import ejm_rcparams
 import numpy as np
 from numpy import ma
 from bannock import utils
-from cannock import utils as cutils
+from cannock.utils import utils as cutils
 
 
 def get_r_com(r):
