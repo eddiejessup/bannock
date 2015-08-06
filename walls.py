@@ -12,7 +12,8 @@ class Walls(fields.Field):
         self.a = np.zeros(self.dim * (self.M,), dtype=np.uint8)
         self.d = self.L_half
 
-    def get_free_area_i(self):
+    @property
+    def free_area_i(self):
         """Calculate the number of elements that are not occupied by obstacles.
 
         Returns
@@ -21,14 +22,15 @@ class Walls(fields.Field):
         """
         return np.logical_not(self.a).sum()
 
-    def get_free_area(self):
+    @property
+    def free_area(self):
         """Calculate the area that is not occupied by obstacles.
 
         Returns
         -------
         area: float
         """
-        return self.get_free_area_i() * self.dA()
+        return self.free_area_i * self.dA
 
     def is_obstructed(self, r):
         """Determine if a set of position vectors lie on top of obstacles.
@@ -85,10 +87,6 @@ class Tittled(Walls):
         self.wy_i = int(round(wy / self.dx))
         self.sx_i = int(round(sx / self.dx))
         self.sy_i = int(round(sy / self.dx))
-        self.wx = self.wx_i * self.dx
-        self.wy = self.wy_i * self.dx
-        self.sx = self.sx_i * self.dx
-        self.sy = self.sy_i * self.dx
 
         for i_x in range(self.sx_i,
                          self.a.shape[0] - self.sx_i,
@@ -99,6 +97,21 @@ class Tittled(Walls):
                 self.a[i_x - self.wx_i:i_x + self.wx_i,
                        i_y - self.wy_i:i_y + self.wy_i] = True
 
+    @property
+    def wx(self):
+        return self.wx_i * self.dx
+
+    @property
+    def wy(self):
+        return self.wy_i * self.dx
+
+    @property
+    def sx(self):
+        return self.sx_i * self.dx
+
+    @property
+    def sy(self):
+        return self.sy_i * self.dx
 
     def __repr__(self):
         fs = [('L', self.L), ('dx', self.dx),
@@ -127,7 +140,6 @@ class Traps(Walls):
 
     def __init__(self, L, dx, n, d, w, s):
         Walls.__init__(self, L, dim=2, dx=dx)
-        self.n = n
 
         # Calculate length in terms of lattice indices
         d_i = int(round(d / self.dx))
@@ -149,30 +161,27 @@ class Traps(Walls):
         self.w_i = w_i
         self.s_i = s_i
 
-        # Scale back up to physical lengths.
-        self.d = self.d_i * self.dx
-        self.w = self.w_i * self.dx
-        self.s = self.s_i * self.dx
-
         if self.w < 0.0 or self.w > self.L:
             raise Exception('Invalid trap width')
         if self.s < 0.0 or self.s > self.w:
             raise Exception('Invalid slit length')
 
-        if self.n == 1:
-            self.traps_f = np.array([[0.50, 0.50]], dtype=np.float)
-        elif self.n == 4:
-            self.traps_f = np.array([[0.25, 0.25], [0.25, 0.75], [0.75, 0.25],
-                                    [0.75, 0.75]], dtype=np.float)
-        elif self.n == 5:
-            self.traps_f = np.array([[0.25, 0.25], [0.25, 0.75],
-                                     [0.50, 0.50],
-                                     [0.75, 0.25], [0.75, 0.75]],
-                                    dtype=np.float)
+        if n == 1:
+            traps_f = np.array([[0.50, 0.50]],
+                               dtype=np.float)
+        elif n == 4:
+            traps_f = np.array([[0.25, 0.25], [0.25, 0.75], [0.75, 0.25],
+                                [0.75, 0.75]],
+                               dtype=np.float)
+        elif n == 5:
+            traps_f = np.array([[0.25, 0.25], [0.25, 0.75],
+                                [0.50, 0.50],
+                                [0.75, 0.25], [0.75, 0.75]],
+                               dtype=np.float)
         else:
             raise Exception('Traps not implemented for this number of traps')
 
-        self.traps_i = np.asarray(self.M * self.traps_f, dtype=np.int)
+        self.traps_i = np.asarray(self.M * traps_f, dtype=np.int)
         for x, y in self.traps_i:
             # First fill in entire trap-related area.
             self.a[x - l_i_half:x + l_i_half + 1,
@@ -183,6 +192,22 @@ class Traps(Walls):
             # Then make the slit.
             self.a[x - s_i_half:x + s_i_half + 1,
                    y + w_i_half:y + l_i_half + 1] = False
+
+    @property
+    def d(self):
+        return self.d_i * self.dx
+
+    @property
+    def w(self):
+        return self.w_i * self.dx
+
+    @property
+    def s(self):
+        return self.s_i * self.dx
+
+    @property
+    def n(self):
+        return self.traps_i.shape[0]
 
     def get_trap_areas_i(self):
         """Calculate the number of elements occupied by each trap.
@@ -206,7 +231,7 @@ class Traps(Walls):
         -------
         trap_areas: list[float]
         """
-        return self.get_trap_areas_i() * self.dA()
+        return self.get_trap_areas_i() * self.dA
 
     def get_fracs(self, r):
         """Calculate the fraction of particles inside each trap.
@@ -259,9 +284,12 @@ class Maze(Walls):
         self.seed = seed
         self.M_m = int(round(self.L / d))
         self.d_i = int(round(self.M / self.M_m))
-        self.d = self.d_i * self.dx
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
+
+    @property
+    def d(self):
+        return self.d_i * self.dx
 
     def __repr__(self):
         fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx), ('d', self.d),

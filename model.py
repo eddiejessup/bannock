@@ -9,15 +9,26 @@ from bannock.secretion import Secretion, WalledSecretion
 
 class AutoBaseModel(object):
 
-    def __init__(self, seed, dt, dim):
+    def __init__(self, dim, seed, dt,
+                 origin_flag,
+                 rho_0, v_0, p_0,
+                 chi, onesided_flag,
+                 vicsek_R,
+                 c_D, c_sink, c_source):
+        self.dim = dim
         self.seed = seed
-        np.random.seed(seed)
         self.dt = dt
+        self.origin_flag = origin_flag
+        self.rho_0 = rho_0
+        self.v_0 = v_0
+        self.p_0 = p_0
+        self.chi = chi
+        self.onesided_flag = onesided_flag
+        self.vicsek_R = vicsek_R
 
+        np.random.seed(seed)
         self.t = 0.0
         self.i = 0
-
-        self.dim = dim
 
     def _tumble(self):
         self.p[:] = self.p_0
@@ -52,6 +63,30 @@ class AutoBaseModel(object):
         self.t += self.dt
         self.i += 1
 
+    @property
+    def L_half(self):
+        return self.L / 2.0
+
+    @property
+    def n(self):
+        return self.r.shape[0]
+
+    @property
+    def c_sink(self):
+        return self.secretion.sink_rate
+
+    @property
+    def c_source(self):
+        return self.secretion.source_rate
+
+    @property
+    def c_D(self):
+        return self.secretion.D
+
+    @property
+    def dx(self):
+        return self.secretion.D
+
 
 class Model1D(AutoBaseModel):
     """Self-propelled particles moving in one dimension in a chemical field.
@@ -62,6 +97,11 @@ class Model1D(AutoBaseModel):
         A random number seed. `None` causes a random choice.
     dt: float
         The size of a single time-step.
+    origin_flag: bool
+        Whether or not to start the particles at the centre of the system.
+        If `True`, all particles are initialised in a small region near the
+        origin.
+        If `False`, particles are initialised uniformly.
     rho_0: float
         The average area density of particles.
     v_0: float
@@ -69,11 +109,6 @@ class Model1D(AutoBaseModel):
     p_0: float
         The base rate at which the particles randomise their
         direction.
-    origin_flag: bool
-        Whether or not to start the particles at the centre of the system.
-        If `True`, all particles are initialised in a small region near the
-        origin.
-        If `False`, particles are initialised uniformly.
     chi: float
         The sensitivity of the particles' chemotactic response to gradients
         in the chemoattractant concentration field.
@@ -82,52 +117,41 @@ class Model1D(AutoBaseModel):
         their tumble rate.
     vicsek_R: float
         A radius within which the particles reorient with their neighbours.
-    L: float
-        Length of the system.
-    dx: float
-        Length of a cell in the chemical concentration field lattice.
     c_D: float
         see :class:`Secretion`
     c_sink: float
         see :class:`Secretion`
     c_source: float
         see :class:`Secretion`
+    L: float
+        Length of the system.
+    dx: float
+        Length of a cell in the chemical concentration field lattice.
     """
 
     def __init__(self, seed, dt,
-                 rho_0, v_0, p_0, origin_flag,
+                 origin_flag,
+                 rho_0, v_0, p_0,
                  chi, onesided_flag,
                  vicsek_R,
-                 L, dx,
                  c_D, c_sink, c_source,
+                 L, dx,
                  *args, **kwargs):
-        super(Model1D, self).__init__(seed, dt, 1)
-        self.v_0 = v_0
-        self.p_0 = p_0
-        self.origin_flag = origin_flag
-        self.chi = chi
-        self.onesided_flag = onesided_flag
-        self.vicsek_R = vicsek_R
+        super(Model1D, self).__init__(1, seed, dt,
+                                      origin_flag,
+                                      rho_0, v_0, p_0,
+                                      chi, onesided_flag,
+                                      vicsek_R,
+                                      c_D, c_sink, c_source)
         self.L = L
-        self.L_half = self.L / 2.0
-        self.dx = dx
-        self.c_D = c_D
-        self.c_sink = c_sink
-        self.c_source = c_source
 
         if self.c_source:
-            self.c = Secretion(self.L, self.dim, self.dx,
-                               self.c_D, self.dt,
-                               self.c_sink, self.c_source, a_0=0.0)
+            self.c = Secretion(self.L, self.dim, dx, c_D, self.dt, c_sink,
+                               c_source, a_0=0.0)
 
-        self.n = int(round(self.L * rho_0))
-        self.rho_0 = self.n / self.L
+        n = int(round(self.L * rho_0))
 
-        self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
-        self._initialise_r()
-        self.p = np.ones([self.n]) * self.p_0
-
-    def _initialise_r(self):
+        self.v = self.v_0 * vector.sphere_pick(self.dim, n)
         if self.origin_flag:
             # Randomise initialisation by a small distance, to avoid
             # unphysical regular spacing otherwise. In 1D the particles are
@@ -136,7 +160,12 @@ class Model1D(AutoBaseModel):
             self.r = np.random.uniform(-vdt, vdt, [self.n, self.dim])
         else:
             self.r = np.random.uniform(-self.L_half, self.L_half,
-                                       [self.n, self.dim])
+                                       [n, self.dim])
+        self.p = np.ones([self.n]) * self.p_0
+
+    @property
+    def rho_0(self):
+        return self.n / self.L
 
     def _update_positions(self):
         self.r += self.v * self.dt
@@ -218,42 +247,32 @@ class Model2D(AutoBaseModel):
     """
 
     def __init__(self, seed, dt,
-                 rho_0, v_0, D_rot, p_0, origin_flag,
+                 origin_flag,
+                 rho_0, v_0, p_0,
+                 D_rot,
                  chi, onesided_flag,
-                 force_mu,
                  vicsek_R,
-                 walls,
+                 force_mu,
                  c_D, c_sink, c_source,
+                 walls,
                  *args, **kwargs):
-        super(Model2D, self).__init__(seed, dt, 2)
-        self.v_0 = v_0
+        super(Model2D, self).__init__(2, seed, dt,
+                                      origin_flag,
+                                      rho_0, v_0, p_0,
+                                      chi, onesided_flag,
+                                      vicsek_R,
+                                      c_D, c_sink, c_source)
         self.D_rot = D_rot
-        self.p_0 = p_0
-        self.origin_flag = origin_flag
-        self.chi = chi
-        self.onesided_flag = onesided_flag
         self.force_mu = force_mu
-        self.vicsek_R = vicsek_R
         self.walls = walls
-        self.L = walls.L
-        self.L_half = self.L / 2.0
-        self.dx = walls.dx
-        self.c_D = c_D
-        self.c_sink = c_sink
-        self.c_source = c_source
 
         self.c = WalledSecretion(self.walls.L, self.walls.dim, self.walls.dx,
-                                 self.walls.a, self.c_D, self.dt,
-                                 self.c_sink, self.c_source, a_0=0.0)
+                                 self.walls.a, c_D, self.dt,
+                                 c_sink, c_source, a_0=0.0)
 
-        self.n = int(round(self.walls.get_free_area() * rho_0))
-        self.rho_0 = self.n / self.walls.get_free_area()
+        n = int(round(self.walls.free_area * rho_0))
 
-        self.v = self.v_0 * vector.sphere_pick(self.dim, self.n)
-        self._initialise_r()
-        self.p = np.ones([self.n]) * self.p_0
-
-    def _initialise_r(self):
+        self.v = self.v_0 * vector.sphere_pick(self.dim, n)
         self.r = np.zeros_like(self.v)
         if self.origin_flag:
             if self.walls.is_obstructed(self.r[0, np.newaxis]):
@@ -266,6 +285,15 @@ class Model2D(AutoBaseModel):
                                                   self.dim)
                     if not self.walls.is_obstructed(self.r[i, np.newaxis]):
                         break
+        self.p = np.ones([self.n]) * self.p_0
+
+    @property
+    def rho_0(self):
+        return self.n / self.walls.free_area
+
+    @property
+    def L(self):
+        return self.walls.L
 
     def _update_positions(self):
         r_old = self.r.copy()
