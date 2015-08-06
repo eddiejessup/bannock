@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
 from ciabatta import lattice, fields, maze
+from ciabatta.meta import make_repr_str
 
 
 class Walls(fields.Field):
@@ -44,6 +45,10 @@ class Walls(fields.Field):
         """
         return self.a[tuple(self.r_to_i(r).T)].astype(np.bool)
 
+    def __repr__(self):
+        fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx)]
+        return make_repr_str(self, fs)
+
 
 class HalfClosed(Walls):
     """A set of walls closing the 2D environment along one edge."""
@@ -51,6 +56,10 @@ class HalfClosed(Walls):
     def __init__(self, L, dx):
         Walls.__init__(self, L, dim=2, dx=dx)
         self.a[:, 0] = True
+
+    def __repr__(self):
+        fs = [('L', self.L), ('dx', self.dx)]
+        return make_repr_str(self, fs)
 
 
 class Closed(Walls):
@@ -63,9 +72,12 @@ class Closed(Walls):
         self.a[0, :] = True
         self.a[-1, :] = True
 
+    def __repr__(self):
+        fs = [('L', self.L), ('dx', self.dx)]
+        return make_repr_str(self, fs)
+
 
 class Tittled(Walls):
-    repr_fields = Walls.repr_fields + ['wx', 'wy', 'sx', 'sy']
 
     def __init__(self, L, dx, wx, wy, sx, sy):
         Walls.__init__(self, L, dim=2, dx=dx)
@@ -88,6 +100,13 @@ class Tittled(Walls):
                        i_y - self.wy_i:i_y + self.wy_i] = True
 
 
+    def __repr__(self):
+        fs = [('L', self.L), ('dx', self.dx),
+              ('wx', self.wx), ('wy', self.wy),
+              ('sx', self.sx), ('sy', self.sy)]
+        return make_repr_str(self, fs)
+
+
 class Traps(Walls):
     """A set of walls forming a number of 2D traps.
 
@@ -105,7 +124,6 @@ class Traps(Walls):
         The width of the trap entrance.
         Valid values are `(2i + 1) dx`, where `i` is an integer >= 0.
     """
-    repr_fields = Walls.repr_fields + ['n', 'd', 'w', 's']
 
     def __init__(self, L, dx, n, d, w, s):
         Walls.__init__(self, L, dim=2, dx=dx)
@@ -217,6 +235,11 @@ class Traps(Walls):
         return np.array([float(n_trap) / float(r.shape[0])
                          for n_trap in n_traps])
 
+    def __repr__(self):
+        fs = [('L', self.L), ('dx', self.dx),
+              ('n', self.n), ('d', self.d), ('w', self.w), ('s', self.s)]
+        return make_repr_str(self, fs)
+
 
 class Maze(Walls):
     """A set of walls forming a maze.
@@ -230,7 +253,6 @@ class Maze(Walls):
         Note that this does not affect, or is affected by, pre-existing
         random number seeding.
     """
-    repr_fields = Walls.repr_fields + ['d', 'seed']
 
     def __init__(self, L, dim, dx, d, seed=None):
         Walls.__init__(self, L, dim, dx)
@@ -240,3 +262,8 @@ class Maze(Walls):
         self.d = self.d_i * self.dx
         a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
+
+    def __repr__(self):
+        fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx), ('d', self.d),
+              ('seed', self.seed)]
+        return make_repr_str(self, fs)

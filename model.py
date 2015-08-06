@@ -1,14 +1,13 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import vector, fields, fileio
+from ciabatta import vector, fields
+from ciabatta.meta import make_repr_str
 from ciabatta.cell_list import intro
-from bannock import particle_numerics
+from bannock import particle_numerics, walls
 from bannock.secretion import Secretion, WalledSecretion
 
 
 class AutoBaseModel(object):
-
-    repr_fields = ['dt']
 
     def __init__(self, seed, dt, dim):
         self.seed = seed
@@ -48,10 +47,6 @@ class AutoBaseModel(object):
             Density field
         """
         return fields.density(self.r, self.L, self.c.dx)
-
-    def __repr__(self):
-        return '{}_{}'.format(self.__class__.__name__,
-                              fileio.reprify(self, self.repr_fields))
 
     def iterate(self):
         self.t += self.dt
@@ -98,13 +93,6 @@ class Model1D(AutoBaseModel):
     c_source: float
         see :class:`Secretion`
     """
-    repr_fields = AutoBaseModel.repr_fields + ['L', 'dx',
-                                               'c_D', 'c_sink', 'c_source',
-                                               'v_0', 'p_0', 'origin_flag',
-                                               'rho_0',
-                                               'chi', 'onesided_flag',
-                                               'vicsek_R',
-                                               ]
 
     def __init__(self, seed, dt,
                  rho_0, v_0, p_0, origin_flag,
@@ -186,6 +174,31 @@ class Model1D(AutoBaseModel):
 
         super(Model1D, self).iterate()
 
+    def get_output_dirname(self):
+        s = 'Bannock_2D,seed={},dt={:g},'.format(self.seed, self.dt)
+        s += 'origin={:d},'.format(self.origin_flag)
+        s += 'L={:g},'.format(self.L)
+        s += 'rho={:g},v={:g},p={:g},'.format(self.rho_0, self.v_0, self.p_0)
+        s += 'chi={:g},side={},'.format(self.chi, 2 - self.onesided_flag)
+        s += 'vicsek_R={:g},'.format(self.vicsek_R)
+        s += 'c_source={:g},c_sink={:g},c_D,dx={:g}'.format(self.c_source,
+                                                            self.c_sink,
+                                                            self.c_D,
+                                                            self.dx)
+        return s
+
+    def __repr__(self):
+        fs = [('dim', self.dim), ('seed', self.seed), ('dt', self.dt),
+              ('origin_flag', self.origin_flag),
+              ('L', self.L),
+              ('n', self.n), ('v_0', self.v_0), ('p_0', self.p_0),
+              ('chi', self.chi), ('onesided_flag', self.onesided_flag),
+              ('vicsek_R', self.vicsek_R),
+              ('c', self.c),
+              ('t', self.t), ('i', self.i)
+              ]
+        return make_repr_str(self, fs)
+
 
 class Model2D(AutoBaseModel):
     """Self-propelled particles moving in two dimensions in a chemical field.
@@ -203,15 +216,6 @@ class Model2D(AutoBaseModel):
     Others:
         see :class:`Model1D`.
     """
-    repr_fields = AutoBaseModel.repr_fields + [
-        'L', 'dx',
-        'c_D', 'c_sink', 'c_source',
-        'v_0', 'p_0', 'D_rot', 'origin_flag',
-        'rho_0',
-        'chi', 'onesided_flag',
-        'force_mu', 'vicsek_R',
-        'walls',
-    ]
 
     def __init__(self, seed, dt,
                  rho_0, v_0, D_rot, p_0, origin_flag,
@@ -336,8 +340,44 @@ class Model2D(AutoBaseModel):
         if self.c_source:
             density = self.get_density_field()
             self.c.iterate(density)
+    def get_output_dirname_walls(self):
+        w = self.walls
+        if w.__class__ == walls.Walls:
+            return 'Walls'
+        elif w.__class__ == walls.Traps:
+            return 'Traps_n={},d={:g},w={:g},s={:g}'.format(w.n, w.d, w.w, w.s)
+        elif w.__class__ == walls.Maze:
+            return 'Maze_d={:g},seed={}'.format(w.d, w.seed)
 
         super(Model2D, self).iterate()
+    def get_output_dirname(self):
+        s = 'Bannock_2D,seed={},dt={:g},'.format(self.seed, self.dt)
+        s += 'origin={:d},'.format(self.origin_flag)
+        s += 'walls={},'.format(self.get_output_dirname_walls_part())
+        s += 'rho={:g},v={:g},p={:g},'.format(self.rho_0, self.v_0, self.p_0)
+        s += 'Dr={:g},'.format(self.D_rot_0)
+        s += 'chi={:g},side={},'.format(self.chi, 2 - self.onesided_flag)
+        s += 'vicsek_R={:g},'.format(self.vicsek_R)
+        s += 'force_mu={:g},'.format(self.force_mu)
+        s += 'c_source={:g},c_sink={:g},c_D,dx={:g}'.format(self.c_source,
+                                                            self.c_sink,
+                                                            self.c_D,
+                                                            self.dx)
+        return s
+
+    def __repr__(self):
+        fs = [('dim', self.dim), ('seed', self.seed), ('dt', self.dt),
+              ('origin_flag', self.origin_flag),
+              ('walls', self.walls),
+              ('n', self.n), ('v_0', self.v_0), ('p_0', self.p_0),
+              ('D_rot_0', self.D_rot_0),
+              ('chi', self.chi), ('onesided_flag', self.onesided_flag),
+              ('vicsek_R', self.vicsek_R),
+              ('force_mu', self.force_mu),
+              ('c', self.c),
+              ('t', self.t), ('i', self.i)
+              ]
+        return make_repr_str(self, fs)
 
 
 class Model2DNoAlignment(Model2D):

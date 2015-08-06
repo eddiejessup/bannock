@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
 from ciabatta import fields
+from ciabatta.meta import make_repr_str
 
 
 class Secretion(fields.Diffusing):
@@ -50,6 +51,13 @@ class Secretion(fields.Diffusing):
                              self.sink_rate * self.a)
         self.a = np.maximum(self.a, 0.0)
 
+    def __repr__(self):
+        fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx),
+              ('D', self.D), ('dt', self.dt), ('sink_rate', self.sink_rate),
+              ('source_rate', self.source_rate), ('a_0', self.a_0),
+              ]
+        return make_repr_str(self, fs)
+
 
 class WalledSecretion(fields.WalledDiffusing):
     """A concentration field of a secreted chemical in a walled environment.
@@ -75,3 +83,10 @@ class WalledSecretion(fields.WalledDiffusing):
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
         self.a = np.maximum(self.a, 0.0)
+
+    def __repr__(self):
+        fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx),
+              ('walls', self.walls),
+              ('D', self.D), ('dt', self.dt), ('sink_rate', self.sink_rate),
+              ('source_rate', self.source_rate), ('a_0', self.a_0)]
+        return make_repr_str(self, fs)
