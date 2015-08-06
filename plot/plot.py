@@ -82,7 +82,7 @@ def plot_1d(dirname):
     x = np.linspace(-m_0.L / 2.0, m_0.L / 2.0, m_0.c.a.shape[0])
     plot_c = ax_c.bar(x, m_0.c.a[:], width=x[1] - x[0])
 
-    plot_d = ax_d.bar(x, m_0.get_density_field(), width=x[1] - x[0])
+    plot_d = ax_d.bar(x, m_0.c.get_density_field(), width=x[1] - x[0])
 
     ax_slide = plt.axes([0.25, 0.1, 0.65, 0.03])
     t_slider = Slider(ax_slide, 'Index', 0, len(fnames), valinit=0)
@@ -96,7 +96,7 @@ def plot_1d(dirname):
             for rect, c in zip(plot_c, cs):
                 rect.set_height(c)
             ax_c.set_ylim(0.0, 1.05 * cs.max())
-            ds = m.get_density_field() / m.rho_0
+            ds = m.c.get_density_field() / m.rho_0
             for rect, d in zip(plot_d, ds):
                 rect.set_height(d)
             ax_d.set_ylim(0.0, 1.05 * ds.max())

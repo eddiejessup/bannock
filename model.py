@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import vector, fields
+from ciabatta import vector
 from ciabatta.meta import make_repr_str
 from ciabatta.cell_list import intro
 from bannock import particle_numerics, walls
@@ -15,11 +15,9 @@ class AutoBaseModel(object):
                  chi, onesided_flag,
                  vicsek_R,
                  c_D, c_sink, c_source):
-        self.dim = dim
         self.seed = seed
         self.dt = dt
         self.origin_flag = origin_flag
-        self.rho_0 = rho_0
         self.v_0 = v_0
         self.p_0 = p_0
         self.chi = chi
@@ -47,18 +45,6 @@ class AutoBaseModel(object):
         self.v[tumbles] = self.v_0 * vector.sphere_pick(self.dim,
                                                         tumbles.sum())
 
-    def get_density_field(self):
-        """Calculate a field on the same lattice as the chemical concentration,
-        for the particle number density, binning the particles into their
-        nearest cell.
-
-        Returns
-        -------
-        d: numpy.ndarray[dtype=int]
-            Density field
-        """
-        return fields.density(self.r, self.L, self.c.dx)
-
     def iterate(self):
         self.t += self.dt
         self.i += 1
@@ -72,20 +58,24 @@ class AutoBaseModel(object):
         return self.r.shape[0]
 
     @property
+    def dim(self):
+        return self.r.shape[1]
+
+    @property
     def c_sink(self):
-        return self.secretion.sink_rate
+        return self.c.sink_rate
 
     @property
     def c_source(self):
-        return self.secretion.source_rate
+        return self.c.source_rate
 
     @property
     def c_D(self):
-        return self.secretion.D
+        return self.c.D
 
     @property
     def dx(self):
-        return self.secretion.D
+        return self.c.D
 
 
 class Model1D(AutoBaseModel):
@@ -137,7 +127,8 @@ class Model1D(AutoBaseModel):
                  c_D, c_sink, c_source,
                  L, dx,
                  *args, **kwargs):
-        super(Model1D, self).__init__(1, seed, dt,
+        dim = 1
+        super(Model1D, self).__init__(dim, seed, dt,
                                       origin_flag,
                                       rho_0, v_0, p_0,
                                       chi, onesided_flag,
@@ -145,23 +136,21 @@ class Model1D(AutoBaseModel):
                                       c_D, c_sink, c_source)
         self.L = L
 
-        if self.c_source:
-            self.c = Secretion(self.L, self.dim, dx, c_D, self.dt, c_sink,
-                               c_source, a_0=0.0)
-
         n = int(round(self.L * rho_0))
 
-        self.v = self.v_0 * vector.sphere_pick(self.dim, n)
+        self.v = self.v_0 * vector.sphere_pick(dim, n)
         if self.origin_flag:
             # Randomise initialisation by a small distance, to avoid
             # unphysical regular spacing otherwise. In 1D the particles are
             # effectively on a lattice of length `v_0 * dt`.
             vdt = self.dt * self.v_0
-            self.r = np.random.uniform(-vdt, vdt, [self.n, self.dim])
+            self.r = np.random.uniform(-vdt, vdt, [n, dim])
         else:
-            self.r = np.random.uniform(-self.L_half, self.L_half,
-                                       [n, self.dim])
+            self.r = np.random.uniform(-self.L_half, self.L_half, [n, dim])
         self.p = np.ones([self.n]) * self.p_0
+
+        self.c = Secretion(self.L, dim, dx, c_D, self.dt, c_sink,
+                           c_source, a_0=0.0)
 
     @property
     def rho_0(self):
@@ -198,13 +187,12 @@ class Model1D(AutoBaseModel):
         self._update_positions()
 
         if self.c_source:
-            density = self.get_density_field()
-            self.c.iterate(density)
+            self.c.iterate(self.r)
 
         super(Model1D, self).iterate()
 
     def get_output_dirname(self):
-        s = 'Bannock_2D,seed={},dt={:g},'.format(self.seed, self.dt)
+        s = 'Bannock_{}D,seed={},dt={:g},'.format(self.dim, self.seed, self.dt)
         s += 'origin={:d},'.format(self.origin_flag)
         s += 'L={:g},'.format(self.L)
         s += 'rho={:g},v={:g},p={:g},'.format(self.rho_0, self.v_0, self.p_0)
@@ -256,7 +244,8 @@ class Model2D(AutoBaseModel):
                  c_D, c_sink, c_source,
                  walls,
                  *args, **kwargs):
-        super(Model2D, self).__init__(2, seed, dt,
+        dim = 2
+        super(Model2D, self).__init__(dim, seed, dt,
                                       origin_flag,
                                       rho_0, v_0, p_0,
                                       chi, onesided_flag,
@@ -272,7 +261,7 @@ class Model2D(AutoBaseModel):
 
         n = int(round(self.walls.free_area * rho_0))
 
-        self.v = self.v_0 * vector.sphere_pick(self.dim, n)
+        self.v = self.v_0 * vector.sphere_pick(dim, n)
         self.r = np.zeros_like(self.v)
         if self.origin_flag:
             if self.walls.is_obstructed(self.r[0, np.newaxis]):
@@ -282,7 +271,7 @@ class Model2D(AutoBaseModel):
             for i in range(self.n):
                 while True:
                     self.r[i] = np.random.uniform(-self.L_half, self.L_half,
-                                                  self.dim)
+                                                  dim)
                     if not self.walls.is_obstructed(self.r[i, np.newaxis]):
                         break
         self.p = np.ones([self.n]) * self.p_0
@@ -369,7 +358,7 @@ class Model2D(AutoBaseModel):
             self.c.iterate(self.r)
         super(Model2D, self).iterate()
 
-    def get_output_dirname_walls(self):
+    def get_output_dirname_walls_part(self):
         w = self.walls
         if w.__class__ == walls.Walls:
             return 'Walls'
@@ -379,11 +368,11 @@ class Model2D(AutoBaseModel):
             return 'Maze_d={:g},seed={}'.format(w.d, w.seed)
 
     def get_output_dirname(self):
-        s = 'Bannock_2D,seed={},dt={:g},'.format(self.seed, self.dt)
+        s = 'Bannock_{}D,seed={},dt={:g},'.format(self.dim, self.seed, self.dt)
         s += 'origin={:d},'.format(self.origin_flag)
         s += 'walls={},'.format(self.get_output_dirname_walls_part())
         s += 'rho={:g},v={:g},p={:g},'.format(self.rho_0, self.v_0, self.p_0)
-        s += 'Dr={:g},'.format(self.D_rot_0)
+        s += 'Dr={:g},'.format(self.D_rot)
         s += 'chi={:g},side={},'.format(self.chi, 2 - self.onesided_flag)
         s += 'vicsek_R={:g},'.format(self.vicsek_R)
         s += 'force_mu={:g},'.format(self.force_mu)
@@ -398,7 +387,7 @@ class Model2D(AutoBaseModel):
               ('origin_flag', self.origin_flag),
               ('walls', self.walls),
               ('n', self.n), ('v_0', self.v_0), ('p_0', self.p_0),
-              ('D_rot_0', self.D_rot_0),
+              ('D_rot', self.D_rot),
               ('chi', self.chi), ('onesided_flag', self.onesided_flag),
               ('vicsek_R', self.vicsek_R),
               ('force_mu', self.force_mu),

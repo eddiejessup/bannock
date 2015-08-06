@@ -55,7 +55,7 @@ class Secretion(fields.Diffusing):
     def __repr__(self):
         fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx),
               ('D', self.D), ('dt', self.dt), ('sink_rate', self.sink_rate),
-              ('source_rate', self.source_rate), ('a_0', self.a_0),
+              ('source_rate', self.source_rate),
               ]
         return make_repr_str(self, fs)
 
@@ -88,7 +88,6 @@ class WalledSecretion(fields.WalledDiffusing):
 
     def __repr__(self):
         fs = [('L', self.L), ('dim', self.dim), ('dx', self.dx),
-              ('walls', self.walls),
               ('D', self.D), ('dt', self.dt), ('sink_rate', self.sink_rate),
-              ('source_rate', self.source_rate), ('a_0', self.a_0)]
+              ('source_rate', self.source_rate)]
         return make_repr_str(self, fs)

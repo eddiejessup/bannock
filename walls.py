@@ -10,7 +10,6 @@ class Walls(fields.Field):
     def __init__(self, L, dim, dx):
         fields.Field.__init__(self, L, dim, dx)
         self.a = np.zeros(self.dim * (self.M,), dtype=np.uint8)
-        self.d = self.L_half
 
     @property
     def free_area_i(self):
@@ -282,9 +281,10 @@ class Maze(Walls):
     def __init__(self, L, dim, dx, d, seed=None):
         Walls.__init__(self, L, dim, dx)
         self.seed = seed
+        rng = np.random.RandomState(self.seed)
         self.M_m = int(round(self.L / d))
         self.d_i = int(round(self.M / self.M_m))
-        a_base = maze.make_maze_dfs(self.M_m, self.dim, self.seed)
+        a_base = maze.make_maze_dfs(self.M_m, self.dim, rng)
         self.a[...] = lattice.extend_array(a_base, self.d_i)
 
     @property
