@@ -366,8 +366,9 @@ class Model2D(AutoBaseModel):
         self._update_positions()
 
         if self.c_source:
-            density = self.get_density_field()
-            self.c.iterate(density)
+            self.c.iterate(self.r)
+        super(Model2D, self).iterate()
+
     def get_output_dirname_walls(self):
         w = self.walls
         if w.__class__ == walls.Walls:
@@ -377,7 +378,6 @@ class Model2D(AutoBaseModel):
         elif w.__class__ == walls.Maze:
             return 'Maze_d={:g},seed={}'.format(w.d, w.seed)
 
-        super(Model2D, self).iterate()
     def get_output_dirname(self):
         s = 'Bannock_2D,seed={},dt={:g},'.format(self.seed, self.dt)
         s += 'origin={:d},'.format(self.origin_flag)

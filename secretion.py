@@ -36,7 +36,7 @@ class Secretion(fields.Diffusing):
         self.source_rate = source_rate
         self.sink_rate = sink_rate
 
-    def iterate(self, density):
+    def iterate(self, r):
         """
         Evolve the field's state according to its differential equation, by a
         single time-step.
@@ -46,6 +46,7 @@ class Secretion(fields.Diffusing):
         density: numpy.ndarray[dtype=float]
             The density of secreter.
         """
+        density = self.density_field(r)
         fields.Diffusing.iterate(self)
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
@@ -77,8 +78,9 @@ class WalledSecretion(fields.WalledDiffusing):
         self.source_rate = source_rate
         self.sink_rate = sink_rate
 
-    def iterate(self, density):
+    def iterate(self, r):
         """See :meth:`Secretion.iterate`."""
+        density = self.density_field(r)
         fields.WalledDiffusing.iterate(self)
         self.a += self.dt * (self.source_rate * density -
                              self.sink_rate * self.a)
