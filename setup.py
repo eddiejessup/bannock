@@ -17,7 +17,7 @@ requirements = [
     'numpy',
     'matplotlib',
     'ciabatta',
-    'agaro'
+    'agaro',
     'spatious',
     'cellulist',
     'fealty',
