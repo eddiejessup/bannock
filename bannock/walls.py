@@ -1,7 +1,8 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import lattice, fields, maze
+from fealty import lattice, fields
 from ciabatta.meta import make_repr_str
+from bannock import maze
 
 
 class Walls(fields.Field):

@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import cluster
+from clustrous import cluster
 from agaro.output_utils import (get_recent_filename, get_filenames,
                                 filename_to_model)
 from agaro.measure_utils import get_average_measure, group_by_key

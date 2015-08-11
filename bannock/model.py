@@ -1,7 +1,8 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import vector, cell_list
 from ciabatta.meta import make_repr_str
+from spatious import vector
+from cellulist import cell_list
 from bannock import numerics, walls
 from bannock.secretion import Secretion, WalledSecretion
 
@@ -322,7 +323,7 @@ class Model2D(AutoBaseModel):
         self.v = numerics.rot_diff_2d(self.v, self.D_rot, self.dt)
 
     def _vicsek(self):
-        inters, intersi = intro.get_inters(self.r, self.L, self.vicsek_R)
+        inters, intersi = cell_list.get_inters(self.r, self.L, self.vicsek_R)
         self.v = numerics.vicsek_inters(self.v, inters, intersi)
 
     def iterate(self):

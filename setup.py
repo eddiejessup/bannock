@@ -15,17 +15,24 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'Cython',
     'numpy',
-    'scipy',
     'matplotlib',
     'ciabatta',
     'agaro'
+    'spatious',
+    'cellulist',
+    'fealty',
+    'clustrous',
 ]
 
 test_requirements = [
     'Cython',
     'numpy',
-    'scipy',
     'ciabatta',
+    'agaro'
+    'spatious',
+    'cellulist',
+    'fealty',
+    'clustrous',
 ]
 
 extensions = cythonize([

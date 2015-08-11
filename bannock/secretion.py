@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import fields
 from ciabatta.meta import make_repr_str
+from fealty import fields
 
 
 class Secretion(fields.Diffusing):

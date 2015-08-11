@@ -1,5 +1,5 @@
 import numpy as np
-from ciabatta import vector
+from spatious import vector
 cimport numpy as np
 cimport cython
 from libc.math cimport sin, cos
