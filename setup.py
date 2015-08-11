@@ -42,7 +42,7 @@ extensions = cythonize([
 
 setup(
     name='bannock',
-    version='0.2.0',
+    version='0.2.1',
     description="Agent-based simulations in confined environments",
     long_description=readme + '\n\n' + history,
     author="Elliot Marsden",
