@@ -163,7 +163,7 @@ class Model1D(AutoBaseModel):
     def _vicsek(self):
         u = np.array(np.round(self.v[:, 0] / self.v_0), dtype=np.int)
         u_new = numerics.vicsek_1d(self.r[:, 0], u,
-                                            self.vicsek_R, self.L)
+                                   self.vicsek_R, self.L)
         stats = u_new == 0
         u_new[stats] = 2 * np.random.randint(2, size=stats.sum()) - 1
         self.v[:, 0] = self.v_0 * u_new
