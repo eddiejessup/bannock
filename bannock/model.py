@@ -1,9 +1,8 @@
 from __future__ import print_function, division
 import numpy as np
-from ciabatta import vector
+from ciabatta import vector, cell_list
 from ciabatta.meta import make_repr_str
-from ciabatta.cell_list import intro
-from bannock import particle_numerics, walls
+from bannock import numerics, walls
 from bannock.secretion import Secretion, WalledSecretion
 
 
@@ -163,7 +162,7 @@ class Model1D(AutoBaseModel):
 
     def _vicsek(self):
         u = np.array(np.round(self.v[:, 0] / self.v_0), dtype=np.int)
-        u_new = particle_numerics.vicsek_1d(self.r[:, 0], u,
+        u_new = numerics.vicsek_1d(self.r[:, 0], u,
                                             self.vicsek_R, self.L)
         stats = u_new == 0
         u_new[stats] = 2 * np.random.randint(2, size=stats.sum()) - 1
@@ -320,11 +319,11 @@ class Model2D(AutoBaseModel):
         self.v = self.v_0 * vector.vector_unit_nullnull(self.v)
 
     def _rot_diff(self):
-        self.v = particle_numerics.rot_diff_2d(self.v, self.D_rot, self.dt)
+        self.v = numerics.rot_diff_2d(self.v, self.D_rot, self.dt)
 
     def _vicsek(self):
         inters, intersi = intro.get_inters(self.r, self.L, self.vicsek_R)
-        self.v = particle_numerics.vicsek_inters(self.v, inters, intersi)
+        self.v = numerics.vicsek_inters(self.v, inters, intersi)
 
     def iterate(self):
         """Evolve the model's state by a single time-step.
