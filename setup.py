@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import setuptools
-from setuptools import setup, Extension
+from setuptools import setup
+from distutils.extension import Extension
 from Cython.Build import cythonize
 import numpy
 
