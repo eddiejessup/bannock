@@ -40,6 +40,15 @@ extensions = cythonize([
               include_dirs=[numpy.get_include()]),
 ])
 
+console_scripts = [
+    'bplot_chi_fs = bannock.utils.scripts:plot_chi_fs',
+    'bplot_chi_ks = bannock.utils.scripts:plot_chi_ks',
+    'bplot_t_fracs = bannock.utils.scripts:plot_t_fracs',
+    'bplot_t_ks = bannock.utils.scripts:plot_t_ks',
+    'bplot_t_pmeans = bannock.utils.scripts:plot_t_pmeans',
+    'bplot_vis = bannock.utils.scripts:plot_vis',
+]
+
 setup(
     name='bannock',
     version='0.2.1',
@@ -69,4 +78,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     ext_modules=extensions,
+    entry_points={
+        'console_scripts': console_scripts,
+    }
 )
