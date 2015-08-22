@@ -44,7 +44,7 @@ def get_k(m):
     """
     labels = cluster.cluster_periodic(m.r, _get_r_cluster(m.dim), m.L)
     clust_sizes = cluster.cluster_sizes(labels)
-    return cluster.get_clumpiness(clust_sizes)
+    return cluster.clumpiness(clust_sizes)
 
 
 def get_fracs(m):
