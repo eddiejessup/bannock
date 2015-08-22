@@ -1,9 +1,8 @@
 from __future__ import print_function, division
 import numpy as np
 from clustrous import cluster
-from agaro.output_utils import (get_recent_filename, get_filenames,
-                                filename_to_model)
-from agaro.measure_utils import get_average_measure, group_by_key
+from agaro.measure_utils import (get_average_measure, group_by_key, t_measures,
+                                 params, measures)
 
 
 r_cluster_1d = 5.0
@@ -29,6 +28,20 @@ def _get_r_cluster(dim):
         return r_cluster_2d
 
 
+# Parameter getters
+
+
+def get_chi(m):
+    return m.chi
+
+
+def get_time(m):
+    return m.t
+
+
+# Measure getters
+
+
 def get_k(m):
     """Calculate the particle clumpiness for a model.
 
@@ -44,7 +57,7 @@ def get_k(m):
     """
     labels = cluster.cluster_periodic(m.r, _get_r_cluster(m.dim), m.L)
     clust_sizes = cluster.cluster_sizes(labels)
-    return cluster.clumpiness(clust_sizes)
+    return cluster.clumpiness(clust_sizes), 0.0
 
 
 def get_fracs(m):
@@ -66,10 +79,12 @@ def get_fracs(m):
         Confinedness for each trap.
     """
     fracs_0 = m.walls.get_trap_areas() / m.walls.get_free_area()
-    return (m.walls.get_fracs(m.r) - fracs_0) / (1.0 - fracs_0)
+    confinednesses = (m.walls.get_fracs(m.r) - fracs_0) / (1.0 - fracs_0)
+    confinedness_errs = np.zeros_like(confinednesses)
+    return confinednesses, confinedness_errs
 
 
-
+# Measures over time
 
 
 def t_ks(dirname):
@@ -88,12 +103,8 @@ def t_ks(dirname):
     ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-    ts, ks = [], []
-    for fname in get_filenames(dirname):
-        m = filename_to_model(fname)
-        ts.append(m.t)
-        ks.append(get_k(m))
-    return np.array(ts), np.array(ks)
+    ts, ks, _ = t_measures(dirname, get_time, get_k)
+    return ts, ks
 
 
 def t_fracs(dirname):
@@ -112,40 +123,11 @@ def t_fracs(dirname):
     fs: numpy.ndarray[dtype=float, shape=(ts.shape[0], num_traps)]
         Trap confinednesses, where `num_traps` is the number of traps.
     """
-    ts, fracs = [], []
-    for fname in get_filenames(dirname):
-        m = filename_to_model(fname)
-        ts.append(m.t)
-        fracs.append(get_fracs(m))
-    return np.array(ts), np.array(fracs)
+    ts, fracs, _ = t_measures(dirname, get_time, get_fracs)
+    return ts, fracs
 
 
-def _chi_measures(dirnames, measure_func, t_steady=None):
-    """Calculate a measure of a set of
-    model output directories, and their associated chis.
-
-    Parameters
-    ----------
-    dirnames: list[str]
-        Model output directory paths.
-    t_steady: None or float
-        Time to consider the model to be at steady-state.
-        The measure will be averaged over all later times.
-        `None` means just consider the latest time.
-
-    Returns
-    -------
-    chis: numpy.ndarray[dtype=float]
-        Chemotactic sensitivities
-    measures: numpy.ndarray[dtype=float]
-        Measures.
-    """
-    chis, measures = [], []
-    for dirname in dirnames:
-        m_recent = filename_to_model(get_recent_filename(dirname))
-        chis.append(m_recent.chi)
-        measures.append(get_average_measure(dirname, measure_func, t_steady))
-    return np.array(chis), np.array(measures)
+# Parameter-measure relations
 
 
 def chi_ks(dirnames, t_steady=None):
@@ -168,7 +150,9 @@ def chi_ks(dirnames, t_steady=None):
     ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-    return _chi_measures(dirnames, get_k, t_steady)
+    chis = params(dirnames, get_chi)
+    ks, _ = measures(dirnames, get_k, t_steady)
+    return chis, ks
 
 
 def chi_fs(dirnames, t_steady=None):
@@ -191,7 +175,9 @@ def chi_fs(dirnames, t_steady=None):
     fs: numpy.ndarray[dtype=float]
         Particle confinednesses.
     """
-    return _chi_measures(dirnames, get_fracs, t_steady)
+    chis = params(dirnames, get_chi)
+    fracs, _ = measures(dirnames, get_fracs, t_steady)
+    return chis, fracs
 
 
 def chi_ks_run_average(dirnames, t_steady=None):
