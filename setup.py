@@ -51,7 +51,7 @@ console_scripts = [
 
 setup(
     name='bannock',
-    version='0.4.1',
+    version='0.4.2',
     description="Agent-based simulations in confined environments",
     long_description=readme + '\n\n' + history,
     author="Elliot Marsden",
