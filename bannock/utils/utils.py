@@ -69,26 +69,7 @@ def get_fracs(m):
     return (m.walls.get_fracs(m.r) - fracs_0) / (1.0 - fracs_0)
 
 
-def get_pstats(m):
-    """Calculate the tumble rate statistics for a model.
 
-    Parameters
-    ----------
-    m: Model
-        Model instance.
-
-    Returns
-    -------
-    p_mean: float
-        Mean tumble rate, using a floor of zero, so that 0, -1 and -100
-        all count as 0 when calculating the mean. This is done even if
-        the model does not do this.
-    p_mean: float
-        Minimum tumble rate. A floor of zero is *not* used.
-    p_max:float
-        Maximum tumble rate.
-    """
-    return np.maximum(m.p, 0.0).mean(), m.p.min(), m.p.max()
 
 
 def t_ks(dirname):
@@ -137,38 +118,6 @@ def t_fracs(dirname):
         ts.append(m.t)
         fracs.append(get_fracs(m))
     return np.array(ts), np.array(fracs)
-
-
-def t_pmeans(dirname):
-    """Calculate tumble rates statistics over time for a model output directory.
-
-    Parameters
-    ----------
-    dirname: str
-        A model output directory path
-
-    Returns
-    -------
-    ts: numpy.ndarray[dtype=float]
-        Times.
-    p_means: numpy.ndarray[dtype=float]
-        Mean tumble rates, using a floor of zero, so that 0, -1 and -100 all
-        count as 0 when calculating the mean. This is done even if the model
-        does not do this.
-    p_mins: numpy.ndarray[dtype=float]
-        Minimum tumble rates. A floor of zero is *not* used.
-    p_maxs: numpy.ndarray[dtype=float]
-        Maximum tumble rates.
-    """
-    ts, p_means, p_mins, p_maxs = [], [], [], []
-    for fname in get_filenames(dirname):
-        m = filename_to_model(fname)
-        ts.append(m.t)
-        p_mean, p_min, p_max = get_pstats(m)
-        p_means.append(p_mean)
-        p_mins.append(p_min)
-        p_maxs.append(p_max)
-    return np.array(ts), np.array(p_means), np.array(p_mins), np.array(p_maxs)
 
 
 def _chi_measures(dirnames, measure_func, t_steady=None):

@@ -124,13 +124,6 @@ def plot_t_fracs(dirname, ax):
         ax.plot(ts, frac_set)
 
 
-def plot_t_pmeans(dirname, ax):
-    ts, p_means, p_mins, p_maxs = utils.get_pmeans(dirname)
-    ax.plot(ts, p_means)
-    ax.plot(ts, p_mins)
-    ax.plot(ts, p_maxs)
-
-
 def plot_chi_ks(dirnames, ax):
     chis, ks = utils.chi_ks(dirnames)
     i_sort = np.argsort(chis)

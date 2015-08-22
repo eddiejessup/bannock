@@ -28,11 +28,5 @@ def plot_t_ks():
     plt.show()
 
 
-def plot_t_pmeans():
-    ax = plt.gca()
-    plot.plot_t_pmeans(sys.argv[1], ax)
-    plt.show()
-
-
 def plot_vis():
     plot.plot_vis(sys.argv[1])
