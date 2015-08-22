@@ -75,7 +75,7 @@ class AutoBaseModel(object):
 
     @property
     def dx(self):
-        return self.c.D
+        return self.c.dx
 
 
 class Model1D(AutoBaseModel):
