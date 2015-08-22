@@ -46,7 +46,6 @@ console_scripts = [
     'bplot_chi_ks = bannock.utils.scripts:plot_chi_ks',
     'bplot_t_fracs = bannock.utils.scripts:plot_t_fracs',
     'bplot_t_ks = bannock.utils.scripts:plot_t_ks',
-    'bplot_t_pmeans = bannock.utils.scripts:plot_t_pmeans',
     'bplot_vis = bannock.utils.scripts:plot_vis',
 ]
 
