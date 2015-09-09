@@ -113,7 +113,7 @@ def plot_vis(dirname):
 
 
 def plot_t_ks(dirname, ax):
-    ts, ks = utils.t_ks(dirname)
+    ts, ks, ks_err = utils.t_ks(dirname)
     ax.plot(ts, ks)
 
 
@@ -124,7 +124,7 @@ def plot_t_fracs(dirname, ax):
 
 
 def plot_chi_ks(dirnames, ax):
-    chis, ks = utils.chi_ks(dirnames)
+    chis, ks, _ = utils.chi_ks(dirnames)
     i_sort = np.argsort(chis)
     chis, ks = chis[i_sort], ks[i_sort]
     ax.plot(chis, ks)

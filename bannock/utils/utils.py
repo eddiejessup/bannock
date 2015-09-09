@@ -42,6 +42,24 @@ def get_time(m):
 # Measure getters
 
 
+def k_err(clust_sizes):
+    c = clust_sizes
+    c_err = np.sqrt(clust_sizes)
+    n = float(clust_sizes.sum())
+    n_err = 0.0
+    n_part = n * (n - 1.0)
+    n_part_err = n_err * (2.0 * n - 1.0)
+    c_part_i = c * (c - 1.0)
+    c_part_i_err = c_err * (2.0 * c - 1.0)
+    # c_part_i_err = c_part_i_err[c_part_i_err < c_part_i_err.max()]
+    c_part = np.sum(c_part_i)
+    c_part_err = np.sqrt(np.sum(np.square(c_part_i_err)))
+    k = c_part / n_part
+    k_err = k * np.sqrt((n_part_err / n_part) ** 2 +
+                        (c_part_err / c_part) ** 2)
+    return k_err
+
+
 def get_k(m):
     """Calculate the particle clumpiness for a model.
 
@@ -57,7 +75,7 @@ def get_k(m):
     """
     labels = cluster.cluster_periodic(m.r, _get_r_cluster(m.dim), m.L)
     clust_sizes = cluster.cluster_sizes(labels)
-    return cluster.clumpiness(clust_sizes), 0.0
+    return cluster.clumpiness(clust_sizes), k_err(clust_sizes)
 
 
 def get_fracs(m):
@@ -103,8 +121,8 @@ def t_ks(dirname):
     ks: numpy.ndarray[dtype=float]
         Particle clumpinesses.
     """
-    ts, ks, _ = t_measures(dirname, get_time, get_k)
-    return ts, ks
+    ts, ks, ks_err = t_measures(dirname, get_time, get_k)
+    return ts, ks, ks_err
 
 
 def t_fracs(dirname):
@@ -151,8 +169,8 @@ def chi_ks(dirnames, t_steady=None):
         Particle clumpinesses.
     """
     chis = params(dirnames, get_chi)
-    ks, _ = measures(dirnames, get_k, t_steady)
-    return chis, ks
+    ks, ks_err = measures(dirnames, get_k, t_steady)
+    return chis, ks, ks_err
 
 
 def chi_fs(dirnames, t_steady=None):
