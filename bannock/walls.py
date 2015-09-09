@@ -233,33 +233,6 @@ class Traps(Walls):
         """
         return self.get_trap_areas_i() * self.dA
 
-    def get_fracs(self, r):
-        """Calculate the fraction of particles inside each trap.
-
-        Parameters
-        ----------
-        r: array_like[shape=(n, 2)]
-            Particle position vectors.
-
-        Returns
-        -------
-        fracs: list[int]
-            Fraction of the total population that is inside each trap.
-        """
-        inds = self.r_to_i(r)
-        n_traps = [0 for i in range(len(self.traps_i))]
-        w_i_half = self.w_i // 2
-        for i_trap in range(len(self.traps_i)):
-            mid_x, mid_y = self.traps_i[i_trap]
-
-            low_x, high_x = mid_x - w_i_half, mid_x + w_i_half
-            low_y, high_y = mid_y - w_i_half, mid_y + w_i_half
-            for i_x, i_y in inds:
-                if low_x <= i_x <= high_x and low_y <= i_y <= high_y:
-                    n_traps[i_trap] += 1
-        return np.array([float(n_trap) / float(r.shape[0])
-                         for n_trap in n_traps])
-
     def __repr__(self):
         fs = [('L', self.L), ('dx', self.dx),
               ('n', self.n), ('d', self.d), ('w', self.w), ('s', self.s)]

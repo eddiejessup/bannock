@@ -117,10 +117,10 @@ def plot_t_ks(dirname, ax):
     ax.plot(ts, ks)
 
 
-def plot_t_fracs(dirname, ax):
-    ts, fracs = utils.t_fracs(dirname)
-    for frac_set in fracs.T:
-        ax.plot(ts, frac_set)
+def plot_t_confs(dirname, ax):
+    ts, confs, confs_err = utils.t_confs(dirname)
+    for conf_set in confs.T:
+        ax.plot(ts, conf_set)
 
 
 def plot_chi_ks(dirnames, ax):

@@ -16,9 +16,9 @@ def plot_chi_ks():
     plt.show()
 
 
-def plot_t_fracs():
+def plot_t_confs():
     ax = plt.gca()
-    plot.plot_t_fracs(sys.argv[1], ax)
+    plot.plot_t_confs(sys.argv[1], ax)
     plt.show()
 
 

@@ -79,6 +79,37 @@ def get_k(m):
 
 
 def get_fracs(m):
+    """Calculate the fraction of particles inside each trap.
+
+    Parameters
+    ----------
+    r: array_like[shape=(n, 2)]
+        Particle position vectors.
+
+    Returns
+    -------
+    fracs: list[int]
+        Fraction of the total population that is inside each trap.
+    """
+    inds = m.walls.r_to_i(m.r)
+    n_traps = [0 for i in range(len(m.walls.traps_i))]
+    w_i_half = m.walls.w_i // 2
+    for i_trap in range(len(m.walls.traps_i)):
+        mid_x, mid_y = m.walls.traps_i[i_trap]
+
+        low_x, high_x = mid_x - w_i_half, mid_x + w_i_half
+        low_y, high_y = mid_y - w_i_half, mid_y + w_i_half
+        for i_x, i_y in inds:
+            if low_x <= i_x <= high_x and low_y <= i_y <= high_y:
+                n_traps[i_trap] += 1
+    n_traps = np.array(n_traps)
+    n_traps_err = np.sqrt(n_traps)
+    fracs = n_traps / m.n
+    fracs_err = n_traps_err / m.n
+    return fracs, fracs_err
+
+
+def get_conf(m):
     """Calculate an order parameter, f, the 'confinedness',
     representing the fraction of particles in each trap for a model.
 
@@ -96,10 +127,12 @@ def get_fracs(m):
     fs: list[float]
         Confinedness for each trap.
     """
-    fracs_0 = m.walls.get_trap_areas() / m.walls.get_free_area()
-    confinednesses = (m.walls.get_fracs(m.r) - fracs_0) / (1.0 - fracs_0)
-    confinedness_errs = np.zeros_like(confinednesses)
-    return confinednesses, confinedness_errs
+    fracs_0 = m.walls.get_trap_areas() / m.walls.free_area
+    fracs, fracs_err = get_fracs(m)
+    confs = (fracs - fracs_0) / (1.0 - fracs_0)
+    print(fracs_0)
+    conf_errs = fracs_err / (1.0 - fracs_0)
+    return confs, conf_errs
 
 
 # Measures over time
@@ -125,7 +158,7 @@ def t_ks(dirname):
     return ts, ks, ks_err
 
 
-def t_fracs(dirname):
+def t_confs(dirname):
     """Calculate the trap confinedness over time
     for a model output directory.
 
@@ -141,8 +174,8 @@ def t_fracs(dirname):
     fs: numpy.ndarray[dtype=float, shape=(ts.shape[0], num_traps)]
         Trap confinednesses, where `num_traps` is the number of traps.
     """
-    ts, fracs, _ = t_measures(dirname, get_time, get_fracs)
-    return ts, fracs
+    ts, confs, confs_err = t_measures(dirname, get_time, get_conf)
+    return ts, confs, confs_err
 
 
 # Parameter-measure relations
@@ -173,7 +206,7 @@ def chi_ks(dirnames, t_steady=None):
     return chis, ks, ks_err
 
 
-def chi_fs(dirnames, t_steady=None):
+def chi_confs(dirnames, t_steady=None):
     """Calculate particle confinedness of a set of
     model output directories, and their associated chis.
 
@@ -194,8 +227,8 @@ def chi_fs(dirnames, t_steady=None):
         Particle confinednesses.
     """
     chis = params(dirnames, get_chi)
-    fracs, _ = measures(dirnames, get_fracs, t_steady)
-    return chis, fracs
+    confs, confs_err = measures(dirnames, get_conf, t_steady)
+    return chis, confs, confs_err
 
 
 def chi_ks_run_average(dirnames, t_steady=None):
